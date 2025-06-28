@@ -13,13 +13,8 @@ export function PermissionReportPage({
   report,
   formattedReport,
 }: PermissionReportPageProps) {
-  const {
-    overallStatus,
-    requiredPassed,
-    requiredFailed,
-    optionalPassed,
-    optionalFailed,
-  } = report;
+  const { requiredPassed, requiredFailed, optionalPassed, optionalFailed } =
+    report;
 
   // Group results by category
   const categorizedResults = report.results.reduce(

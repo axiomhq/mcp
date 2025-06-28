@@ -8,7 +8,8 @@
       "!.commitlintrc.ts",
       "!**/globalTeardown.ts",
       "!scripts/**",
-      "!packages/apex-client/**"
+      "!packages/apex-client/**",
+      "!worker-configuration.d.ts"
     ]
   },
   "json": {

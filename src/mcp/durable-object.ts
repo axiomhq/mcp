@@ -73,9 +73,13 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
           }
         );
 
+        if (!response.image) {
+          throw new Error('Failed to generate image');
+        }
+
         return {
           content: [
-            { data: response.image!, mimeType: 'image/jpeg', type: 'image' },
+            { data: response.image, mimeType: 'image/jpeg', type: 'image' },
           ],
         };
       }

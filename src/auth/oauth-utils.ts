@@ -15,7 +15,7 @@ const ONE_YEAR_IN_SECONDS = 31_536_000;
  * @param data - The data to encode (will be stringified).
  * @returns A URL-safe base64 encoded string.
  */
-function _encodeState(data: any): string {
+function _encodeState(data: unknown): string {
   try {
     const jsonString = JSON.stringify(data);
     // Use btoa for simplicity, assuming Worker environment supports it well enough
@@ -31,7 +31,7 @@ function _encodeState(data: any): string {
  * @param encoded - The URL-safe base64 encoded string.
  * @returns The original data.
  */
-function decodeState<T = any>(encoded: string): T {
+function decodeState<T = unknown>(encoded: string): T {
   try {
     const jsonString = atob(encoded);
     return JSON.parse(jsonString);
@@ -95,8 +95,12 @@ async function verifySignature(
   const enc = new TextEncoder();
   try {
     // Convert hex signature back to ArrayBuffer
+    const matches = signatureHex.match(/.{1,2}/g);
+    if (!matches) {
+      return false;
+    }
     const signatureBytes = new Uint8Array(
-      signatureHex.match(/.{1,2}/g)?.map((byte) => Number.parseInt(byte, 16))
+      matches.map((byte) => Number.parseInt(byte, 16))
     );
     return await crypto.subtle.verify(
       'HMAC',
@@ -210,7 +214,7 @@ export interface ApprovalDialogOptions {
    * Arbitrary state data to pass through the approval flow
    * Will be encoded in the form and returned when approval is complete
    */
-  state: Record<string, any>;
+  state: Record<string, unknown>;
   /**
    * Name of the cookie to use for storing approvals
    * @default "mcp_approved_clients"
@@ -248,6 +252,7 @@ export interface ApprovalDialogOptions {
  * @param options - Configuration for the approval dialog
  * @returns A Response containing the HTML approval dialog
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: HTML generation requires complex template logic
 export function renderApprovalDialog(
   request: Request,
   options: ApprovalDialogOptions
@@ -587,7 +592,7 @@ export function renderApprovalDialog(
  */
 export interface ParsedApprovalResult {
   /** The original state object passed through the form. */
-  state: any;
+  state: unknown;
   /** Headers to set on the redirect response, including the Set-Cookie header. */
   headers: Record<string, string>;
 }
@@ -609,7 +614,7 @@ export async function parseRedirectApproval(
     throw new Error('Invalid request method. Expected POST.');
   }
 
-  let state: any;
+  let state: { oauthReqInfo?: AuthRequest };
   let clientId: string | undefined;
 
   try {

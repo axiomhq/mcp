@@ -1,8 +1,8 @@
+import type { PropsWithChildren } from 'hono/jsx';
 import { globalStyles } from '../../lib/styles';
 
-interface BaseLayoutProps {
+interface BaseLayoutProps extends PropsWithChildren {
   title: string;
-  children: any;
   description?: string;
 }
 
@@ -24,6 +24,7 @@ export function BaseLayout({ title, children, description }: BaseLayoutProps) {
           href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
         />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Inline styles required for Cloudflare Workers */}
         <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
       </head>
       <body>{children}</body>

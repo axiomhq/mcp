@@ -21,7 +21,7 @@ interface TokenCaptureDialogProps {
     logo?: string;
     description?: string;
   };
-  state: Record<string, any>;
+  state: Record<string, unknown>;
   actionPath: string;
 }
 
@@ -42,6 +42,7 @@ export function TokenCaptureDialog({
           <div class="mb-8 text-center">
             <div class="mb-4 flex items-center justify-center gap-3">
               {server.logo && (
+                // biome-ignore lint/performance/noImgElement: Not using Next.js, standard img element is appropriate
                 <img
                   alt={`${server.name} Logo`}
                   class="h-12 w-12 rounded-lg object-contain"
@@ -177,6 +178,7 @@ export function TokenCaptureDialog({
       </div>
 
       <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: Client-side validation script needed for OAuth flow
         dangerouslySetInnerHTML={{
           __html: `
         const form = document.getElementById('tokenForm');

@@ -17,7 +17,7 @@ interface ApprovalDialogProps {
     logo?: string;
     description?: string;
   };
-  state: Record<string, any>;
+  state: Record<string, unknown>;
   actionPath: string;
 }
 
@@ -38,6 +38,7 @@ export function ApprovalDialog({
           <div class="mb-8 text-center">
             <div class="mb-4 flex items-center justify-center gap-3">
               {server.logo && (
+                // biome-ignore lint/performance/noImgElement: Not using Next.js, standard img element is appropriate
                 <img
                   alt={`${server.name} Logo`}
                   class="h-12 w-12 rounded-lg object-contain"

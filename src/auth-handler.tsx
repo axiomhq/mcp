@@ -73,7 +73,7 @@ app.post('/validate-token', async (c) => {
     );
 
     // Also fetch user info if we have basic permissions
-    let userInfo = null;
+    let userInfo: { id?: string; email?: string; login?: string } | null = null;
     if (permissionReport.overallStatus === 'pass') {
       const res = await fetch(`${c.env.ATLAS_API_URL}/internal/user`, {
         headers: {
@@ -81,7 +81,11 @@ app.post('/validate-token', async (c) => {
         },
       });
       if (res.ok) {
-        userInfo = await res.json();
+        userInfo = (await res.json()) as {
+          id?: string;
+          email?: string;
+          login?: string;
+        };
       }
     }
 
@@ -149,7 +153,7 @@ app.post('/authorize', async (c) => {
   }
 
   // Decode the state
-  let state;
+  let state: { oauthReqInfo?: AuthRequest };
   try {
     state = JSON.parse(atob(encodedState));
   } catch (_error) {
@@ -203,10 +207,15 @@ app.post('/authorize', async (c) => {
 });
 
 async function handleTokenCallback(
-  c: any,
+  c: { env: Env & { OAUTH_PROVIDER: OAuthHelpers } },
   oauthReqInfo: AuthRequest,
   apiToken: string,
-  userInfo: any,
+  userInfo: {
+    permissions?: string[];
+    email?: string;
+    login?: string;
+    id?: string;
+  },
   headers: Record<string, string> = {}
 ) {
   // Store the API token in KV for later retrieval
@@ -223,7 +232,6 @@ async function handleTokenCallback(
     }
   );
 
-  let redirectTo: string;
   const result = await c.env.OAUTH_PROVIDER.completeAuthorization({
     metadata: {
       label: userInfo.email || userInfo.login || 'Axiom User',
@@ -240,7 +248,7 @@ async function handleTokenCallback(
     scope: oauthReqInfo.scope,
     userId: userInfo.id || userInfo.email || 'unknown',
   });
-  redirectTo = result.redirectTo;
+  const redirectTo = result.redirectTo;
 
   return new Response(null, {
     headers: {
