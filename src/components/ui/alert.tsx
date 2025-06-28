@@ -1,37 +1,42 @@
-import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "../../lib/utils"
-import type { JSX } from "hono/jsx"
+import { cva, type VariantProps } from 'class-variance-authority';
+import type { JSX } from 'hono/jsx';
+import { cn } from '../../lib/utils';
 
 const alertVariants = cva(
-  "relative w-full rounded-lg border px-4 py-3 text-sm [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7",
+  'relative w-full rounded-lg border px-4 py-3 text-sm [&>svg]:absolute [&>svg]:top-4 [&>svg]:left-4 [&>svg]:text-foreground [&>svg~*]:pl-7',
   {
     variants: {
       variant: {
-        default: "bg-background text-foreground",
+        default: 'bg-background text-foreground',
         destructive:
-          "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
+          'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive',
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: 'default',
     },
   }
-)
+);
 
 export interface AlertProps
   extends JSX.HTMLAttributes,
     VariantProps<typeof alertVariants> {}
 
-export function Alert({ class: className, variant, children, ...props }: AlertProps) {
+export function Alert({
+  class: className,
+  variant,
+  children,
+  ...props
+}: AlertProps) {
   return (
     <div
-      role="alert"
       class={cn(alertVariants({ variant }), className)}
+      role="alert"
       {...props}
     >
       {children}
     </div>
-  )
+  );
 }
 
 export function AlertTitle({
@@ -41,12 +46,12 @@ export function AlertTitle({
 }: JSX.HTMLAttributes) {
   return (
     <h5
-      class={cn("mb-1 font-medium leading-none tracking-tight", className)}
+      class={cn('mb-1 font-medium leading-none tracking-tight', className)}
       {...props}
     >
       {children}
     </h5>
-  )
+  );
 }
 
 export function AlertDescription({
@@ -55,11 +60,8 @@ export function AlertDescription({
   ...props
 }: JSX.HTMLAttributes) {
   return (
-    <div
-      class={cn("text-sm [&_p]:leading-relaxed", className)}
-      {...props}
-    >
+    <div class={cn('text-sm [&_p]:leading-relaxed', className)} {...props}>
       {children}
     </div>
-  )
+  );
 }

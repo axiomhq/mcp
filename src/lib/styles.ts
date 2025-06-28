@@ -449,4 +449,4 @@ export const globalStyles = `
   ::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--muted-foreground) / 0.5);
   }
-`
+`;

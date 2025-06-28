@@ -1,0 +1,62 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "extends": ["ultracite"],
+  "files": {
+    "includes": [
+      "**",
+      "!**/*.css",
+      "!.commitlintrc.ts",
+      "!**/globalTeardown.ts",
+      "!scripts/**",
+      "!packages/apex-client/**"
+    ]
+  },
+  "json": {
+    "parser": {
+      "allowComments": true
+    }
+  },
+  "linter": {
+    "rules": {
+      "performance": {
+        "noNamespaceImport": "off"
+      },
+      "suspicious": {
+        "useAwait": "off",
+        "noArrayIndexKey": "off"
+      },
+      "complexity": {
+        "noForEach": "off"
+      },
+      "nursery": {
+        "noAwaitInLoop": "off",
+        "useIterableCallbackReturn": "off",
+        "noBitwiseOperators": "off"
+      },
+      "style": {
+        "noParameterProperties": "off",
+        "noHeadElement": "off",
+        "noNestedTernary": "off"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.spec.*"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off",
+            "noEvolvingTypes": "off"
+          },
+          "performance": {
+            "useTopLevelRegex": "off"
+          },
+          "complexity": {
+            "noForEach": "off"
+          }
+        }
+      }
+    }
+  ]
+}

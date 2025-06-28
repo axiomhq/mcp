@@ -6,6 +6,7 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "start": "wrangler dev",
+    "lint": "ultracite format",
     "gen:types": "wrangler types",
     "type-check": "tsc --noEmit"
   },
@@ -27,9 +28,11 @@
     "zod": "^3.25.67"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.0.6",
     "@types/node": "^24.0.7",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
+    "ultracite": "5.0.26",
     "wrangler": "^4.22.0"
   }
 }

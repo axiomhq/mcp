@@ -1,43 +1,54 @@
-import type { JSX } from "hono/jsx"
-import { BaseLayout } from "../layouts/base-layout"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert"
-import { Spinner } from "../ui/spinner"
-import type { ClientInfo } from "@cloudflare/workers-oauth-provider"
+import type { ClientInfo } from '@cloudflare/workers-oauth-provider';
+import { BaseLayout } from '../layouts/base-layout';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Button } from '../ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Spinner } from '../ui/spinner';
 
 interface TokenCaptureDialogProps {
-  client: ClientInfo | null
+  client: ClientInfo | null;
   server: {
-    name: string
-    logo?: string
-    description?: string
-  }
-  state: Record<string, any>
-  actionPath: string
+    name: string;
+    logo?: string;
+    description?: string;
+  };
+  state: Record<string, any>;
+  actionPath: string;
 }
 
-export function TokenCaptureDialog({ client, server, state, actionPath }: TokenCaptureDialogProps) {
-  const encodedState = btoa(JSON.stringify(state))
-  const clientName = client?.clientName || "Unknown MCP Client"
+export function TokenCaptureDialog({
+  client,
+  server,
+  state,
+  actionPath,
+}: TokenCaptureDialogProps) {
+  const encodedState = btoa(JSON.stringify(state));
+  const clientName = client?.clientName || 'Unknown MCP Client';
 
   return (
     <BaseLayout title={`${clientName} | Authorization Request`}>
-      <div class="min-h-screen bg-background flex items-center justify-center p-4">
+      <div class="flex min-h-screen items-center justify-center bg-background p-4">
         <div class="w-full max-w-lg">
           {/* Server Header */}
-          <div class="text-center mb-8">
-            <div class="flex items-center justify-center gap-3 mb-4">
+          <div class="mb-8 text-center">
+            <div class="mb-4 flex items-center justify-center gap-3">
               {server.logo && (
-                <img 
-                  src={server.logo} 
-                  alt={`${server.name} Logo`} 
-                  class="w-12 h-12 rounded-lg object-contain"
+                <img
+                  alt={`${server.name} Logo`}
+                  class="h-12 w-12 rounded-lg object-contain"
+                  src={server.logo}
                 />
               )}
-              <h1 class="text-2xl font-bold">{server.name}</h1>
+              <h1 class="font-bold text-2xl">{server.name}</h1>
             </div>
             {server.description && (
               <p class="text-muted-foreground">{server.description}</p>
@@ -51,7 +62,8 @@ export function TokenCaptureDialog({ client, server, state, actionPath }: TokenC
                 <strong>{clientName}</strong> is requesting access
               </CardTitle>
               <CardDescription>
-                To authorize this MCP Client, please enter your Axiom API token below. This token will be used to authenticate your requests.
+                To authorize this MCP Client, please enter your Axiom API token
+                below. This token will be used to authenticate your requests.
               </CardDescription>
             </CardHeader>
 
@@ -61,11 +73,22 @@ export function TokenCaptureDialog({ client, server, state, actionPath }: TokenC
                 <AlertTitle>Required Permissions</AlertTitle>
                 <AlertDescription class="mt-2 space-y-3">
                   <p>Your API token must have the following permissions:</p>
-                  <ul class="space-y-1 ml-4">
-                    <li>• <strong>User Profile</strong> - Access to basic user information</li>
-                    <li>• <strong>Organizations</strong> - List organizations you belong to</li>
-                    <li>• <strong>Datasets</strong> - View available datasets</li>
-                    <li>• <strong>APL Queries</strong> - Execute queries on datasets</li>
+                  <ul class="ml-4 space-y-1">
+                    <li>
+                      • <strong>User Profile</strong> - Access to basic user
+                      information
+                    </li>
+                    <li>
+                      • <strong>Organizations</strong> - List organizations you
+                      belong to
+                    </li>
+                    <li>
+                      • <strong>Datasets</strong> - View available datasets
+                    </li>
+                    <li>
+                      • <strong>APL Queries</strong> - Execute queries on
+                      datasets
+                    </li>
                   </ul>
                 </AlertDescription>
               </Alert>
@@ -74,66 +97,77 @@ export function TokenCaptureDialog({ client, server, state, actionPath }: TokenC
                 <AlertTitle>Optional Permissions</AlertTitle>
                 <AlertDescription class="mt-2 space-y-3">
                   <p>These permissions enable additional features:</p>
-                  <ul class="space-y-1 ml-4">
-                    <li>• <strong>Annotations</strong> - Create and manage annotations</li>
-                    <li>• <strong>Dashboards</strong> - Create and manage dashboards</li>
-                    <li>• <strong>Monitors</strong> - Set up alerts and monitors</li>
-                    <li>• <strong>Virtual Fields</strong> - Create derived fields</li>
-                    <li>• <strong>Flows</strong> - Manage data processing pipelines</li>
+                  <ul class="ml-4 space-y-1">
+                    <li>
+                      • <strong>Annotations</strong> - Create and manage
+                      annotations
+                    </li>
+                    <li>
+                      • <strong>Dashboards</strong> - Create and manage
+                      dashboards
+                    </li>
+                    <li>
+                      • <strong>Monitors</strong> - Set up alerts and monitors
+                    </li>
+                    <li>
+                      • <strong>Virtual Fields</strong> - Create derived fields
+                    </li>
+                    <li>
+                      • <strong>Flows</strong> - Manage data processing
+                      pipelines
+                    </li>
                   </ul>
-                  <p class="text-sm mt-2">
-                    <strong>Note:</strong> The authorization will check your token's permissions and provide a detailed report.
+                  <p class="mt-2 text-sm">
+                    <strong>Note:</strong> The authorization will check your
+                    token's permissions and provide a detailed report.
                   </p>
                 </AlertDescription>
               </Alert>
 
               {/* Token Input Form */}
-              <form method="post" action={actionPath} id="tokenForm">
-                <input type="hidden" name="state" value={encodedState} />
-                
+              <form action={actionPath} id="tokenForm" method="post">
+                <input name="state" type="hidden" value={encodedState} />
+
                 <div class="space-y-2">
                   <Label htmlFor="apiToken">Axiom API Token</Label>
                   <Input
-                    type="password"
+                    class="font-mono"
                     id="apiToken"
                     name="apiToken"
+                    pattern="xaat-.*"
                     placeholder="xaat-..."
                     required
-                    pattern="xaat-.*"
-                    class="font-mono"
+                    type="password"
                   />
-                  <p class="text-sm text-muted-foreground">
-                    Enter your Axiom API token. You can create one in your{" "}
-                    <a 
-                      href="https://app.axiom.co/settings/api-tokens" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
+                  <p class="text-muted-foreground text-sm">
+                    Enter your Axiom API token. You can create one in your{' '}
+                    <a
                       class="text-primary hover:underline"
+                      href="https://app.axiom.co/settings/api-tokens"
+                      rel="noopener noreferrer"
+                      target="_blank"
                     >
                       Axiom settings
-                    </a>.
+                    </a>
+                    .
                   </p>
                 </div>
 
-                <div id="validationMessage" class="mt-2 hidden"></div>
+                <div class="mt-2 hidden" id="validationMessage" />
               </form>
             </CardContent>
 
-            <CardFooter class="flex gap-3 justify-end">
-              <Button 
-                type="button" 
-                variant="outline"
+            <CardFooter class="flex justify-end gap-3">
+              <Button
                 onclick="window.history.back()"
+                type="button"
+                variant="outline"
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
-                form="tokenForm"
-                id="submitButton"
-              >
+              <Button form="tokenForm" id="submitButton" type="submit">
                 <span id="buttonText">Authorize</span>
-                <span id="buttonSpinner" class="ml-2 hidden">
+                <span class="ml-2 hidden" id="buttonSpinner">
                   <Spinner size="sm" />
                 </span>
               </Button>
@@ -142,7 +176,9 @@ export function TokenCaptureDialog({ client, server, state, actionPath }: TokenC
         </div>
       </div>
 
-      <script dangerouslySetInnerHTML={{ __html: `
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
         const form = document.getElementById('tokenForm');
         const tokenInput = document.getElementById('apiToken');
         const submitButton = document.getElementById('submitButton');
@@ -227,7 +263,9 @@ export function TokenCaptureDialog({ client, server, state, actionPath }: TokenC
             buttonSpinner.classList.add('hidden');
           }
         });
-      ` }} />
+      `,
+        }}
+      />
     </BaseLayout>
-  )
+  );
 }

@@ -1,39 +1,50 @@
-import type { JSX } from "hono/jsx"
-import { BaseLayout } from "../layouts/base-layout"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
-import { Button } from "../ui/button"
-import type { ClientInfo } from "@cloudflare/workers-oauth-provider"
+import type { ClientInfo } from '@cloudflare/workers-oauth-provider';
+import { BaseLayout } from '../layouts/base-layout';
+import { Button } from '../ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../ui/card';
 
 interface ApprovalDialogProps {
-  client: ClientInfo | null
+  client: ClientInfo | null;
   server: {
-    name: string
-    logo?: string
-    description?: string
-  }
-  state: Record<string, any>
-  actionPath: string
+    name: string;
+    logo?: string;
+    description?: string;
+  };
+  state: Record<string, any>;
+  actionPath: string;
 }
 
-export function ApprovalDialog({ client, server, state, actionPath }: ApprovalDialogProps) {
-  const encodedState = btoa(JSON.stringify(state))
-  const clientName = client?.clientName || "Unknown MCP Client"
+export function ApprovalDialog({
+  client,
+  server,
+  state,
+  actionPath,
+}: ApprovalDialogProps) {
+  const encodedState = btoa(JSON.stringify(state));
+  const clientName = client?.clientName || 'Unknown MCP Client';
 
   return (
     <BaseLayout title={`${clientName} | Authorization Request`}>
-      <div class="min-h-screen bg-background flex items-center justify-center p-4">
+      <div class="flex min-h-screen items-center justify-center bg-background p-4">
         <div class="w-full max-w-lg">
           {/* Server Header */}
-          <div class="text-center mb-8">
-            <div class="flex items-center justify-center gap-3 mb-4">
+          <div class="mb-8 text-center">
+            <div class="mb-4 flex items-center justify-center gap-3">
               {server.logo && (
-                <img 
-                  src={server.logo} 
-                  alt={`${server.name} Logo`} 
-                  class="w-12 h-12 rounded-lg object-contain"
+                <img
+                  alt={`${server.name} Logo`}
+                  class="h-12 w-12 rounded-lg object-contain"
+                  src={server.logo}
                 />
               )}
-              <h1 class="text-2xl font-bold">{server.name}</h1>
+              <h1 class="font-bold text-2xl">{server.name}</h1>
             </div>
             {server.description && (
               <p class="text-muted-foreground">{server.description}</p>
@@ -44,27 +55,28 @@ export function ApprovalDialog({ client, server, state, actionPath }: ApprovalDi
           <Card>
             <CardHeader class="text-center">
               <CardTitle class="text-xl">
-                <strong>{clientName || "A new MCP Client"}</strong> is requesting access
+                <strong>{clientName || 'A new MCP Client'}</strong> is
+                requesting access
               </CardTitle>
             </CardHeader>
 
             <CardContent class="space-y-4">
               {/* Client Info */}
-              <div class="border rounded-lg p-4 space-y-3">
+              <div class="space-y-3 rounded-lg border p-4">
                 <div class="space-y-2">
                   <div class="flex items-baseline gap-2">
-                    <span class="font-medium min-w-[120px]">Name:</span>
+                    <span class="min-w-[120px] font-medium">Name:</span>
                     <span class="font-mono text-sm">{clientName}</span>
                   </div>
 
                   {client?.clientUri && (
                     <div class="flex items-baseline gap-2">
-                      <span class="font-medium min-w-[120px]">Website:</span>
-                      <a 
-                        href={client.clientUri} 
-                        target="_blank" 
+                      <span class="min-w-[120px] font-medium">Website:</span>
+                      <a
+                        class="break-all font-mono text-primary text-sm hover:underline"
+                        href={client.clientUri}
                         rel="noopener noreferrer"
-                        class="font-mono text-sm text-primary hover:underline break-all"
+                        target="_blank"
                       >
                         {client.clientUri}
                       </a>
@@ -73,12 +85,14 @@ export function ApprovalDialog({ client, server, state, actionPath }: ApprovalDi
 
                   {client?.policyUri && (
                     <div class="flex items-baseline gap-2">
-                      <span class="font-medium min-w-[120px]">Privacy Policy:</span>
-                      <a 
-                        href={client.policyUri} 
-                        target="_blank" 
+                      <span class="min-w-[120px] font-medium">
+                        Privacy Policy:
+                      </span>
+                      <a
+                        class="break-all font-mono text-primary text-sm hover:underline"
+                        href={client.policyUri}
                         rel="noopener noreferrer"
-                        class="font-mono text-sm text-primary hover:underline break-all"
+                        target="_blank"
                       >
                         {client.policyUri}
                       </a>
@@ -87,12 +101,14 @@ export function ApprovalDialog({ client, server, state, actionPath }: ApprovalDi
 
                   {client?.tosUri && (
                     <div class="flex items-baseline gap-2">
-                      <span class="font-medium min-w-[120px]">Terms of Service:</span>
-                      <a 
-                        href={client.tosUri} 
-                        target="_blank" 
+                      <span class="min-w-[120px] font-medium">
+                        Terms of Service:
+                      </span>
+                      <a
+                        class="break-all font-mono text-primary text-sm hover:underline"
+                        href={client.tosUri}
                         rel="noopener noreferrer"
-                        class="font-mono text-sm text-primary hover:underline break-all"
+                        target="_blank"
                       >
                         {client.tosUri}
                       </a>
@@ -101,10 +117,14 @@ export function ApprovalDialog({ client, server, state, actionPath }: ApprovalDi
 
                   {client?.redirectUris && client.redirectUris.length > 0 && (
                     <div class="flex items-baseline gap-2">
-                      <span class="font-medium min-w-[120px]">Redirect URIs:</span>
-                      <div class="font-mono text-sm space-y-1">
+                      <span class="min-w-[120px] font-medium">
+                        Redirect URIs:
+                      </span>
+                      <div class="space-y-1 font-mono text-sm">
                         {client.redirectUris.map((uri, idx) => (
-                          <div key={idx} class="break-all">{uri}</div>
+                          <div class="break-all" key={idx}>
+                            {uri}
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -112,9 +132,9 @@ export function ApprovalDialog({ client, server, state, actionPath }: ApprovalDi
 
                   {client?.contacts && client.contacts.length > 0 && (
                     <div class="flex items-baseline gap-2">
-                      <span class="font-medium min-w-[120px]">Contact:</span>
+                      <span class="min-w-[120px] font-medium">Contact:</span>
                       <span class="font-mono text-sm">
-                        {client.contacts.join(", ")}
+                        {client.contacts.join(', ')}
                       </span>
                     </div>
                   )}
@@ -122,26 +142,25 @@ export function ApprovalDialog({ client, server, state, actionPath }: ApprovalDi
               </div>
 
               <CardDescription class="pt-2">
-                This MCP Client is requesting to be authorized on {server.name}. 
-                If you approve, you will be redirected to complete authentication.
+                This MCP Client is requesting to be authorized on {server.name}.
+                If you approve, you will be redirected to complete
+                authentication.
               </CardDescription>
             </CardContent>
 
             <CardFooter>
-              <form method="post" action={actionPath} class="w-full">
-                <input type="hidden" name="state" value={encodedState} />
-                
-                <div class="flex gap-3 justify-end">
-                  <Button 
-                    type="button" 
-                    variant="outline"
+              <form action={actionPath} class="w-full" method="post">
+                <input name="state" type="hidden" value={encodedState} />
+
+                <div class="flex justify-end gap-3">
+                  <Button
                     onclick="window.history.back()"
+                    type="button"
+                    variant="outline"
                   >
                     Cancel
                   </Button>
-                  <Button type="submit">
-                    Approve
-                  </Button>
+                  <Button type="submit">Approve</Button>
                 </div>
               </form>
             </CardFooter>
@@ -149,5 +168,5 @@ export function ApprovalDialog({ client, server, state, actionPath }: ApprovalDi
         </div>
       </div>
     </BaseLayout>
-  )
+  );
 }

@@ -1,5 +1,5 @@
-import { cn } from "../../lib/utils"
-import type { JSX } from "hono/jsx"
+import type { JSX } from 'hono/jsx';
+import { cn } from '../../lib/utils';
 
 export function Card({
   class: className,
@@ -9,14 +9,14 @@ export function Card({
   return (
     <div
       class={cn(
-        "rounded-lg border bg-card text-card-foreground shadow-sm",
+        'rounded-lg border bg-card text-card-foreground shadow-sm',
         className
       )}
       {...props}
     >
       {children}
     </div>
-  )
+  );
 }
 
 export function CardHeader({
@@ -25,13 +25,10 @@ export function CardHeader({
   ...props
 }: JSX.HTMLAttributes) {
   return (
-    <div
-      class={cn("flex flex-col space-y-1.5 p-6", className)}
-      {...props}
-    >
+    <div class={cn('flex flex-col space-y-1.5 p-6', className)} {...props}>
       {children}
     </div>
-  )
+  );
 }
 
 export function CardTitle({
@@ -42,14 +39,14 @@ export function CardTitle({
   return (
     <h3
       class={cn(
-        "text-2xl font-semibold leading-none tracking-tight",
+        'font-semibold text-2xl leading-none tracking-tight',
         className
       )}
       {...props}
     >
       {children}
     </h3>
-  )
+  );
 }
 
 export function CardDescription({
@@ -58,13 +55,10 @@ export function CardDescription({
   ...props
 }: JSX.HTMLAttributes) {
   return (
-    <p
-      class={cn("text-sm text-muted-foreground", className)}
-      {...props}
-    >
+    <p class={cn('text-muted-foreground text-sm', className)} {...props}>
       {children}
     </p>
-  )
+  );
 }
 
 export function CardContent({
@@ -73,10 +67,10 @@ export function CardContent({
   ...props
 }: JSX.HTMLAttributes) {
   return (
-    <div class={cn("p-6 pt-0", className)} {...props}>
+    <div class={cn('p-6 pt-0', className)} {...props}>
       {children}
     </div>
-  )
+  );
 }
 
 export function CardFooter({
@@ -85,11 +79,8 @@ export function CardFooter({
   ...props
 }: JSX.HTMLAttributes) {
   return (
-    <div
-      class={cn("flex items-center p-6 pt-0", className)}
-      {...props}
-    >
+    <div class={cn('flex items-center p-6 pt-0', className)} {...props}>
       {children}
     </div>
-  )
+  );
 }
