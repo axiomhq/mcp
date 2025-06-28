@@ -11,9 +11,11 @@
 		"nodejs_compat"
 	],
 	"vars": {
-		"GITHUB_CLIENT_ID": "1234567890",
-		"GITHUB_CLIENT_SECRET": "1234567890",
-		"COOKIE_ENCRYPTION_KEY": "1234567890"
+		"COOKIE_ENCRYPTION_KEY": "",
+	  "ATLAS_API_URL": "",
+		"AXIOM_OAUTH_CLIENT_ID": "",
+		"AXIOM_OAUTH_CLIENT_SECRET": "",
+		"AXIOM_LOGIN_BASE_URL": ""
 	},
 	"migrations": [
 		{

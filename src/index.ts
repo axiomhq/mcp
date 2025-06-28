@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { McpAgent } from "agents/mcp";
 import { Octokit } from "octokit";
 import { z } from "zod";
-import { GitHubHandler } from "./github-handler";
+import { AxiomHandler } from "./auth-handler";
 
 // Context from the auth process, encrypted & stored in the auth token
 // and provided to the DurableMCP as this.props
@@ -12,12 +12,9 @@ type Props = {
 	name: string;
 	email: string;
 	accessToken: string;
+	permissions: string[];
 };
 
-const ALLOWED_USERNAMES = new Set<string>([
-	// Add GitHub usernames of users who should have access to the image generation tool
-	// For example: 'yourusername', 'coworkerusername'
-]);
 
 export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
 	server = new McpServer({
@@ -53,10 +50,6 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
 				};
 			},
 		);
-
-		// Dynamically add tools based on the user's login. In this case, I want to limit
-		// access to my Image Generation tool to just me
-		if (ALLOWED_USERNAMES.has(this.props.login)) {
 			this.server.tool(
 				"generateImage",
 				"Generate an image using the `flux-1-schnell` model. Works best with 8 steps.",
@@ -84,7 +77,6 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
 					};
 				},
 			);
-		}
 	}
 }
 
@@ -93,6 +85,6 @@ export default new OAuthProvider({
 	apiRoute: "/sse",
 	authorizeEndpoint: "/authorize",
 	clientRegistrationEndpoint: "/register",
-	defaultHandler: GitHubHandler as any,
+	defaultHandler: AxiomHandler as any,
 	tokenEndpoint: "/token",
 });
