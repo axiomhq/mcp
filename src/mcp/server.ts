@@ -13,7 +13,7 @@ type Props = {
   permissions: string[];
 };
 
-export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
+export class AxiomMCP extends McpAgent<Env, Record<string, never>, Props> {
   server = new McpServer({
     name: 'Github OAuth Proxy Demo',
     version: '1.0.0',
