@@ -10,10 +10,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "COOKIE_ENCRYPTION_KEY": "",
-    "ATLAS_API_URL": "",
-    "AXIOM_OAUTH_CLIENT_ID": "",
-    "AXIOM_OAUTH_CLIENT_SECRET": "",
-    "AXIOM_LOGIN_BASE_URL": ""
+    "ATLAS_API_URL": ""
   },
   "migrations": [
     {

@@ -29,7 +29,7 @@ type Props = {
 async function save(value:string): Promise<string> {
   const key = crypto.randomUUID();
   await env.OAUTH_KV.put(key, value);
-	return key;
+  return key;
 }
 
 async function restore(encoded: string): Promise<string> {
@@ -228,7 +228,7 @@ async function handleTokenCallback(
       timestamp: Date.now(),
     }),
     {
-      expirationTtl: 86_400, // 24 hours
+      expirationTtl: 2_592_000, // 30 days
     }
   );
 

@@ -1,7 +1,19 @@
+// Typed permission names for reference
+export const PERMISSION_NAMES = {
+  LIST_DATASETS: 'List Datasets',
+  APL_QUERIES: 'APL Queries',
+  LIST_ANNOTATIONS: 'List Annotations',
+  LIST_DASHBOARDS: 'List Dashboards',
+  LIST_MONITORS: 'List Monitors',
+  LIST_VIRTUAL_FIELDS: 'List Virtual Fields',
+} as const;
+
+export type PermissionName = typeof PERMISSION_NAMES[keyof typeof PERMISSION_NAMES];
+
 interface PermissionTest {
   endpoint: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  name: string;
+  name: PermissionName;
   description: string;
   required: boolean;
   category: string;
@@ -31,7 +43,7 @@ const PERMISSION_TESTS: PermissionTest[] = [
   {
     endpoint: '/v1/datasets',
     method: 'GET',
-    name: 'List Datasets',
+    name: PERMISSION_NAMES.LIST_DATASETS,
     description: 'View available datasets',
     required: true,
     category: 'Datasets',
@@ -41,7 +53,7 @@ const PERMISSION_TESTS: PermissionTest[] = [
   {
     endpoint: '/v1/datasets/_apl?format=tabular',
     method: 'POST',
-    name: 'APL Queries',
+    name: PERMISSION_NAMES.APL_QUERIES,
     description: 'Execute APL queries on datasets',
     required: true,
     category: 'Queries',
@@ -51,7 +63,7 @@ const PERMISSION_TESTS: PermissionTest[] = [
   {
     endpoint: '/v2/annotations',
     method: 'GET',
-    name: 'List Annotations',
+    name: PERMISSION_NAMES.LIST_ANNOTATIONS,
     description: 'View annotations and comments',
     required: false,
     category: 'Annotations',
@@ -61,7 +73,7 @@ const PERMISSION_TESTS: PermissionTest[] = [
   {
     endpoint: '/v1/dashboards',
     method: 'GET',
-    name: 'List Dashboards',
+    name: PERMISSION_NAMES.LIST_DASHBOARDS,
     description: 'View dashboards',
     required: false,
     category: 'Dashboards',
@@ -71,7 +83,7 @@ const PERMISSION_TESTS: PermissionTest[] = [
   {
     endpoint: '/v1/monitors',
     method: 'GET',
-    name: 'List Monitors',
+    name: PERMISSION_NAMES.LIST_MONITORS,
     description: 'View monitors and alerts',
     required: false,
     category: 'Monitors',
@@ -81,7 +93,7 @@ const PERMISSION_TESTS: PermissionTest[] = [
   {
     endpoint: '/v1/vfields',
     method: 'GET',
-    name: 'List Virtual Fields',
+    name: PERMISSION_NAMES.LIST_VIRTUAL_FIELDS,
     description: 'View virtual fields',
     required: false,
     category: 'Virtual Fields',
