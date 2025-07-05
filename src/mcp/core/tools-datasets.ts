@@ -138,9 +138,6 @@ Common Patterns:
     },
     async ({ apl, startTime, endTime }) => {
       const result = await runQuery(props.accessToken, apl, startTime, endTime);
-
-      console.debug(result);
-
       return {
         content: [
           {

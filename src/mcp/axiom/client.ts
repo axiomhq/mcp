@@ -46,7 +46,6 @@ export async function apiFetch<T>(
     }
 
     const json = await res.json();
-    console.debug(json);
 
     return schema.parse(json);
   } catch (error) {

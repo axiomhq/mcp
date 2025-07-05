@@ -56,6 +56,31 @@ export class Builder {
     return this;
   }
 
+  csv(headers: string[], rows: string[][]): this {
+    // Helper to escape CSV fields
+    const escapeCSV = (field: string): string => {
+      // Convert to string if not already
+      const str = String(field);
+      // Check if escaping is needed
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        // Escape quotes by doubling them and wrap in quotes
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    // Add headers
+    this.content.push(headers.map(escapeCSV).join(','));
+
+    // Add rows
+    rows.forEach((row) => {
+      this.content.push(row.map(escapeCSV).join(','));
+    });
+
+    this.content.push('');
+    return this;
+  }
+
   quote(text: string): this {
     this.content.push(`> ${text}\n`);
     return this;

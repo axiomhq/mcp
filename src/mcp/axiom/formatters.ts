@@ -113,7 +113,7 @@ export class QueryResultFormatter {
       return builder.h1('Query Results').p('No data found.').build();
     }
 
-    builder.h1('Query Results').raw('');
+    builder.h1('Query Results');
 
     // Transpose the results to work with rows
     const transposed = transposeQueryResult(result);
@@ -261,12 +261,12 @@ export class QueryResultFormatter {
     // Table header
     if (hasTotals) {
       if (table.name === '_totals') {
-        builder.h2('Totals');
+        builder.h2('totals.csv');
       } else {
-        builder.h2('Timeseries');
+        builder.h2('timeseries.csv');
       }
     } else {
-      builder.h2('Results');
+      builder.h2('results.csv');
     }
 
     // Show trimming info if applicable
@@ -286,8 +286,6 @@ export class QueryResultFormatter {
       builder.p(`Showing ${parts.join(', ')}`);
     }
 
-    builder.raw('');
-
     if (rowCount === 0) {
       builder.p('No data');
       return;
@@ -299,10 +297,10 @@ export class QueryResultFormatter {
       table.fields.map((field) => this.formatValue(row[field.name]))
     );
 
-    builder.table(headers, rows);
+    builder.csv(headers, rows);
   }
 
-  private formatValue(value: any): string {
+  private formatValue(value: unknown): string {
     if (value === null || value === undefined) {
       return '';
     }
