@@ -1,4 +1,5 @@
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import { Builder } from '../lib/markdown';
 
 /**
  * Type alias for MCP tool results.
@@ -66,4 +67,36 @@ export function emptyResult(): CallToolResult {
   return {
     content: [],
   };
+}
+
+/**
+ * Builder class for creating markdown results with a fluent API.
+ * Extends the markdown Builder and overrides build() to return a CallToolResult.
+ */
+class MarkdownResultBuilder extends Builder {
+  /**
+   * Builds the markdown content and returns it as a CallToolResult.
+   * @returns A CallToolResult with the built markdown as text content
+   */
+  result(): CallToolResult {
+    return stringResult(super.build());
+  }
+}
+
+/**
+ * Creates a markdown result builder for MCP tool responses.
+ * Provides a fluent API for constructing markdown content.
+ *
+ * @returns A MarkdownResultBuilder instance
+ *
+ * @example
+ * ```ts
+ * return markdownResult()
+ *   .h1('Users Report')
+ *   .csv(['Name', 'Email'], [['Alice', 'alice@example.com']])
+ *   .result();
+ * ```
+ */
+export function markdownResult(): MarkdownResultBuilder {
+  return new MarkdownResultBuilder();
 }

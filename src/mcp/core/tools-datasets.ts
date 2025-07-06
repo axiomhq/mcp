@@ -1,9 +1,9 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Builder, Format } from '../../lib/markdown';
+import { Format } from '../../lib/markdown';
 import { getDatasetFields, getDatasets, runQuery } from '../axiom/api';
 import { QueryResultFormatter } from '../axiom/formatters';
 import { newToolErrorWithReason } from '../errors';
-import { stringResult } from '../result';
+import { markdownResult } from '../result';
 import { ParamAPLQuery, ParamDatasetName, ParamQueryDateTime } from '../schema';
 import type { ServerProps } from '../types';
 
@@ -23,11 +23,13 @@ export function registerDatasetTools(server: McpServer, props: ServerProps) {
               : dataset.name,
         };
       });
-      const md = new Builder().h1('Datasets').list(
-        encoded.map((dataset) => dataset.name),
-        'No datasets found, please check view permissions or visit https://axiom.co/docs to get started.'
-      );
-      return stringResult(md.toString());
+      return markdownResult()
+        .h1('Datasets')
+        .list(
+          encoded.map((dataset) => dataset.name),
+          'No datasets found, please check view permissions or visit https://axiom.co/docs to get started.'
+        )
+        .result();
     }
   );
 
@@ -40,22 +42,15 @@ export function registerDatasetTools(server: McpServer, props: ServerProps) {
     async ({ datasetName }) => {
       try {
         const fields = await getDatasetFields(props.accessToken, datasetName);
-        const md = new Builder()
+        return markdownResult()
           .h1(`Fields in ${Format.ident(datasetName)}`)
           .list(
             fields.map((field) =>
               Format.listItem(field.name, field.type, field.description)
             ),
             'No fields found, see how to send data here https://axiom.co/docs/send-data/ingest.'
-          );
-        return {
-          content: [
-            {
-              text: md.toString(),
-              type: 'text',
-            },
-          ],
-        };
+          )
+          .result();
       } catch (error) {
         return newToolErrorWithReason('Failed to fetch dataset fields', error);
       }
@@ -103,10 +98,7 @@ Data Shaping:
 - Arrays: ['logs'] | where ['url'] in ("login", "logout", "home") | where array_length(['tags']) > 0
 
 Advanced:
-- Make series: ['metrics'] | make-series avg(['cpu']) default=0 on ['_time'] step 1m by ['host']
-- Join: ['errors'] | join kind=inner (['users'] | project ['userId'], ['email']) on ['userId']
 - Union: union ['logs-app*'] | where ['severity'] == "error"
-- Fork: ['logs'] | fork (where ['status'] >= 500 | as errors) (where ['status'] < 300 | as success)
 - Case: ['logs'] | extend level = case(['status'] >= 500, "error", ['status'] >= 400, "warn", "info")
 
 Time Operations:

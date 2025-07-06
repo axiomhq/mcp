@@ -1,11 +1,10 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Builder } from '../../lib/markdown';
 import { getMonitors, getMonitorsHistory } from '../axiom/api';
 import {
   type TransposedHistoryRow,
   transposeMonitorsHistory,
 } from '../axiom/transpose';
-import { stringResult } from '../result';
+import { markdownResult } from '../result';
 import { ParamMonitorId } from '../schema';
 import type { ServerProps } from '../types';
 
@@ -23,13 +22,14 @@ export function registerMonitorsTools(server: McpServer, props: ServerProps) {
 
       const transposedHistory = transposeMonitorsHistory(monitorHistory);
 
-      const md = new Builder()
+      return markdownResult()
         .h1(`monitor-${monitorId}-history.csv`)
         .csv(
           transposedHistoryToCsvHeaders,
-          transposedHistoryToCsvRows(transposedHistory)
-        );
-      return stringResult(md.toString());
+          transposedHistoryToCsvRows(transposedHistory),
+          'No history available for this monitor.'
+        )
+        .result();
     }
   );
 
@@ -47,7 +47,7 @@ export function registerMonitorsTools(server: McpServer, props: ServerProps) {
 
       const transposedHistory = transposeMonitorsHistory(monitorHistory);
 
-      const md = new Builder()
+      return markdownResult()
         .h1('Monitors overview')
         .h2('monitors.csv')
         .csv(
@@ -70,7 +70,8 @@ export function registerMonitorsTools(server: McpServer, props: ServerProps) {
             monitor.threshold,
             monitor.operator,
             monitor.aplQuery.replace(/\s+/g, ' '),
-          ]) as unknown as string[][]
+          ]) as unknown as string[][],
+          'No monitors found.'
         )
         .h2('alerted-monitors.csv')
         .csv(
@@ -79,10 +80,10 @@ export function registerMonitorsTools(server: McpServer, props: ServerProps) {
             transposedHistory.filter(
               (history) => history.alert_state === 'open'
             )
-          )
-        );
-
-      return stringResult(md.toString());
+          ),
+          'No alerting monitors.'
+        )
+        .result();
     }
   );
 }

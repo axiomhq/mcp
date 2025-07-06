@@ -41,7 +41,6 @@ export async function apiFetch<T>(
   }
 
   try {
-    console.log(path);
     const res = await fetch(`${baseUrl}${path}`, options);
     if (!res.ok) {
       throw new ApiError(`API request failed: ${res.statusText}`, res.status);
