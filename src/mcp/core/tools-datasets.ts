@@ -3,6 +3,7 @@ import { Builder, Format } from '../../lib/markdown';
 import { getDatasetFields, getDatasets, runQuery } from '../axiom/api';
 import { QueryResultFormatter } from '../axiom/formatters';
 import { newToolErrorWithReason } from '../errors';
+import { stringResult } from '../result';
 import { ParamAPLQuery, ParamDatasetName, ParamQueryDateTime } from '../schema';
 import type { ServerProps } from '../types';
 
@@ -26,14 +27,7 @@ export function registerDatasetTools(server: McpServer, props: ServerProps) {
         encoded.map((dataset) => dataset.name),
         'No datasets found, please check view permissions or visit https://axiom.co/docs to get started.'
       );
-      return {
-        content: [
-          {
-            text: md.toString(),
-            type: 'text',
-          },
-        ],
-      };
+      return stringResult(md.toString());
     }
   );
 

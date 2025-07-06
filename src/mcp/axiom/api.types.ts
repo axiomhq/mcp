@@ -55,11 +55,40 @@ export const QueryResultSchema = z.object({
   datasetNames: z.array(z.string()),
 });
 
-export type QueryField = z.infer<typeof QueryFieldSchema>;
-export type QueryTable = z.infer<typeof QueryTableSchema>;
-export type QueryResult = z.infer<typeof QueryResultSchema>;
+export const MonitorSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+  type: z.enum(['MatchEvent', 'Threshold', 'AnomalyDetection']),
+  aplQuery: z.string(),
+  createdAt: z.string(),
+  intervalMinutes: z.number(),
+  rangeMinutes: z.number(),
+  threshold: z.number(),
+  operator: z
+    .enum(['Below', 'BelowOrEqual', 'Above', 'AboveOrEqual', 'AboveOrBelow'])
+    .optional(),
+  alertOnNoData: z.boolean().optional(),
+  disabled: z.boolean().optional(),
+  disabledUntil: z.string().optional(),
+});
+
+export const MonitorsSchema = MonitorSchema.array();
+
+export const MonitorsHistorySchema = z.object({
+  data: z.record(z.string(), z.array(z.array(z.any()))),
+  fields: z.array(z.string()),
+});
 
 export type Dataset = z.infer<typeof DatasetSchema>;
 export type Datasets = z.infer<typeof DatasetsSchema>;
 export type Field = z.infer<typeof FieldSchema>;
 export type Fields = z.infer<typeof FieldsSchema>;
+
+export type QueryField = z.infer<typeof QueryFieldSchema>;
+export type QueryTable = z.infer<typeof QueryTableSchema>;
+export type QueryResult = z.infer<typeof QueryResultSchema>;
+
+export type Monitor = z.infer<typeof MonitorSchema>;
+export type Monitors = z.infer<typeof MonitorsSchema>;
+export type MonitorsHistory = z.infer<typeof MonitorsHistorySchema>;

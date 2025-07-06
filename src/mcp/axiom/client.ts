@@ -17,13 +17,14 @@ export type ApiRequest = {
   method: 'get' | 'post';
   path: string;
   body?: unknown;
+  baseUrl?: string;
 };
 
 export async function apiFetch<T>(
   areq: ApiRequest,
   schema: z.ZodSchema<T>
 ): Promise<T> {
-  const { token, method, path, body } = areq;
+  const { token, method, path, body, baseUrl = env.ATLAS_API_URL } = areq;
   const headers = {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
@@ -40,7 +41,8 @@ export async function apiFetch<T>(
   }
 
   try {
-    const res = await fetch(`${env.ATLAS_API_URL}${path}`, options);
+    console.log(path);
+    const res = await fetch(`${baseUrl}${path}`, options);
     if (!res.ok) {
       throw new ApiError(`API request failed: ${res.statusText}`, res.status);
     }

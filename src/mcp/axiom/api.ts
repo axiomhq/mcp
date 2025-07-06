@@ -1,9 +1,14 @@
+import { env } from 'cloudflare:workers';
 import {
   type Datasets,
   DatasetsSchema,
   type Field,
   type Fields,
   FieldsSchema,
+  type Monitors,
+  type MonitorsHistory,
+  MonitorsHistorySchema,
+  MonitorsSchema,
   type QueryResult,
   QueryResultSchema,
 } from './api.types';
@@ -68,5 +73,34 @@ export async function runQuery(
       },
     },
     QueryResultSchema
+  );
+}
+
+export async function getMonitors(token: string): Promise<Monitors> {
+  return await apiFetch<Monitors>(
+    {
+      token,
+      method: 'get',
+      path: '/v2/monitors',
+    },
+    MonitorsSchema
+  );
+}
+
+export async function getMonitorsHistory(
+  token: string,
+  monitorIds: string[]
+): Promise<MonitorsHistory> {
+  return await apiFetch<MonitorsHistory>(
+    {
+      token,
+      method: 'get',
+      path: `/api/internal/monitors/history?monitorIds=${monitorIds
+        .map((id) => id.trim())
+        .filter((id) => id.length > 0)
+        .join(',')}`,
+      baseUrl: env.ATLAS_INTERNAL_URL,
+    },
+    MonitorsHistorySchema
   );
 }

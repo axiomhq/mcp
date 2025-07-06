@@ -20,3 +20,10 @@ export const ParamQueryDateTime = z
   .string()
   .trim()
   .describe('A fixed (RFC3339) or relative (now, now-5m) time value.');
+
+export const ParamMonitorId = z
+  .string()
+  .trim()
+  .describe(
+    'The monitor ID. You can find an list of monitors using the `checkMonitors()` tool.'
+  );

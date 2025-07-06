@@ -56,7 +56,12 @@ export class Builder {
     return this;
   }
 
-  csv(headers: string[], rows: string[][]): this {
+  csv(headers: string[], rows: string[][], contentIfEmpty?: string): this {
+    if (rows.length === 0 && contentIfEmpty !== undefined) {
+      this.content.push(contentIfEmpty);
+      return this;
+    }
+
     // Helper to escape CSV fields
     const escapeCSV = (field: string): string => {
       // Convert to string if not already
