@@ -12,7 +12,11 @@ import {
 export const ToolGetServiceMetrics = 'otel-getServiceMetrics';
 export const ToolGetOperationMetrics = 'otel-getOperationMetrics';
 
-export function registerMetricsTools({ server, apiClient }: ToolContext) {
+export function registerMetricsTools({
+  server,
+  apiClient,
+  logger,
+}: ToolContext) {
   server.tool(
     ToolGetServiceMetrics,
     `Get detailed metrics for a specific OpenTelemetry service by it's operations, including latency percentiles, error rates, and throughput over time. Use otel-listServices to get a list of services.`,
@@ -42,7 +46,7 @@ ${sanitizeDatasetName(datasetName)}
 | project _time, name, total_spans, error_count, error_rate, p50_latency, p75_latency, p90_latency, p95_latency, p99_latency, avg_latency, max_latency, min_latency
 | sort by _time asc
 `;
-      console.debug(ToolGetServiceMetrics, {
+      logger.debug(`${ToolGetServiceMetrics} query`, {
         datasetName,
         serviceName,
         startTime,
@@ -88,7 +92,7 @@ ${sanitizeDatasetName(datasetName)}
 | project _time, total_spans, error_count, error_rate, p50_latency, p75_latency, p90_latency, p95_latency, p99_latency, avg_latency, max_latency, min_latency
 | sort by _time asc
 `;
-      console.debug(ToolGetOperationMetrics, {
+      logger.debug(`${ToolGetOperationMetrics} query`, {
         datasetName,
         serviceName,
         operationName,
