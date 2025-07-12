@@ -40,8 +40,8 @@ export interface AxiomApiClient {
     getFields(datasetName: string): Promise<Fields>;
     query(request: {
       apl: string;
-      startTime: string;
-      endTime: string;
+      startTime?: string;
+      endTime?: string;
     }): Promise<QueryResult>;
   };
 

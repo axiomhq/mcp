@@ -18,6 +18,11 @@ export const ParamQueryDateTime = z
   .trim()
   .describe('A fixed (RFC3339) or relative (now, now-5m) time value.');
 
+export const ParamTimeEstimate = z
+  .string()
+  .trim()
+  .describe('A fixed (RFC3339) time estimate of when the event occurred.');
+
 export const ParamMonitorId = z
   .string()
   .trim()
