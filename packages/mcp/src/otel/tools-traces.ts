@@ -47,7 +47,11 @@ const ParamAnomalyType = z
   .default('both')
   .describe('Type of anomaly to detect: duration, span count, or both');
 
-export function registerTracesTools({ server, apiClient }: ToolContext) {
+export function registerTracesTools({
+  server,
+  apiClient,
+  logger,
+}: ToolContext) {
   server.tool(
     ToolGetTraceSpans,
     'Get all spans for a specific trace, showing the complete trace timeline with service names, operation names, durations, and status information.',
@@ -63,7 +67,7 @@ ${sanitizeDatasetName(datasetName)}
 | sort by _time asc
 | limit 100
 `;
-      console.debug(ToolGetTraceSpans, {
+      logger.debug(`${ToolGetTraceSpans} query`, {
         datasetName,
         traceId,
         query,
@@ -141,7 +145,7 @@ ${whereClause}
 | sort by start_time desc
 | limit ${limit}
 `;
-      console.debug(ToolFindTraces, {
+      logger.debug(`${ToolFindTraces} query`, {
         datasetName,
         serviceName,
         operationName,
@@ -183,7 +187,7 @@ ${sanitizeDatasetName(datasetName)}
     ref_duration = max(duration),
     ref_error_count = countif(error)
 `;
-      console.debug(`${ToolFindSimilarTraces} - reference query`, {
+      logger.debug(`${ToolFindSimilarTraces} - reference query`, {
         datasetName,
         referenceTraceId,
         query: referenceQuery,
@@ -224,7 +228,7 @@ by trace_id
 | sort by service_overlap desc, operation_overlap desc, span_count_diff asc
 | limit ${limit}
 `;
-      console.debug(`${ToolFindSimilarTraces} - similarity query`, {
+      logger.debug(`${ToolFindSimilarTraces} - similarity query`, {
         datasetName,
         referenceTraceId,
         timeRange,
@@ -266,7 +270,7 @@ ${sanitizeDatasetName(datasetName)}
         | summarize max(duration)
     )
 `;
-      console.debug(ToolGetTraceCriticalPath, {
+      logger.debug(`${ToolGetTraceCriticalPath} query`, {
         datasetName,
         traceId,
         query,
@@ -328,7 +332,7 @@ ${operationFilter}
 by trace_id
 | extend duration_ms = total_duration / 1000000.0
 `;
-      console.debug(`${ToolFindTraceAnomalies} - traces query`, {
+      logger.debug(`${ToolFindTraceAnomalies} - traces query`, {
         datasetName,
         serviceName,
         operationName,
@@ -355,7 +359,7 @@ by trace_id
     avg_span_count = avg(span_count),
     stdev_span_count = stdev(span_count)
 `;
-      console.debug(`${ToolFindTraceAnomalies} - stats query`, {
+      logger.debug(`${ToolFindTraceAnomalies} - stats query`, {
         datasetName,
         query: statsQuery,
       });
@@ -380,6 +384,7 @@ by trace_id
 
       // Calculate z-scores and filter anomalies
       const anomalies = traces
+        // biome-ignore lint: _
         .map((trace: any) => {
           const durationZScore =
             (trace.total_duration - stats.avg_duration) / stats.stdev_duration;

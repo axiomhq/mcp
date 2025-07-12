@@ -9,7 +9,11 @@ export const ToolListServices = 'otel-listServices';
 export const ToolListOperations = 'otel-listOperations';
 export const ToolGetErrorBreakdown = 'otel-getErrorBreakdown';
 
-export function registerDiscoveryTools({ server, apiClient }: ToolContext) {
+export function registerDiscoveryTools({
+  server,
+  apiClient,
+  logger,
+}: ToolContext) {
   server.tool(
     ToolListServices,
     `List all available OpenTelemetry services. For services you are curious about, use ${ToolListOperations}, otel-getServiceMetrics and ${ToolGetErrorBreakdown} tools.`,
@@ -25,7 +29,7 @@ ${sanitizeDatasetName(datasetName)}
 | project ['service.name'], span_count, error_count, unique_operations
 | sort by span_count desc
 `;
-      console.debug(ToolListServices, {
+      logger.debug(`${ToolListServices} query`, {
         datasetName,
         startTime,
         endTime,
@@ -56,7 +60,7 @@ ${sanitizeDatasetName(datasetName)}
 | summarize span_count = count(), avg_duration = avg(duration), error_count = countif(error) by name
 | sort by span_count desc
 `;
-      console.debug(ToolListOperations, {
+      logger.debug(`${ToolListOperations} query`, {
         datasetName,
         serviceName,
         startTime,
@@ -106,7 +110,7 @@ ${sanitizeDatasetName(datasetName)}
 | sort by error_count desc
 | take 50
 `;
-      console.debug(ToolGetErrorBreakdown, {
+      logger.debug(`${ToolGetErrorBreakdown} query`, {
         datasetName,
         startTime,
         endTime,
