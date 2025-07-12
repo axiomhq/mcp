@@ -43,10 +43,15 @@ const apiClient: AxiomApiClient = {
   },
 };
 
+// Get integrations to conditionally register tools
+const integrations = await apiClient.integrations.list();
+const integrationKinds = integrations.map(i => i.kind);
+
 // Register all Axiom MCP tools
 registerAxiomMcpTools({
   server,
   apiClient,
+  integrations: integrationKinds,
 });
 ```
 

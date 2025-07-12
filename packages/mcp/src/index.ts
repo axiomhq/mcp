@@ -21,6 +21,7 @@ import { registerOpenTelemetryTools } from './otel';
 export interface AxiomMcpConfig {
   server: McpServer;
   apiClient: AxiomApiClient;
+  integrations: string[];
 }
 
 export function registerAxiomMcpTools(config: AxiomMcpConfig) {
@@ -28,10 +29,15 @@ export function registerAxiomMcpTools(config: AxiomMcpConfig) {
     server: config.server,
     apiClient: config.apiClient,
   };
-  
-  // Register core tools
+
+  // Always register core tools
   registerCoreTools(context);
-  
-  // Register OpenTelemetry tools if available
-  registerOpenTelemetryTools(context);
+
+  // Register OpenTelemetry tools if any otel integration is found
+  if (
+    config.integrations.some((integration) => integration.startsWith('otel'))
+  ) {
+    console.debug('Registering OTel tools');
+    registerOpenTelemetryTools(context);
+  }
 }

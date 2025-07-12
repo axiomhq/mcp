@@ -11,8 +11,10 @@ export class AxiomMCP extends McpAgent<
 > {
   server = new McpServer({
     name: 'Axiom MCP Server',
-    version: '0.1.1',
+    version: '0.1.3',
   });
+
+  _integrations?: string[];
 
   async init() {
     console.info('Initializing Axiom MCP Server...');
@@ -20,16 +22,19 @@ export class AxiomMCP extends McpAgent<
     // Create the API client with the server props
     const apiClient = createAxiomApiClient(this.props);
 
-    // Get integrations to check for OpenTelemetry
-    const integrations = (await apiClient.integrations.list()).map(
-      (i) => i.kind
-    );
-    console.debug('Integrations:', integrations);
+    if (!this._integrations) {
+      this._integrations = [
+        ...new Set((await apiClient.integrations.list()).map((i) => i.kind)),
+      ];
+      console.debug('Integrations:', this._integrations);
+    }
 
+    const integrations = this._integrations || [];
     // Register all tools with the server
     registerAxiomMcpTools({
       server: this.server,
       apiClient,
+      integrations,
     });
 
     console.info('Axiom MCP Server initialized');
