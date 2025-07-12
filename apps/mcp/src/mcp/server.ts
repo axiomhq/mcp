@@ -1,6 +1,7 @@
 import { registerAxiomMcpTools } from '@axiom/mcp';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { McpAgent } from 'agents/mcp';
+import { logger } from '../logger';
 import type { ServerProps } from '../types';
 import { createAxiomApiClient } from './axiom-api-client';
 
@@ -17,7 +18,7 @@ export class AxiomMCP extends McpAgent<
   _integrations?: string[];
 
   async init() {
-    console.info('Initializing Axiom MCP Server...');
+    logger.info('Initializing Axiom MCP Server...');
 
     // Create the API client with the server props
     const apiClient = createAxiomApiClient(this.props);
@@ -26,17 +27,17 @@ export class AxiomMCP extends McpAgent<
       this._integrations = [
         ...new Set((await apiClient.integrations.list()).map((i) => i.kind)),
       ];
-      console.debug('Integrations:', this._integrations);
+      logger.debug('Detected integrations:', this._integrations);
     }
 
     const integrations = this._integrations || [];
-    // Register all tools with the server
     registerAxiomMcpTools({
       server: this.server,
       apiClient,
       integrations,
+      logger,
     });
 
-    console.info('Axiom MCP Server initialized');
+    logger.info('Server initialized');
   }
 }
