@@ -5,6 +5,9 @@ import {
   type Field,
   type Fields,
   FieldsSchema,
+  type IntegrationBaseDashboards,
+  IntegrationBaseDashboardsSchema,
+  type Integrations,
   type Monitors,
   type MonitorsHistory,
   MonitorsHistorySchema,
@@ -103,4 +106,21 @@ export async function getMonitorsHistory(
     },
     MonitorsHistorySchema
   );
+}
+
+export async function getIntegrations(token: string): Promise<Integrations> {
+  const intDashboards = await apiFetch<IntegrationBaseDashboards>(
+    {
+      token,
+      method: 'get',
+      path: '/api/internal/integrations/dashboards',
+      baseUrl: env.ATLAS_INTERNAL_URL,
+    },
+    IntegrationBaseDashboardsSchema
+  );
+
+  return intDashboards.map((dash) => ({
+    kind: dash.owner,
+    dataset: dash.id.slice(dash.owner.length + 1),
+  }));
 }

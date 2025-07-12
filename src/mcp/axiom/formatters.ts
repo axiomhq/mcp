@@ -106,14 +106,14 @@ export class QueryResultFormatter {
     this.fieldChooser = options.fieldChooser ?? new DefaultFieldChooser();
   }
 
-  formatQuery(result: QueryResult): string {
+  formatQuery(result: QueryResult, title = 'Query results'): string {
     const builder = new Builder();
 
     if (!result.tables || result.tables.length === 0) {
       return builder.h1('Query Results').p('No data found.').build();
     }
 
-    builder.h1('Query Results');
+    builder.h1(title);
 
     // Transpose the results to work with rows
     const transposed = transposeQueryResult(result);

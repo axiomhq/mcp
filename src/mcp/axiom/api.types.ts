@@ -1,8 +1,10 @@
 import z from 'zod';
 
+export const DefaultDatasetKind = 'events';
 export const DatasetSchema = z.object({
   name: z.string(),
   description: z.string(),
+  kind: z.string().optional(),
 });
 
 export const DatasetsSchema = DatasetSchema.array();
@@ -80,6 +82,21 @@ export const MonitorsHistorySchema = z.object({
   fields: z.array(z.string()),
 });
 
+export const IntegrationBaseDashboardSchema = z.object({
+  id: z.string(),
+  owner: z.string(),
+});
+
+export const IntegrationBaseDashboardsSchema =
+  IntegrationBaseDashboardSchema.array();
+
+export const IntegrationSchema = z.object({
+  kind: z.string(),
+  dataset: z.string(),
+});
+
+export const IntegrationsSchema = IntegrationSchema.array();
+
 export type Dataset = z.infer<typeof DatasetSchema>;
 export type Datasets = z.infer<typeof DatasetsSchema>;
 export type Field = z.infer<typeof FieldSchema>;
@@ -92,3 +109,13 @@ export type QueryResult = z.infer<typeof QueryResultSchema>;
 export type Monitor = z.infer<typeof MonitorSchema>;
 export type Monitors = z.infer<typeof MonitorsSchema>;
 export type MonitorsHistory = z.infer<typeof MonitorsHistorySchema>;
+
+export type IntegrationBaseDashboard = z.infer<
+  typeof IntegrationBaseDashboardSchema
+>;
+export type IntegrationBaseDashboards = z.infer<
+  typeof IntegrationBaseDashboardsSchema
+>;
+
+export type Integration = z.infer<typeof IntegrationSchema>;
+export type Integrations = z.infer<typeof IntegrationsSchema>;

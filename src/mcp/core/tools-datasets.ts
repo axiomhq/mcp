@@ -1,9 +1,15 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Format } from '../../lib/markdown';
-import { getDatasetFields, getDatasets, runQuery } from '../axiom/api';
+import {
+  getDatasetFields,
+  getDatasets,
+  getIntegrations,
+  runQuery,
+} from '../axiom/api';
+import { DefaultDatasetKind } from '../axiom/api.types';
 import { QueryResultFormatter } from '../axiom/formatters';
 import { newToolErrorWithReason } from '../errors';
-import { markdownResult } from '../result';
+import { markdownResult, stringResult } from '../result';
 import { ParamAPLQuery, ParamDatasetName, ParamQueryDateTime } from '../schema';
 import type { ServerProps } from '../types';
 
@@ -14,20 +20,30 @@ export function registerDatasetTools(server: McpServer, props: ServerProps) {
     {},
     async () => {
       const datasets = await getDatasets(props.accessToken);
+      const integrations = await getIntegrations(props.accessToken);
+
       const encoded = datasets.map((dataset) => {
         return {
-          ...dataset,
           name:
             dataset.name.includes('.') || dataset.name.includes('-')
               ? `['${dataset.name}']`
               : dataset.name,
+          kind:
+            integrations.find((i) => i.dataset === dataset.name)?.kind ||
+            DefaultDatasetKind,
+          description: dataset.description,
         };
       });
+
       return markdownResult()
-        .h1('Datasets')
-        .list(
-          encoded.map((dataset) => dataset.name),
-          'No datasets found, please check view permissions or visit https://axiom.co/docs to get started.'
+        .h1('datasets.csv')
+        .csv(
+          ['datasetName', 'kind', 'description'],
+          encoded.map((dataset) => [
+            dataset.name,
+            dataset.kind,
+            dataset.description,
+          ])
         )
         .result();
     }
@@ -124,14 +140,7 @@ Common Patterns:
     },
     async ({ apl, startTime, endTime }) => {
       const result = await runQuery(props.accessToken, apl, startTime, endTime);
-      return {
-        content: [
-          {
-            text: new QueryResultFormatter().formatQuery(result),
-            type: 'text',
-          },
-        ],
-      };
+      return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );
 }
