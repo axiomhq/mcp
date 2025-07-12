@@ -1,44 +1,24 @@
 {
-  "name": "remote-mcp-github-oauth",
+  "name": "axiom-mcp-monorepo",
   "version": "0.0.1",
   "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
-    "start": "wrangler dev",
-    "lint": "ultracite format",
-    "gen:types": "wrangler types",
-    "type-check": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest --watch",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage"
-  },
-  "dependencies": {
-    "@cloudflare/workers-oauth-provider": "^0.0.5",
-    "@modelcontextprotocol/sdk": "^1.13.0",
-    "agents": "^0.0.95",
-    "autoprefixer": "^10.4.21",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "hono": "^4.8.2",
-    "just-pick": "^4.2.0",
-    "lucide-react": "^0.525.0",
-    "postcss": "^8.5.6",
-    "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.11",
-    "workers-mcp": "^0.0.13",
-    "zod": "^3.25.67"
+    "dev": "npm run dev --workspace=apps/mcp",
+    "deploy": "npm run deploy --workspace=apps/mcp",
+    "lint": "npm run lint --workspaces",
+    "type-check": "npm run type-check --workspaces",
+    "test": "npm run test --workspaces",
+    "test:watch": "npm run test:watch --workspaces"
   },
   "devDependencies": {
     "@biomejs/biome": "2.0.6",
     "@types/node": "^24.0.7",
-    "@vitest/coverage-v8": "^3.2.4",
-    "@vitest/ui": "^3.2.4",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
-    "ultracite": "5.0.26",
-    "vitest": "^3.2.4",
-    "wrangler": "^4.22.0"
+    "ultracite": "5.0.26"
   }
 }

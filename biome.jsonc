@@ -1,6 +1,8 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
-  "extends": ["ultracite"],
+  "extends": [
+    "ultracite"
+  ],
   "files": {
     "includes": [
       "**",
@@ -9,7 +11,7 @@
       "!**/globalTeardown.ts",
       "!scripts/**",
       "!packages/apex-client/**",
-      "!worker-configuration.d.ts"
+      "!**/worker-configuration.d.ts"
     ]
   },
   "json": {
@@ -43,7 +45,9 @@
   },
   "overrides": [
     {
-      "includes": ["**/*.spec.*"],
+      "includes": [
+        "**/*.spec.*"
+      ],
       "linter": {
         "rules": {
           "suspicious": {

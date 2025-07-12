@@ -170,6 +170,7 @@ dist
 
 .dev.vars
 .wrangler/
+**/.wrangler/
 reference/
 
 result.json

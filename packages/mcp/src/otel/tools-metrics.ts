@@ -1,10 +1,8 @@
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { runQuery } from '../axiom/api';
 import { QueryResultFormatter } from '../axiom/formatters';
 import { sanitizeDatasetName } from '../axiom/utils';
+import type { ToolContext } from '../core';
 import { stringResult } from '../result';
 import { ParamQueryDateTime } from '../schema';
-import type { ServerProps } from '../types';
 import {
   ParamOTelOperationName,
   ParamOTelServiceName,
@@ -14,7 +12,7 @@ import {
 export const ToolGetServiceMetrics = 'otel-getServiceMetrics';
 export const ToolGetOperationMetrics = 'otel-getOperationMetrics';
 
-export function registerMetricsTools(server: McpServer, props: ServerProps) {
+export function registerMetricsTools({ server, apiClient }: ToolContext) {
   server.tool(
     ToolGetServiceMetrics,
     `Get detailed metrics for a specific OpenTelemetry service by it's operations, including latency percentiles, error rates, and throughput over time. Use otel-listServices to get a list of services.`,
@@ -51,12 +49,11 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await runQuery(
-        props.accessToken,
-        query,
+      const result = await apiClient.datasets.query({
+        apl: query,
         startTime,
-        endTime
-      );
+        endTime,
+      });
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );
@@ -99,12 +96,11 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await runQuery(
-        props.accessToken,
-        query,
+      const result = await apiClient.datasets.query({
+        apl: query,
         startTime,
-        endTime
-      );
+        endTime,
+      });
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );
