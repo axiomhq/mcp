@@ -1,4 +1,4 @@
-import { Builder } from '../../lib/markdown';
+import { Builder } from '../lib/markdown';
 import type { QueryField, QueryResult } from './api.types';
 import {
   type TransposedRow,

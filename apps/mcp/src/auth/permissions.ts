@@ -8,7 +8,8 @@ export const PERMISSION_NAMES = {
   LIST_VIRTUAL_FIELDS: 'List Virtual Fields',
 } as const;
 
-export type PermissionName = typeof PERMISSION_NAMES[keyof typeof PERMISSION_NAMES];
+export type PermissionName =
+  (typeof PERMISSION_NAMES)[keyof typeof PERMISSION_NAMES];
 
 interface PermissionTest {
   endpoint: string;

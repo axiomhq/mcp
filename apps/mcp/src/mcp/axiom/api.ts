@@ -14,7 +14,7 @@ import {
   MonitorsSchema,
   type QueryResult,
   QueryResultSchema,
-} from './api.types';
+} from '@axiom/mcp';
 import { apiFetch } from './client';
 
 const sysTimeField = '_sysTime';

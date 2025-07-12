@@ -1,5 +1,5 @@
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { Builder } from '../lib/markdown';
+import { Builder } from './lib/markdown';
 
 /**
  * Type alias for MCP tool results.

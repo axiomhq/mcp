@@ -1,5 +1,15 @@
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { ApiError } from './axiom/client';
+
+// Simple ApiError class for error handling
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
 
 export const ErrDatasetEmpty = newToolError(
   'Dataset is empty. Use the listdatasets() tool to list available datasets.'

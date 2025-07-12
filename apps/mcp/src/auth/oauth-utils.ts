@@ -1,8 +1,6 @@
 // workers-oauth-utils.ts
 
-import type {
-  AuthRequest,
-} from '@cloudflare/workers-oauth-provider'; // Adjust path if necessary
+import type { AuthRequest } from '@cloudflare/workers-oauth-provider'; // Adjust path if necessary
 
 const COOKIE_NAME = 'mcp-approved-clients';
 const ONE_YEAR_IN_SECONDS = 31_536_000;

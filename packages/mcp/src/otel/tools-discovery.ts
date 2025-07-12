@@ -1,17 +1,15 @@
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { runQuery } from '../axiom/api';
 import { QueryResultFormatter } from '../axiom/formatters';
 import { sanitizeDatasetName } from '../axiom/utils';
+import type { ToolContext } from '../core';
 import { stringResult } from '../result';
 import { ParamQueryDateTime } from '../schema';
-import type { ServerProps } from '../types';
 import { ParamOTelServiceName, ParamOTelTracesDataset } from './schema';
 
 export const ToolListServices = 'otel-listServices';
 export const ToolListOperations = 'otel-listOperations';
 export const ToolGetErrorBreakdown = 'otel-getErrorBreakdown';
 
-export function registerDiscoveryTools(server: McpServer, props: ServerProps) {
+export function registerDiscoveryTools({ server, apiClient }: ToolContext) {
   server.tool(
     ToolListServices,
     `List all available OpenTelemetry services. For services you are curious about, use ${ToolListOperations}, otel-getServiceMetrics and ${ToolGetErrorBreakdown} tools.`,
@@ -33,12 +31,11 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await runQuery(
-        props.accessToken,
-        query,
+      const result = await apiClient.datasets.query({
+        apl: query,
         startTime,
-        endTime
-      );
+        endTime,
+      });
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );
@@ -66,12 +63,11 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await runQuery(
-        props.accessToken,
-        query,
+      const result = await apiClient.datasets.query({
+        apl: query,
         startTime,
-        endTime
-      );
+        endTime,
+      });
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );
@@ -116,12 +112,11 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await runQuery(
-        props.accessToken,
-        query,
+      const result = await apiClient.datasets.query({
+        apl: query,
         startTime,
-        endTime
-      );
+        endTime,
+      });
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );
