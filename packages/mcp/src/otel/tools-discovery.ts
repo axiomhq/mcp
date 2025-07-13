@@ -1,3 +1,4 @@
+import { runQuery } from '../axiom/api';
 import { QueryResultFormatter } from '../axiom/formatters';
 import { sanitizeDatasetName } from '../axiom/utils';
 import type { ToolContext } from '../core';
@@ -11,7 +12,7 @@ export const ToolGetErrorBreakdown = 'otel-getErrorBreakdown';
 
 export function registerDiscoveryTools({
   server,
-  apiClient,
+  publicClient,
   logger,
 }: ToolContext) {
   server.tool(
@@ -35,11 +36,12 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await apiClient.datasets.query({
-        apl: query,
+      const result = await runQuery(
+        publicClient,
+        query,
         startTime,
-        endTime,
-      });
+        endTime
+      );
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );
@@ -67,11 +69,12 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await apiClient.datasets.query({
-        apl: query,
+      const result = await runQuery(
+        publicClient,
+        query,
         startTime,
-        endTime,
-      });
+        endTime
+      );
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );
@@ -116,11 +119,12 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await apiClient.datasets.query({
-        apl: query,
+      const result = await runQuery(
+        publicClient,
+        query,
         startTime,
-        endTime,
-      });
+        endTime
+      );
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );

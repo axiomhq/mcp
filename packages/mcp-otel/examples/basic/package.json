@@ -1,0 +1,15 @@
+{
+  "name": "mcp-otel-example-basic",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "tsx server.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "mcp-otel": "file:../.."
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0"
+  }
+}

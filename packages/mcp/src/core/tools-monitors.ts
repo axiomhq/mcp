@@ -5,8 +5,9 @@ import {
 import { markdownResult } from '../result';
 import { ParamMonitorId } from '../schema';
 import type { ToolContext } from '.';
+import { getMonitors, getMonitorsHistory } from '../axiom/api';
 
-export function registerMonitorTools({ server, apiClient }: ToolContext) {
+export function registerMonitorTools({ server, publicClient, internalClient }: ToolContext) {
   server.tool(
     'getMonitorHistory',
     'Get recent check history of monitor. Use the checkMonitors() tool to list all the monitors.',
@@ -14,7 +15,7 @@ export function registerMonitorTools({ server, apiClient }: ToolContext) {
       monitorId: ParamMonitorId,
     },
     async ({ monitorId }) => {
-        const monitorHistory = await apiClient.monitors.getHistory(monitorId);
+        const monitorHistory = await getMonitorsHistory(internalClient, [monitorId]);
         const transposedHistory = transposeMonitorsHistory(monitorHistory);
 
         return markdownResult()
@@ -33,12 +34,12 @@ export function registerMonitorTools({ server, apiClient }: ToolContext) {
     'Check all monitors and their statuses.',
     {},
     async () => {
-        const monitors = await apiClient.monitors.list();
+        const monitors = await getMonitors(publicClient);
 
         // For now, we'll fetch history for all monitors at once
         // In the future, the API client might provide a batch method
         const historyPromises = monitors.map((monitor) =>
-          apiClient.monitors.getHistory(monitor.id)
+          getMonitorsHistory(internalClient, [monitor.id])
         );
         const histories = await Promise.all(historyPromises);
 

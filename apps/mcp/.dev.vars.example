@@ -1,1 +1,18 @@
+# Copy this file to .dev.vars and fill in the values
+
+# Cookie encryption
 COOKIE_ENCRYPTION_KEY=
+
+# OAuth Configuration
+# AXIOM_OAUTH_CLIENT_ID=
+# AXIOM_OAUTH_CLIENT_SECRET=
+# AXIOM_LOGIN_BASE_URL=
+
+# API URLs
+ATLAS_API_URL=https://api.axiom.co
+ATLAS_INTERNAL_URL=https://api.axiom.co
+
+# OpenTelemetry Configuration
+AXIOM_TRACES_KEY=
+AXIOM_TRACES_DATASET=
+AXIOM_TRACES_URL=

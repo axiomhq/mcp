@@ -1,5 +1,3 @@
-import { env } from 'cloudflare:workers';
-
 import type z from 'zod';
 
 export class ApiError extends Error {
@@ -17,14 +15,14 @@ export type ApiRequest = {
   method: 'get' | 'post';
   path: string;
   body?: unknown;
-  baseUrl?: string;
+  baseUrl: string;
 };
 
 export async function apiFetch<T>(
   areq: ApiRequest,
   schema: z.ZodSchema<T>
 ): Promise<T> {
-  const { token, method, path, body, baseUrl = env.ATLAS_API_URL } = areq;
+  const { token, method, path, body, baseUrl } = areq;
   const headers = {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
@@ -51,5 +49,33 @@ export async function apiFetch<T>(
     return schema.parse(json);
   } catch (error) {
     throw new ApiError(`API request failed: ${error}`, 500);
+  }
+}
+
+export class Client {
+  private baseUrl: string;
+  private accessToken: string;
+
+  constructor(baseUrl: string, accessToken: string) {
+    this.baseUrl = baseUrl;
+    this.accessToken = accessToken;
+  }
+
+  async fetch<T>(
+    method: 'get' | 'post',
+    path: string,
+    schema: z.ZodSchema<T>,
+    body?: unknown
+  ): Promise<T> {
+    return apiFetch(
+      {
+        token: this.accessToken,
+        method,
+        path,
+        body,
+        baseUrl: this.baseUrl,
+      },
+      schema
+    );
   }
 }
