@@ -1,6 +1,6 @@
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Client, getIntegrations, registerAxiomMcpTools } from '@axiom/mcp';
 import { McpAgent } from 'agents/mcp';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { logger } from '../logger';
 import type { ServerProps } from '../types';
 
@@ -9,8 +9,6 @@ export class AxiomMCP extends McpAgent<
   Record<string, never>,
   ServerProps
 > {
-  // Use regular McpServer instead of InstrumentedMcpServer to avoid double instrumentation
-  // The app is already instrumented at the top level with @microlabs/otel-cf-workers
   server = new McpServer({
     name: 'Axiom MCP Server',
     version: '0.1.3',
