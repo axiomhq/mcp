@@ -1,33 +1,45 @@
 # Axiom MCP Monorepo
 
-This monorepo contains the Axiom Model Context Protocol (MCP) implementation, separated into a context-agnostic MCP package and a Cloudflare Workers application.
+This monorepo contains a sophisticated Model Context Protocol (MCP) implementation for Axiom that goes beyond simple API wrapping to provide intelligent observability tools for AI assistants.
+
+## 🎯 Design Philosophy
+
+Unlike basic MCP servers that merely wrap APIs, this implementation provides:
+
+- **Intelligent Query Assistance**: 140+ APL query examples and best practices embedded directly in tool descriptions
+- **Guided Workflows**: Pre-built analysis protocols for incident investigation, performance baselining, and anomaly detection
+- **Smart Data Processing**: Adaptive formatting that prioritizes important fields and handles large result sets gracefully
+- **Statistical Analysis**: Built-in anomaly detection using z-scores and pattern matching
+- **Domain Expertise**: Encodes observability best practices like SLA recommendations and alerting strategies
+- **Error Prevention**: Validates inputs, suggests optimal time ranges, and guides users away from common mistakes
 
 ## Structure
 
 ```
 .
 ├── packages/
-│   └── mcp/              # Core MCP server implementation (@axiom/mcp)
+│   └── mcp/              # Core MCP implementation with intelligent tools
 └── apps/
-    └── mcp/              # Cloudflare Workers application
+    └── mcp/              # Cloudflare Workers application with OAuth
 ```
 
 ### packages/mcp
 
-The core MCP server implementation that provides tools for:
-- Querying Axiom datasets using APL (Axiom Processing Language)
-- Managing and monitoring alerts
-- Analyzing OpenTelemetry traces and metrics
+The core MCP implementation that provides intelligent tools for:
+- **Dataset Analysis**: Query construction with examples, schema discovery, and optimization hints
+- **Monitor Management**: Health analysis with signal-to-noise ratio calculations
+- **OpenTelemetry Insights**: Trace analysis, anomaly detection, and critical path identification
+- **Guided Workflows**: Multi-step investigation protocols with specific tool combinations
 
-This package is designed to be platform-agnostic and can be used in any JavaScript environment.
+This package encodes domain expertise to help AI assistants effectively analyze observability data.
 
 ### apps/mcp
 
-A Cloudflare Workers application that:
-- Implements OAuth authentication flow with Axiom
-- Provides the API client for the MCP package
-- Hosts the MCP server as a Durable Object
-- Serves the authentication UI
+A secure Cloudflare Workers application that:
+- Implements dual-role OAuth (server for clients, client for Axiom)
+- Provides persistent state management via Durable Objects
+- Instruments all operations with OpenTelemetry
+- Serves an intuitive authentication UI
 
 ## Getting Started
 
@@ -108,23 +120,40 @@ npx @modelcontextprotocol/inspector@latest
 - For local development: `http://localhost:8788/sse`
 - For production: `https://your-worker.workers.dev/sse`
 
-## Available MCP Tools
+## 🛠️ Intelligent MCP Tools
 
 ### Dataset Tools
-- `listDatasets` - List all available datasets with their types and descriptions
-- `getDatasetFields` - Get the schema and field information for a specific dataset
-- `queryDataset` - Execute APL queries against datasets with time range filtering
+- **`listDatasets`** - Smart dataset discovery with type classification and descriptions
+- **`getDatasetFields`** - Schema analysis with field type detection and usage hints
+- **`queryDataset`** - APL query execution with:
+  - 140+ query examples covering filters, aggregations, and transforms
+  - Automatic time range optimization
+  - Row limit warnings and aggregation suggestions
+  - Best practices for performance
 
-### Monitor Tools
-- `checkMonitors` - List all monitors and their current alert states
-- `getMonitorHistory` - Get the check history for a specific monitor
+### Monitor Tools  
+- **`checkMonitors`** - Monitor health dashboard with alert state analysis
+- **`getMonitorHistory`** - Historical check analysis with pattern detection
 
-### OpenTelemetry Tools (when available)
-- `otel-listServices` - List all services sending traces
-- `otel-listOperations` - List operations for a specific service
-- `otel-getServiceMetrics` - Get detailed performance metrics for a service
-- `otel-getOperationMetrics` - Get metrics for a specific operation
-- `otel-getErrorBreakdown` - Analyze error patterns across services
+### OpenTelemetry Tools
+- **`otel-listServices`** - Service discovery with operation counts
+- **`otel-getServiceMetrics`** - Comprehensive performance analysis including:
+  - Latency percentiles (p50, p90, p95, p99)
+  - Error rate trends with time-series data
+  - Throughput patterns
+- **`otel-getErrorBreakdown`** - Smart error analysis grouping by type and service
+- **`otel-findTraces`** - Advanced trace search with multiple criteria
+- **`otel-findSimilarTraces`** - Pattern matching to find related issues
+- **`otel-getTraceCriticalPath`** - Identifies performance bottlenecks
+- **`otel-findTraceAnomalies`** - Statistical anomaly detection using z-scores
+
+### Guided Analysis Workflows
+
+The server includes pre-built analysis protocols:
+- **Incident Investigation**: Step-by-step root cause analysis
+- **Performance Baselines**: Service-type specific SLA recommendations
+- **Anomaly Detection**: Multi-method statistical analysis
+- **Dataset Exploration**: Systematic unknown data discovery
 
 ## Using with Claude Desktop
 
@@ -144,15 +173,32 @@ Add to your Claude Desktop configuration:
 }
 ```
 
-## Architecture
+## 🏗️ Architecture
 
-The project uses a monorepo structure to separate concerns:
+The monorepo structure enables clean separation of intelligent tooling from infrastructure:
 
-- **Core MCP Logic** (`packages/mcp`): Contains all the tool implementations, data formatting, and business logic. This package can be used in any JavaScript environment.
+### Core Intelligence Layer (`packages/mcp`)
+- **Tool Implementations**: Each tool encodes domain expertise beyond API calls
+- **Smart Formatters**: Adaptive result presentation based on data characteristics
+- **Query Building**: Extensive examples and validation for APL queries
+- **Result Processing**: Field scoring, intelligent truncation, and CSV formatting
+- **Analysis Protocols**: Multi-step workflows for complex investigations
+- **Platform Agnostic**: Can be deployed in any JavaScript environment
 
-- **Cloudflare Application** (`apps/mcp`): Handles the infrastructure concerns including OAuth authentication, API communication, and hosting the MCP server as a Durable Object.
+### Infrastructure Layer (`apps/mcp`)
+- **OAuth Orchestration**: Dual-role implementation for secure authentication
+- **State Management**: Durable Objects for persistent user sessions
+- **OpenTelemetry**: Complete instrumentation of all operations
+- **Edge Deployment**: Cloudflare Workers for global low-latency access
+- **API Integration**: Axiom client implementation with proper error handling
 
-This separation allows the MCP tools to be reused in different deployment contexts while keeping platform-specific code isolated.
+### Key Design Decisions
+
+1. **Intelligent Defaults**: Tools automatically suggest optimal time ranges and aggregations
+2. **Progressive Disclosure**: Basic usage is simple, advanced features available when needed
+3. **Error Prevention**: Extensive validation and guidance to avoid common mistakes
+4. **Domain Expertise**: Encodes observability best practices directly in tool behavior
+5. **Adaptive Formatting**: Results adjust based on data volume and content type
 
 ## Contributing
 
