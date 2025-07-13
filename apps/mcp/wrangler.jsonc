@@ -7,9 +7,7 @@
   "name": "mcp",
   "main": "src/index.ts",
   "compatibility_date": "2025-03-10",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
+  "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "ENV": "dev",
     "COOKIE_ENCRYPTION_KEY": "",
@@ -21,9 +19,7 @@
   },
   "migrations": [
     {
-      "new_sqlite_classes": [
-        "AxiomMCP"
-      ],
+      "new_sqlite_classes": ["AxiomMCP"],
       "tag": "v1"
     }
   ],

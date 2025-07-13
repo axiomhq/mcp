@@ -54,12 +54,7 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await runQuery(
-        publicClient,
-        query,
-        startTime,
-        endTime
-      );
+      const result = await runQuery(publicClient, query, startTime, endTime);
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );
@@ -102,12 +97,7 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await runQuery(
-        publicClient,
-        query,
-        startTime,
-        endTime
-      );
+      const result = await runQuery(publicClient, query, startTime, endTime);
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );

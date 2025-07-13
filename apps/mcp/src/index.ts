@@ -7,9 +7,9 @@ import {
 import { InMemorySpanExporter } from '@opentelemetry/sdk-trace-base';
 import { AxiomHandler } from './auth-handler';
 
-export { AxiomMCP } from './mcp/server';
+export { AxiomMCP } from './mcp';
 
-import { AxiomMCP } from './mcp/server';
+import { AxiomMCP } from './mcp';
 
 const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
   if (env.AXIOM_TRACES_URL !== '') {

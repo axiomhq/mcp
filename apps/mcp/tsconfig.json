@@ -1,17 +1,12 @@
 {
   "compilerOptions": {
     "target": "es2021",
-    "lib": [
-      "es2021"
-    ],
+    "lib": ["es2021"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "module": "es2022",
     "moduleResolution": "bundler",
-    "types": [
-      "./worker-configuration.d.ts",
-      "node"
-    ],
+    "types": ["./worker-configuration.d.ts", "node"],
     "resolveJsonModule": true,
     "allowJs": true,
     "checkJs": false,
