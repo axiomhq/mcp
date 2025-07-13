@@ -5,16 +5,17 @@ import { Format } from '../lib/markdown';
 import { markdownResult, stringResult } from '../result';
 import { ParamAPLQuery, ParamDatasetName, ParamQueryDateTime } from '../schema';
 import type { ToolContext } from '.';
+import { getDatasets, getDatasetFields, runQuery, getIntegrations } from '../axiom/api';
 
-export function registerDatasetTools({ server, apiClient }: ToolContext) {
+export function registerDatasetTools({ server, publicClient, internalClient }: ToolContext) {
   server.tool(
     'listDatasets',
     'List all available datasets. For datasets you are curious about, use getDatasetFields() tool to find their schema.',
     {},
     async () => {
         const [datasets, integrations] = await Promise.all([
-          apiClient.datasets.list(),
-          apiClient.integrations.list(),
+          getDatasets(publicClient),
+          getIntegrations(internalClient),
         ]);
 
         const encoded = datasets.map((dataset) => {
@@ -52,7 +53,7 @@ export function registerDatasetTools({ server, apiClient }: ToolContext) {
     },
     async ({ datasetName }) => {
         try {
-          const fields = await apiClient.datasets.getFields(datasetName);
+          const fields = await getDatasetFields(publicClient, datasetName);
           return markdownResult()
             .h1(`Fields in ${Format.ident(datasetName)}`)
             .list(
@@ -137,11 +138,12 @@ Common Patterns:
       endTime: ParamQueryDateTime,
     },
     async ({ apl, startTime, endTime }) => {
-        const result = await apiClient.datasets.query({
+        const result = await runQuery(
+          publicClient,
           apl,
-          startTime,
-          endTime,
-        });
+          startTime || '',
+          endTime || ''
+        );
         return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );

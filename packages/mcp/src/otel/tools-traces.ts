@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { runQuery } from '../axiom/api';
 import { QueryResultFormatter } from '../axiom/formatters';
 import { transposeQueryResult } from '../axiom/transpose';
 import { sanitizeDatasetName } from '../axiom/utils';
@@ -49,7 +50,7 @@ const ParamAnomalyType = z
 
 export function registerTracesTools({
   server,
-  apiClient,
+  publicClient,
   logger,
 }: ToolContext) {
   server.tool(
@@ -80,11 +81,12 @@ ${sanitizeDatasetName(datasetName)}
       const end = new Date();
       end.setMinutes(point.getMinutes() + 10);
 
-      const result = await apiClient.datasets.query({
-        apl: query,
-        startTime: start.toISOString(),
-        endTime: end.toISOString(),
-      });
+      const result = await runQuery(
+        publicClient,
+        query,
+        start.toISOString(),
+        end.toISOString()
+      );
       return stringResult(
         new QueryResultFormatter().formatQuery(result, `Trace ${traceId} spans`)
       );
@@ -155,9 +157,12 @@ ${whereClause}
         limit,
         query,
       });
-      const result = await apiClient.datasets.query({
-        apl: query,
-      });
+      const result = await runQuery(
+        publicClient,
+        query,
+        new Date(Date.now() - 3_600_000).toISOString(), // Default 1 hour ago
+        new Date().toISOString()
+      );
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );
@@ -192,9 +197,12 @@ ${sanitizeDatasetName(datasetName)}
         referenceTraceId,
         query: referenceQuery,
       });
-      const referenceResult = await apiClient.datasets.query({
-        apl: referenceQuery,
-      });
+      const referenceResult = await runQuery(
+        publicClient,
+        referenceQuery,
+        new Date(Date.now() - 86_400_000).toISOString(), // Default 24 hours ago
+        new Date().toISOString()
+      );
 
       // Transpose the result to make it easier to work with
       const transposedReference = transposeQueryResult(referenceResult);
@@ -235,9 +243,12 @@ by trace_id
         limit,
         query: similarQuery,
       });
-      const result = await apiClient.datasets.query({
-        apl: similarQuery,
-      });
+      const result = await runQuery(
+        publicClient,
+        similarQuery,
+        new Date(Date.now() - 86_400_000).toISOString(), // Default 24 hours ago
+        new Date().toISOString()
+      );
 
       return stringResult(
         new QueryResultFormatter().formatQuery(
@@ -275,9 +286,12 @@ ${sanitizeDatasetName(datasetName)}
         traceId,
         query,
       });
-      const result = await apiClient.datasets.query({
-        apl: query,
-      });
+      const result = await runQuery(
+        publicClient,
+        query,
+        new Date(Date.now() - 3_600_000).toISOString(), // Default 1 hour ago
+        new Date().toISOString()
+      );
       return stringResult(
         new QueryResultFormatter().formatQuery(
           result,
@@ -339,9 +353,12 @@ by trace_id
         timeRange,
         query: tracesQuery,
       });
-      const tracesResult = await apiClient.datasets.query({
-        apl: tracesQuery,
-      });
+      const tracesResult = await runQuery(
+        publicClient,
+        tracesQuery,
+        new Date(Date.now() - 21_600_000).toISOString(), // Default 6 hours ago
+        new Date().toISOString()
+      );
 
       // Second query: Calculate statistics
       const statsQuery = `
@@ -363,9 +380,12 @@ by trace_id
         datasetName,
         query: statsQuery,
       });
-      const statsResult = await apiClient.datasets.query({
-        apl: statsQuery,
-      });
+      const statsResult = await runQuery(
+        publicClient,
+        statsQuery,
+        new Date(Date.now() - 21_600_000).toISOString(), // Default 6 hours ago
+        new Date().toISOString()
+      );
 
       // Transpose results for easier processing
       const traces = transposeQueryResult(tracesResult).tables[0]?.rows || [];

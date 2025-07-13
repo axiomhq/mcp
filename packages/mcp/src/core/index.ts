@@ -1,13 +1,17 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import type { AxiomApiClient } from '../api-client';
+import type { Client } from '../axiom/client';
 import type { Logger } from '../logger';
 import { registerDatasetTools } from './tools-datasets';
 import { registerMonitorTools } from './tools-monitors';
 
 export interface ToolContext {
   server: McpServer;
-  apiClient: AxiomApiClient;
+  accessToken: string;
+  apiUrl: string;
+  internalUrl: string;
   logger: Logger;
+  publicClient: Client;
+  internalClient: Client;
 }
 
 export function registerCoreTools(context: ToolContext) {
