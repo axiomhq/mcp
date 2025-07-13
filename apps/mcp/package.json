@@ -13,7 +13,7 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
-    "@axiom/mcp": "file:../../packages/mcp",
+    "@watchly/mcp": "file:../../packages/mcp",
     "@cloudflare/workers-oauth-provider": "^0.0.5",
     "@microlabs/otel-cf-workers": "^1.0.0-rc.52",
     "@modelcontextprotocol/sdk": "^1.13.0",
@@ -24,7 +24,6 @@
     "hono": "^4.8.2",
     "just-pick": "^4.2.0",
     "lucide-react": "^0.525.0",
-    "mcp-otel": "file:../../packages/mcp-otel",
     "postcss": "^8.5.6",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11",
