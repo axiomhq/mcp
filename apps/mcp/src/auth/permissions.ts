@@ -11,7 +11,7 @@ export const PERMISSION_NAMES = {
 export type PermissionName =
   (typeof PERMISSION_NAMES)[keyof typeof PERMISSION_NAMES];
 
-interface PermissionTest {
+export interface PermissionTest {
   endpoint: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   name: PermissionName;
@@ -20,7 +20,7 @@ interface PermissionTest {
   category: string;
 }
 
-interface PermissionTestResult {
+export interface PermissionTestResult {
   test: PermissionTest;
   status: 'pass' | 'fail' | 'error';
   statusCode?: number;
