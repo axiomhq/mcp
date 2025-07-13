@@ -14,22 +14,11 @@ export class AxiomMCP extends McpAgent<
     version: '0.1.3',
   });
 
-  _integrations?: string[];
-
   async init() {
     logger.info('Initializing Axiom MCP Server...');
 
-    if (!this._integrations) {
-      const internalClient = new Client(
-        this.env.ATLAS_INTERNAL_URL,
-        this.props.accessToken
-      );
-      const integrations = await getIntegrations(internalClient);
-      this._integrations = [...new Set(integrations.map((i) => i.kind))];
-      logger.debug('Detected integrations:', this._integrations);
-    }
+    const integrations = await this.getIntegrations();
 
-    const integrations = this._integrations || [];
     registerAxiomMcpTools({
       server: this.server,
       accessToken: this.props.accessToken,
@@ -40,5 +29,42 @@ export class AxiomMCP extends McpAgent<
     });
 
     logger.info('Server initialized');
+  }
+
+  async getIntegrations() {
+    logger.debug('Loading integrations');
+
+    const lastCheckKey = `${this.props.tokenKey}:integrations:lastCheck`;
+    const integrationsKey = `${this.props.tokenKey}:integrations:list`;
+
+    const lastCheckStr = await this.env.MCP_KV.get(lastCheckKey);
+    const lastIntegrationsCheck: number = lastCheckStr
+      ? Number.parseInt(lastCheckStr, 10)
+      : 0;
+    const checkDiff = Date.now() - lastIntegrationsCheck;
+
+    let integrations: string[] = [];
+
+    if (checkDiff > 300_000) {
+      logger.debug('Fetching integrations');
+      const internalClient = new Client(
+        this.env.ATLAS_INTERNAL_URL,
+        this.props.accessToken
+      );
+      const ret = await getIntegrations(internalClient);
+      integrations = [...new Set(ret.map((i) => i.kind))];
+
+      await this.env.MCP_KV.put(lastCheckKey, Date.now().toString());
+      await this.env.MCP_KV.put(integrationsKey, JSON.stringify(integrations));
+    } else {
+      // Read cached integrations from KV
+      const cachedIntegrations = await this.env.MCP_KV.get(integrationsKey);
+      if (cachedIntegrations) {
+        integrations = JSON.parse(cachedIntegrations);
+      }
+    }
+
+    logger.debug('Detected integrations:', integrations);
+    return integrations;
   }
 }

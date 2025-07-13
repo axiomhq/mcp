@@ -13,16 +13,7 @@ import {
 import { PermissionReportPage } from './components/auth/permission-report';
 import { TokenCaptureDialog } from './components/auth/token-capture-dialog';
 import { HomePage } from './components/landing/home-page';
-
-// Context from the auth process, encrypted & stored in the auth token
-// and provided to the DurableMCP as this.props
-type Props = {
-  login: string;
-  name: string;
-  email: string;
-  accessToken: string;
-  permissions: string[];
-};
+import type { ServerProps } from './types';
 
 // Helper functions for future OAuth flow
 /*
@@ -242,8 +233,9 @@ async function handleTokenCallback(
       name: 'Unknown User',
       email: 'unknown@example.com',
       accessToken: apiToken,
+      tokenKey,
       permissions: userInfo.permissions,
-    } as Props,
+    } as ServerProps,
     request: oauthReqInfo,
     scope: oauthReqInfo.scope,
     userId: userInfo.id || userInfo.email || 'unknown',
