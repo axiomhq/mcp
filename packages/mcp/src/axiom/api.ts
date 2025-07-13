@@ -19,11 +19,7 @@ import type { Client } from './client';
 const sysTimeField = '_sysTime';
 
 export async function getDatasets(client: Client): Promise<Datasets> {
-  return await client.fetch<Datasets>(
-    'get',
-    '/v2/datasets',
-    DatasetsSchema
-  );
+  return await client.fetch<Datasets>('get', '/v2/datasets', DatasetsSchema);
 }
 
 export async function getDatasetFields(
@@ -70,11 +66,7 @@ export async function runQuery(
 }
 
 export async function getMonitors(client: Client): Promise<Monitors> {
-  return await client.fetch<Monitors>(
-    'get',
-    '/v2/monitors',
-    MonitorsSchema
-  );
+  return await client.fetch<Monitors>('get', '/v2/monitors', MonitorsSchema);
 }
 
 export async function getMonitorsHistory(
@@ -91,9 +83,7 @@ export async function getMonitorsHistory(
   );
 }
 
-export async function getIntegrations(
-  client: Client
-): Promise<Integrations> {
+export async function getIntegrations(client: Client): Promise<Integrations> {
   const intDashboards = await client.fetch<IntegrationBaseDashboards>(
     'get',
     '/api/internal/integrations/dashboards',

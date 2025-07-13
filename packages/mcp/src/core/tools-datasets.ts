@@ -1,3 +1,9 @@
+import {
+  getDatasetFields,
+  getDatasets,
+  getIntegrations,
+  runQuery,
+} from '../axiom/api';
 import { DefaultDatasetKind } from '../axiom/api.types';
 import { QueryResultFormatter } from '../axiom/formatters';
 import { newToolErrorWithReason } from '../errors';
@@ -5,43 +11,46 @@ import { Format } from '../lib/markdown';
 import { markdownResult, stringResult } from '../result';
 import { ParamAPLQuery, ParamDatasetName, ParamQueryDateTime } from '../schema';
 import type { ToolContext } from '.';
-import { getDatasets, getDatasetFields, runQuery, getIntegrations } from '../axiom/api';
 
-export function registerDatasetTools({ server, publicClient, internalClient }: ToolContext) {
+export function registerDatasetTools({
+  server,
+  publicClient,
+  internalClient,
+}: ToolContext) {
   server.tool(
     'listDatasets',
     'List all available datasets. For datasets you are curious about, use getDatasetFields() tool to find their schema.',
     {},
     async () => {
-        const [datasets, integrations] = await Promise.all([
-          getDatasets(publicClient),
-          getIntegrations(internalClient),
-        ]);
+      const [datasets, integrations] = await Promise.all([
+        getDatasets(publicClient),
+        getIntegrations(internalClient),
+      ]);
 
-        const encoded = datasets.map((dataset) => {
-          return {
-            name:
-              dataset.name.includes('.') || dataset.name.includes('-')
-                ? `['${dataset.name}']`
-                : dataset.name,
-            kind:
-              integrations.find((i) => i.dataset === dataset.name)?.kind ||
-              DefaultDatasetKind,
-            description: dataset.description,
-          };
-        });
+      const encoded = datasets.map((dataset) => {
+        return {
+          name:
+            dataset.name.includes('.') || dataset.name.includes('-')
+              ? `['${dataset.name}']`
+              : dataset.name,
+          kind:
+            integrations.find((i) => i.dataset === dataset.name)?.kind ||
+            DefaultDatasetKind,
+          description: dataset.description,
+        };
+      });
 
-        return markdownResult()
-          .h1('datasets.csv')
-          .csv(
-            ['datasetName', 'kind', 'description'],
-            encoded.map((dataset) => [
-              dataset.name,
-              dataset.kind,
-              dataset.description,
-            ])
-          )
-          .result();
+      return markdownResult()
+        .h1('datasets.csv')
+        .csv(
+          ['datasetName', 'kind', 'description'],
+          encoded.map((dataset) => [
+            dataset.name,
+            dataset.kind,
+            dataset.description,
+          ])
+        )
+        .result();
     }
   );
 
@@ -52,23 +61,20 @@ export function registerDatasetTools({ server, publicClient, internalClient }: T
       datasetName: ParamDatasetName,
     },
     async ({ datasetName }) => {
-        try {
-          const fields = await getDatasetFields(publicClient, datasetName);
-          return markdownResult()
-            .h1(`Fields in ${Format.ident(datasetName)}`)
-            .list(
-              fields.map((field) =>
-                Format.listItem(field.name, field.type, field.description)
-              ),
-              'No fields found, see how to send data here https://axiom.co/docs/send-data/ingest.'
-            )
-            .result();
-        } catch (error) {
-          return newToolErrorWithReason(
-            'Failed to fetch dataset fields',
-            error
-          );
-        }
+      try {
+        const fields = await getDatasetFields(publicClient, datasetName);
+        return markdownResult()
+          .h1(`Fields in ${Format.ident(datasetName)}`)
+          .list(
+            fields.map((field) =>
+              Format.listItem(field.name, field.type, field.description)
+            ),
+            'No fields found, see how to send data here https://axiom.co/docs/send-data/ingest.'
+          )
+          .result();
+      } catch (error) {
+        return newToolErrorWithReason('Failed to fetch dataset fields', error);
+      }
     }
   );
 
@@ -138,13 +144,13 @@ Common Patterns:
       endTime: ParamQueryDateTime,
     },
     async ({ apl, startTime, endTime }) => {
-        const result = await runQuery(
-          publicClient,
-          apl,
-          startTime || '',
-          endTime || ''
-        );
-        return stringResult(new QueryResultFormatter().formatQuery(result));
+      const result = await runQuery(
+        publicClient,
+        apl,
+        startTime || '',
+        endTime || ''
+      );
+      return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );
 }

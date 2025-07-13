@@ -1,3 +1,4 @@
+import { getMonitors, getMonitorsHistory } from '../axiom/api';
 import {
   type TransposedHistoryRow,
   transposeMonitorsHistory,
@@ -5,9 +6,12 @@ import {
 import { markdownResult } from '../result';
 import { ParamMonitorId } from '../schema';
 import type { ToolContext } from '.';
-import { getMonitors, getMonitorsHistory } from '../axiom/api';
 
-export function registerMonitorTools({ server, publicClient, internalClient }: ToolContext) {
+export function registerMonitorTools({
+  server,
+  publicClient,
+  internalClient,
+}: ToolContext) {
   server.tool(
     'getMonitorHistory',
     'Get recent check history of monitor. Use the checkMonitors() tool to list all the monitors.',
@@ -15,17 +19,19 @@ export function registerMonitorTools({ server, publicClient, internalClient }: T
       monitorId: ParamMonitorId,
     },
     async ({ monitorId }) => {
-        const monitorHistory = await getMonitorsHistory(internalClient, [monitorId]);
-        const transposedHistory = transposeMonitorsHistory(monitorHistory);
+      const monitorHistory = await getMonitorsHistory(internalClient, [
+        monitorId,
+      ]);
+      const transposedHistory = transposeMonitorsHistory(monitorHistory);
 
-        return markdownResult()
-          .h1(`monitor-${monitorId}-history.csv`)
-          .csv(
-            transposedHistoryToCsvHeaders,
-            transposedHistoryToCsvRows(transposedHistory),
-            'No history available for this monitor.'
-          )
-          .result();
+      return markdownResult()
+        .h1(`monitor-${monitorId}-history.csv`)
+        .csv(
+          transposedHistoryToCsvHeaders,
+          transposedHistoryToCsvRows(transposedHistory),
+          'No history available for this monitor.'
+        )
+        .result();
     }
   );
 
@@ -34,64 +40,64 @@ export function registerMonitorTools({ server, publicClient, internalClient }: T
     'Check all monitors and their statuses.',
     {},
     async () => {
-        const monitors = await getMonitors(publicClient);
+      const monitors = await getMonitors(publicClient);
 
-        // For now, we'll fetch history for all monitors at once
-        // In the future, the API client might provide a batch method
-        const historyPromises = monitors.map((monitor) =>
-          getMonitorsHistory(internalClient, [monitor.id])
-        );
-        const histories = await Promise.all(historyPromises);
+      // For now, we'll fetch history for all monitors at once
+      // In the future, the API client might provide a batch method
+      const historyPromises = monitors.map((monitor) =>
+        getMonitorsHistory(internalClient, [monitor.id])
+      );
+      const histories = await Promise.all(historyPromises);
 
-        // Merge all histories into a single object
-        const mergedHistory = {
-          data: {},
-          fields: histories[0]?.fields || [],
-        };
+      // Merge all histories into a single object
+      const mergedHistory = {
+        data: {},
+        fields: histories[0]?.fields || [],
+      };
 
-        histories.forEach((history) => {
-          Object.assign(mergedHistory.data, history.data);
-        });
+      histories.forEach((history) => {
+        Object.assign(mergedHistory.data, history.data);
+      });
 
-        const transposedHistory = transposeMonitorsHistory(mergedHistory);
+      const transposedHistory = transposeMonitorsHistory(mergedHistory);
 
-        return markdownResult()
-          .h1('Monitors overview')
-          .h2('monitors.csv')
-          .csv(
-            [
-              'id',
-              'name',
-              'type',
-              'intervalMinutes',
-              'rangeMinutes',
-              'threshold',
-              'operator',
-              'aplQuery',
-            ],
-            monitors.map((monitor) => [
-              monitor.id,
-              monitor.name,
-              monitor.type,
-              String(monitor.intervalMinutes),
-              String(monitor.rangeMinutes),
-              String(monitor.threshold),
-              monitor.operator || '',
-              monitor.aplQuery.replace(/\s+/g, ' '),
-            ]),
-            'No monitors found.'
-          )
-          .h2('alerted-monitors.csv')
-          .csv(
-            transposedHistoryToCsvHeaders,
-            transposedHistoryToCsvRows(
-              transposedHistory.filter(
-                (history) => history.alert_state === 'open'
-              )
-            ),
-            'No alerting monitors.'
-          )
-          .result();
+      return markdownResult()
+        .h1('Monitors overview')
+        .h2('monitors.csv')
+        .csv(
+          [
+            'id',
+            'name',
+            'type',
+            'intervalMinutes',
+            'rangeMinutes',
+            'threshold',
+            'operator',
+            'aplQuery',
+          ],
+          monitors.map((monitor) => [
+            monitor.id,
+            monitor.name,
+            monitor.type,
+            String(monitor.intervalMinutes),
+            String(monitor.rangeMinutes),
+            String(monitor.threshold),
+            monitor.operator || '',
+            monitor.aplQuery.replace(/\s+/g, ' '),
+          ]),
+          'No monitors found.'
+        )
+        .h2('alerted-monitors.csv')
+        .csv(
+          transposedHistoryToCsvHeaders,
+          transposedHistoryToCsvRows(
+            transposedHistory.filter(
+              (history) => history.alert_state === 'open'
+            )
+          ),
+          'No alerting monitors.'
+        )
+        .result();
     }
   );
 }

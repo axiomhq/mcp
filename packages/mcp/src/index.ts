@@ -1,16 +1,17 @@
 // Core exports
-export * from './axiom/api.types';
+
 // Axiom API functions
 export {
-  getDatasets,
   getDatasetFields,
-  runQuery,
+  getDatasets,
+  getIntegrations,
   getMonitors,
   getMonitorsHistory,
-  getIntegrations,
+  runQuery,
 } from './axiom/api';
-export { apiFetch, ApiError, Client } from './axiom/client';
+export * from './axiom/api.types';
 export type { ApiRequest } from './axiom/client';
+export { ApiError, apiFetch, Client } from './axiom/client';
 // Axiom utilities
 export * from './axiom/formatters';
 export * from './axiom/transpose';
@@ -53,16 +54,14 @@ export function registerAxiomMcpTools(config: AxiomMcpConfig) {
     internalClient,
   };
 
-  // Always register core tools
+  config.logger.debug('[init] Registering core tools');
   registerCoreTools(context);
 
   // Register OpenTelemetry tools if any otel integration is found
   if (
     config.integrations.some((integration) => integration.startsWith('otel'))
   ) {
-    config.logger.debug(
-      'OpenTelemetry integration found, registering OTel tools'
-    );
+    config.logger.debug('[init] Registering OTel tools');
     registerOpenTelemetryTools(context);
   }
 }

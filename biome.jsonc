@@ -7,6 +7,8 @@
     "includes": [
       "**",
       "!**/*.css",
+      "!**/.wrangler/**",
+      "!**/dist/**",
       "!.commitlintrc.ts",
       "!**/globalTeardown.ts",
       "!scripts/**",
