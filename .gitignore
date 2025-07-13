@@ -169,6 +169,8 @@ dist
 # wrangler project
 
 .dev.vars
+.staging.vars
+.prod.vars
 .wrangler/
 **/.wrangler/
 reference/
