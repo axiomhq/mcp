@@ -62,7 +62,7 @@
       },
       "vars": {
         "ENV": "staging",
-        "COOKIE_ENCRYPTION_KEY": "",
+        "COOKIE_ENCRYPTION_KEY": "oi1j23ij21i213j1oij3",
         "ATLAS_API_URL": "https://api.axiom.co",
         "ATLAS_INTERNAL_URL": "https://app.axiom.co",
         "AXIOM_TRACES_KEY": "",
