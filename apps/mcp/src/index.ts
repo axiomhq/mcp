@@ -5,12 +5,13 @@ import {
   type TraceConfig,
 } from '@microlabs/otel-cf-workers';
 import { InMemorySpanExporter } from '@opentelemetry/sdk-trace-base';
-import { AxiomHandler } from './auth-handler';
+import { AxiomHandler } from './auth';
 import type { ServerProps } from './types';
 
 export { AxiomMCP } from './mcp';
 
 import { AxiomMCP } from './mcp';
+import { sha256 } from './utils';
 
 const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
   if (env.AXIOM_TRACES_URL !== '') {
@@ -74,16 +75,5 @@ const handler = {
     return oauthProvider.fetch(request, env, ctx);
   },
 };
-
-async function sha256(text: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(text);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-  return hashHex;
-}
 
 export default instrument(handler, otelConfig);
