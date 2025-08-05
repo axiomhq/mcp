@@ -4,8 +4,6 @@ import { registerDiscoveryTools } from './tools-discovery';
 import { registerMetricsTools } from './tools-metrics';
 import { registerTracesTools } from './tools-traces';
 
-export { registerOpenTelemetryPrompts } from './prompts';
-
 export function registerOpenTelemetryTools(context: ToolContext) {
   registerDiscoveryTools(context);
   registerMetricsTools(context);
