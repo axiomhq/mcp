@@ -1,0 +1,26 @@
+{
+  "name": "axiom-mcp-header-auth-example",
+  "version": "1.0.0",
+  "description": "Example demonstrating header-based authentication with Axiom MCP Server",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "MCP_SERVER_URL=http://localhost:8788 node index.js"
+  },
+  "keywords": [
+    "axiom",
+    "mcp",
+    "model-context-protocol",
+    "authentication",
+    "api"
+  ],
+  "author": "Axiom",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

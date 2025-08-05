@@ -7,6 +7,7 @@
     "includes": [
       "**",
       "!**/*.css",
+      "!examples/**",
       "!**/.wrangler/**",
       "!**/dist/**",
       "!.commitlintrc.ts",
