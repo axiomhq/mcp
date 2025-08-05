@@ -38,11 +38,20 @@ export interface AxiomMcpConfig {
   internalUrl: string;
   integrations: string[];
   logger: Logger;
+  orgId?: string;
 }
 
 export function registerAxiomMcpTools(config: AxiomMcpConfig) {
-  const publicClient = new Client(config.apiUrl, config.accessToken);
-  const internalClient = new Client(config.internalUrl, config.accessToken);
+  const publicClient = new Client(
+    config.apiUrl,
+    config.accessToken,
+    config.orgId
+  );
+  const internalClient = new Client(
+    config.internalUrl,
+    config.accessToken,
+    config.orgId
+  );
 
   const context = {
     server: config.server,
@@ -52,6 +61,7 @@ export function registerAxiomMcpTools(config: AxiomMcpConfig) {
     logger: config.logger,
     publicClient,
     internalClient,
+    orgId: config.orgId,
   };
 
   config.logger.debug('[init] Registering core tools');

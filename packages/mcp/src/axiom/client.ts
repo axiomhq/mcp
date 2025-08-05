@@ -16,18 +16,23 @@ export type ApiRequest = {
   path: string;
   body?: unknown;
   baseUrl: string;
+  orgId?: string;
 };
 
 export async function apiFetch<T>(
   areq: ApiRequest,
   schema: z.ZodSchema<T>
 ): Promise<T> {
-  const { token, method, path, body, baseUrl } = areq;
-  const headers = {
+  const { token, method, path, body, baseUrl, orgId } = areq;
+  const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
     Accept: 'application/json',
   };
+
+  if (orgId) {
+    headers['x-axiom-org-id'] = orgId;
+  }
 
   const options: RequestInit = {
     method,
@@ -55,10 +60,12 @@ export async function apiFetch<T>(
 export class Client {
   private baseUrl: string;
   private accessToken: string;
+  private orgId?: string;
 
-  constructor(baseUrl: string, accessToken: string) {
+  constructor(baseUrl: string, accessToken: string, orgId?: string) {
     this.baseUrl = baseUrl;
     this.accessToken = accessToken;
+    this.orgId = orgId;
   }
 
   async fetch<T>(
@@ -74,6 +81,7 @@ export class Client {
         path,
         body,
         baseUrl: this.baseUrl,
+        orgId: this.orgId,
       },
       schema
     );

@@ -1,5 +1,5 @@
-import { Client, getIntegrations, registerAxiomMcpTools } from '@axiom/mcp';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { Client, getIntegrations, registerAxiomMcpTools } from '@watchlyhq/mcp';
 import { McpAgent } from 'agents/mcp';
 import { logger } from './logger';
 import type { ServerProps } from './types';
@@ -49,7 +49,8 @@ export class AxiomMCP extends McpAgent<
       logger.debug('Fetching integrations');
       const internalClient = new Client(
         this.env.ATLAS_INTERNAL_URL,
-        this.props.accessToken
+        this.props.accessToken,
+        this.props.orgId
       );
       const ret = await getIntegrations(internalClient);
       integrations = [...new Set(ret.map((i) => i.kind))];

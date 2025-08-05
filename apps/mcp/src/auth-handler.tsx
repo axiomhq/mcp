@@ -229,12 +229,8 @@ async function handleTokenCallback(
     },
     // This will be available on this.props inside MyMCP
     props: {
-      login: 'unknown',
-      name: 'Unknown User',
-      email: 'unknown@example.com',
       accessToken: apiToken,
       tokenKey,
-      permissions: userInfo.permissions,
     } as ServerProps,
     request: oauthReqInfo,
     scope: oauthReqInfo.scope,

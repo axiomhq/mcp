@@ -62,6 +62,8 @@ npm install
 
 ### Configuration
 
+### OAuth Configuration (Default)
+
 Create a `.dev.vars` file in the root directory with:
 
 ```
@@ -72,6 +74,34 @@ AXIOM_OAUTH_CLIENT_ID=your-client-id
 AXIOM_OAUTH_CLIENT_SECRET=your-client-secret
 AXIOM_LOGIN_BASE_URL=https://app.axiom.co
 ```
+
+### Bearer Token Authentication (Alternative)
+
+You can also authenticate using an Axiom personal API token with an organization ID. The personal token must start with `xapt`:
+
+1. Get your personal API token from Axiom (starts with `xapt`)
+2. Find your organization ID in Axiom settings
+3. Configure your MCP client to use bearer authentication:
+
+```json
+{
+  "mcpServers": {
+    "axiom": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://your-worker.workers.dev/sse"
+      ],
+      "env": {
+        "AXIOM_BEARER_TOKEN": "xapt_your_personal_token_here",
+        "AXIOM_ORG_ID": "your-organization-id"
+      }
+    }
+  }
+}
+```
+
+The server will automatically detect bearer token authentication when these environment variables are present and bypass the OAuth flow.
 
 ### Development
 
