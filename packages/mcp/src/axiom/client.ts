@@ -16,7 +16,7 @@ export type ApiRequest = {
   path: string;
   body?: unknown;
   baseUrl: string;
-  orgId?: string;
+  orgId: string;
 };
 
 export async function apiFetch<T>(
@@ -60,9 +60,9 @@ export async function apiFetch<T>(
 export class Client {
   private baseUrl: string;
   private accessToken: string;
-  private orgId?: string;
+  private orgId: string;
 
-  constructor(baseUrl: string, accessToken: string, orgId?: string) {
+  constructor(baseUrl: string, accessToken: string, orgId: string) {
     this.baseUrl = baseUrl;
     this.accessToken = accessToken;
     this.orgId = orgId;

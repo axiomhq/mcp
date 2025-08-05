@@ -38,7 +38,7 @@ export interface AxiomMcpConfig {
   internalUrl: string;
   integrations: string[];
   logger: Logger;
-  orgId?: string;
+  orgId: string;
 }
 
 export function registerAxiomMcpTools(config: AxiomMcpConfig) {
