@@ -48,7 +48,11 @@ const handler = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     // See if this is header auth
     const token = request.headers.get('authorization');
-    const orgId = request.headers.get('x-axiom-org-id');
+
+    // Get org-id from header or query parameter
+    const url = new URL(request.url);
+    const orgId = request.headers.get('x-axiom-org-id') || url.searchParams.get('org-id');
+    
     if (token && orgId) {
       const accessToken = token.slice(7);
       if (!accessToken.startsWith('xapt-')) {
