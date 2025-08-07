@@ -26,6 +26,7 @@ export class AxiomMCP extends McpAgent<
       internalUrl: this.env.ATLAS_INTERNAL_URL,
       integrations,
       logger,
+      orgId: this.props.orgId,
     });
 
     logger.info('Server initialized');
