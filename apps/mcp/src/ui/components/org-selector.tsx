@@ -28,7 +28,7 @@ export const OrgSelector: FC<OrgSelectorProps> = ({ orgs, encodedState, clientNa
         <form action="/org-callback" method="post" className="m-0 p-0">
           <input name="state" type="hidden" value={encodedState} />
 
-          <FormGroup htmlFor="orgId">
+          <FormGroup htmlFor="orgId" label="Organization">
             <Select autofocus id="orgId" name="orgId" required>
               <option
                 className="text-sm text-gray-500 dark:text-gray-400"
