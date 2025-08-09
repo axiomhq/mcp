@@ -8,36 +8,16 @@ import type {
 const COOKIE_NAME = 'mcp-approved-clients';
 const ONE_YEAR_IN_SECONDS = 31_536_000;
 
-// --- Helper Functions ---
-
-/**
- * Encodes arbitrary data to a URL-safe base64 string.
- * @param data - The data to encode (will be stringified).
- * @returns A URL-safe base64 encoded string.
- */
-function _encodeState(data: any): string {
-  try {
-    const jsonString = JSON.stringify(data);
-    // Use btoa for simplicity, assuming Worker environment supports it well enough
-    // For complex binary data, a Buffer/Uint8Array approach might be better
-    return btoa(jsonString);
-  } catch (e) {
-    console.error('Error encoding state:', e);
-    throw new Error('Could not encode state');
-  }
-}
-
 /**
  * Decodes a URL-safe base64 string back to its original data.
  * @param encoded - The URL-safe base64 encoded string.
  * @returns The original data.
  */
-function decodeState<T = any>(encoded: string): T {
+function decodeState<T = unknown>(encoded: string): T {
   try {
     const jsonString = atob(encoded);
     return JSON.parse(jsonString);
-  } catch (e) {
-    console.error('Error decoding state:', e);
+  } catch (_e) {
     throw new Error('Could not decode state');
   }
 }
@@ -98,7 +78,8 @@ async function verifySignature(
   try {
     // Convert hex signature back to ArrayBuffer
     const signatureBytes = new Uint8Array(
-      signatureHex.match(/.{1,2}/g)!.map((byte) => Number.parseInt(byte, 16))
+      signatureHex.match(/.{1,2}/g)?.map((byte) => Number.parseInt(byte, 16)) ??
+        []
     );
     return await crypto.subtle.verify(
       'HMAC',
@@ -106,9 +87,8 @@ async function verifySignature(
       signatureBytes.buffer,
       enc.encode(data)
     );
-  } catch (e) {
+  } catch (_e) {
     // Handle errors during hex parsing or verification
-    console.error('Error verifying signature:', e);
     return false;
   }
 }
@@ -123,18 +103,21 @@ async function getApprovedClientsFromCookie(
   cookieHeader: string | null,
   secret: string
 ): Promise<string[] | null> {
-  if (!cookieHeader) return null;
+  if (!cookieHeader) {
+    return null;
+  }
 
   const cookies = cookieHeader.split(';').map((c) => c.trim());
   const targetCookie = cookies.find((c) => c.startsWith(`${COOKIE_NAME}=`));
 
-  if (!targetCookie) return null;
+  if (!targetCookie) {
+    return null;
+  }
 
   const cookieValue = targetCookie.substring(COOKIE_NAME.length + 1);
   const parts = cookieValue.split('.');
 
   if (parts.length !== 2) {
-    console.warn('Invalid cookie format received.');
     return null; // Invalid format
   }
 
@@ -145,24 +128,20 @@ async function getApprovedClientsFromCookie(
   const isValid = await verifySignature(key, signatureHex, payload);
 
   if (!isValid) {
-    console.warn('Cookie signature verification failed.');
     return null; // Signature invalid
   }
 
   try {
     const approvedClients = JSON.parse(payload);
     if (!Array.isArray(approvedClients)) {
-      console.warn('Cookie payload is not an array.');
       return null; // Payload isn't an array
     }
     // Ensure all elements are strings
     if (!approvedClients.every((item) => typeof item === 'string')) {
-      console.warn('Cookie payload contains non-string elements.');
       return null;
     }
     return approvedClients as string[];
-  } catch (e) {
-    console.error('Error parsing cookie payload:', e);
+  } catch (_e) {
     return null; // JSON parsing failed
   }
 }
@@ -183,7 +162,9 @@ export async function clientIdAlreadyApproved(
   clientId: string,
   cookieSecret: string
 ): Promise<boolean> {
-  if (!clientId) return false;
+  if (!clientId) {
+    return false;
+  }
   const cookieHeader = request.headers.get('Cookie');
   const approvedClients = await getApprovedClientsFromCookie(
     cookieHeader,
@@ -213,7 +194,7 @@ export interface ApprovalDialogOptions {
    * Arbitrary state data to pass through the approval flow
    * Will be encoded in the form and returned when approval is complete
    */
-  state: Record<string, any>;
+  state: Record<string, unknown>;
   /**
    * Name of the cookie to use for storing approvals
    * @default "mcp_approved_clients"
@@ -251,6 +232,7 @@ export interface ApprovalDialogOptions {
  * @param options - Configuration for the approval dialog
  * @returns A Response containing the HTML approval dialog
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: _
 export function renderApprovalDialog(
   request: Request,
   options: ApprovalDialogOptions
@@ -590,7 +572,7 @@ export function renderApprovalDialog(
  */
 export interface ParsedApprovalResult {
   /** The original state object passed through the form. */
-  state: any;
+  state: unknown;
   /** Headers to set on the redirect response, including the Set-Cookie header. */
   headers: Record<string, string>;
 }
@@ -612,7 +594,7 @@ export async function parseRedirectApproval(
     throw new Error('Invalid request method. Expected POST.');
   }
 
-  let state: any;
+  let state: unknown;
   let clientId: string | undefined;
 
   try {
@@ -624,13 +606,13 @@ export async function parseRedirectApproval(
     }
 
     state = decodeState<{ oauthReqInfo?: AuthRequest }>(encodedState); // Decode the state
-    clientId = state?.oauthReqInfo?.clientId; // Extract clientId from within the state
+    const typedState = state as { oauthReqInfo?: AuthRequest };
+    clientId = typedState?.oauthReqInfo?.clientId; // Extract clientId from within the state
 
     if (!clientId) {
       throw new Error('Could not extract clientId from state object.');
     }
   } catch (e) {
-    console.error('Error processing form submission:', e);
     // Rethrow or handle as appropriate, maybe return a specific error response
     throw new Error(
       `Failed to parse approval form: ${e instanceof Error ? e.message : String(e)}`

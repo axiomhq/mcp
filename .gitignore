@@ -175,6 +175,8 @@ dist
 **/.wrangler/
 reference/
 
+**/.turbo/
+
 result.json
 
 PLAN.md

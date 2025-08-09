@@ -2,21 +2,27 @@
   "name": "axiom-mcp-monorepo",
   "version": "0.0.1",
   "private": true,
+  "packageManager": "npm@10.9.2",
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=apps/mcp",
-    "deploy": "npm run deploy --workspace=apps/mcp",
-    "lint": "npm run lint --workspaces",
-    "type-check": "npm run type-check --workspaces",
-    "test": "npm run test --workspaces",
-    "test:watch": "npm run test:watch --workspaces"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "deploy": "turbo run deploy",
+    "deploy:staging": "turbo run deploy:staging",
+    "deploy:prod-us": "turbo run deploy:prod-us",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "gen:types": "turbo run gen:types"
   },
   "devDependencies": {
     "@biomejs/biome": "2.0.6",
     "@types/node": "^24.0.7",
+    "turbo": "^2.5.5",
     "typescript": "^5.8.3",
     "ultracite": "5.0.26"
   }
