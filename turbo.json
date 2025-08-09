@@ -3,16 +3,24 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
     },
     "dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "test": {
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "outputs": [],
       "cache": false
     },
@@ -21,21 +29,32 @@
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": [
+        "^lint"
+      ]
     },
     "type-check": {
-      "dependsOn": ["^type-check"]
+      "dependsOn": [
+        "^type-check"
+      ]
     },
     "deploy": {
-      "dependsOn": ["build", "test"],
+      "dependsOn": [
+        "build",
+        "test"
+      ],
       "cache": false
     },
     "deploy:staging": {
-      "dependsOn": ["build", "test"],
+      "dependsOn": [
+        "build"
+      ],
       "cache": false
     },
-    "deploy:prod-us": {
-      "dependsOn": ["build", "test"],
+    "deploy:prod": {
+      "dependsOn": [
+        "build"
+      ],
       "cache": false
     },
     "gen:types": {

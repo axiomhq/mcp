@@ -12,7 +12,7 @@
     "build": "turbo run build",
     "deploy": "turbo run deploy",
     "deploy:staging": "turbo run deploy:staging",
-    "deploy:prod-us": "turbo run deploy:prod-us",
+    "deploy:prod": "turbo run deploy:prod",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
     "test": "turbo run test",
