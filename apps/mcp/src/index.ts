@@ -66,7 +66,8 @@ const handler = {
       }
     }
 
-    if (token && orgId) {
+    const accessToken = token?.slice(7);
+    if (token && accessToken?.startsWith("xapt-") && orgId && orgId.length> 0) {
       const accessToken = token.slice(7);
       if (!accessToken.startsWith('xapt-')) {
         throw new Error(

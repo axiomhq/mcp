@@ -5,6 +5,7 @@ import type {
 } from '@cloudflare/workers-oauth-provider';
 import { Hono } from 'hono';
 import type { ServerProps } from './types';
+import { ApprovalDialog, OrgSelector } from './ui';
 import {
   fetchUpstreamAuthToken,
   getUpstreamAuthorizeUrl,
@@ -13,14 +14,45 @@ import {
 import {
   clientIdAlreadyApproved,
   parseRedirectApproval,
-  renderApprovalDialog,
 } from './workers-oauth-utils';
 
 const app = new Hono<{ Bindings: Env & { OAUTH_PROVIDER: OAuthHelpers } }>();
 
+function extractClientInfo(redirectUri: string): { clientName: string; clientUri: string } {
+  let clientName = 'Unknown Client';
+  let clientUri = redirectUri.replace(/\/callback.*$/, '');
+
+  try {
+    const url = new URL(redirectUri);
+    const hostname = url.hostname;
+    const cleanHostname = hostname.replace(/^www\./, '');
+
+    if (cleanHostname === 'localhost') {
+      clientName = 'Local Development';
+    } else {
+      const parts = cleanHostname.split('.');
+      if (parts.length > 1) {
+        parts.pop(); // Remove TLD
+        clientName = parts.join('.');
+      } else {
+        clientName = cleanHostname;
+      }
+    }
+
+    clientName = clientName
+      .split(/[.-]/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  } catch (_) {
+  }
+
+  return { clientName, clientUri };
+}
+
 app.get('/authorize', async (c) => {
   const oauthReqInfo = await c.env.OAUTH_PROVIDER.parseAuthRequest(c.req.raw);
   const { clientId } = oauthReqInfo;
+
   if (!clientId) {
     return c.text('Invalid request', 400);
   }
@@ -35,20 +67,32 @@ app.get('/authorize', async (c) => {
     return redirectToGithub(c.req.raw, oauthReqInfo);
   }
 
-  return renderApprovalDialog(c.req.raw, {
-    client: await c.env.OAUTH_PROVIDER.lookupClient(clientId),
-    server: {
-      description:
-        'This is a demo MCP Remote Server using GitHub for authentication.',
-      logo: 'https://avatars.githubusercontent.com/u/314135?s=200&v=4',
-      name: 'Cloudflare GitHub MCP Server', // optional
-    },
-    state: { oauthReqInfo }, // arbitrary data that flows through the form submission below
-  });
+  const redirectUri = oauthReqInfo.redirectUri || '';
+  const { clientName, clientUri } = extractClientInfo(redirectUri);
+
+  const client = {
+    clientId: clientId,
+    clientName: clientName,
+    clientUri: clientUri,
+    redirectUris: [redirectUri],
+    policyUri: null,
+    tosUri: null,
+    contacts: [],
+    tokenEndpointAuthMethod: 'none',
+  };
+
+  const encodedState = btoa(JSON.stringify({ oauthReqInfo }));
+
+  return c.html(
+    <ApprovalDialog
+      actionPath={new URL(c.req.url).pathname}
+      client={client}
+      encodedState={encodedState}
+    />
+  );
 });
 
 app.post('/authorize', async (c) => {
-  // Validates form submission, extracts state, and generates Set-Cookie headers to skip approval dialog next time
   const { state, headers } = await parseRedirectApproval(
     c.req.raw,
     env.COOKIE_ENCRYPTION_KEY
@@ -84,138 +128,13 @@ async function redirectToGithub(
 /**
  * OAuth Callback Endpoint
  *
- * This route handles the callback from GitHub after user authentication.
+ * This route handles the callback from Axiom after user authentication.
  * It exchanges the temporary code for an access token, then stores some
  * user metadata & the auth token as part of the 'props' on the token passed
  * down to the client. It ends by redirecting the client back to _its_ callback URL
  */
-function renderOrgSelectionDialog(
-  orgs: Array<{ id: string; name: string }>,
-  state: { oauthReqInfo: AuthRequest; accessToken: string }
-): Response {
-  const encodedState = btoa(JSON.stringify(state));
-
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Select Organization</title>
-        <style>
-          :root {
-            --primary-color: #0070f3;
-            --border-color: #e5e7eb;
-            --text-color: #333;
-            --background-color: #fff;
-            --card-shadow: 0 8px 36px 8px rgba(0, 0, 0, 0.1);
-          }
-
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                         Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: #f9fafb;
-            margin: 0;
-            padding: 0;
-          }
-
-          .container {
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 1rem;
-          }
-
-          .card {
-            background-color: var(--background-color);
-            border-radius: 8px;
-            box-shadow: var(--card-shadow);
-            padding: 2rem;
-          }
-
-          h1 {
-            margin-top: 0;
-            color: var(--text-color);
-          }
-
-          .org-list {
-            list-style: none;
-            padding: 0;
-            margin: 1rem 0;
-          }
-
-          .org-item {
-            margin-bottom: 0.5rem;
-          }
-
-          .org-button {
-            width: 100%;
-            padding: 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s;
-          }
-
-          .org-button:hover {
-            background-color: #f5f5f5;
-            border-color: var(--primary-color);
-          }
-
-          .org-name {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-          }
-
-          .org-id {
-            font-size: 0.875rem;
-            color: #666;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="card">
-            <h1>Select Organization</h1>
-            <p>Please select which organization you want to connect to the MCP server:</p>
-
-            <form method="post" action="/org-callback">
-              <input type="hidden" name="state" value="${encodedState}">
-
-              <ul class="org-list">
-                ${orgs
-                  .map(
-                    (org) => `
-                  <li class="org-item">
-                    <button type="submit" name="orgId" value="${org.id}" class="org-button">
-                      <div class="org-name">${org.name}</div>
-                      <div class="org-id">${org.id}</div>
-                    </button>
-                  </li>
-                `
-                  )
-                  .join('')}
-              </ul>
-            </form>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
-  return new Response(htmlContent, {
-    headers: {
-      'Content-Type': 'text/html; charset=utf-8',
-    },
-  });
-}
 
 app.get('/callback', async (c) => {
-  // Get the oathReqInfo out of KV
   const oauthReqInfo = JSON.parse(
     atob(c.req.query('state') as string)
   ) as AuthRequest;
@@ -223,7 +142,6 @@ app.get('/callback', async (c) => {
     return c.text('Invalid state', 400);
   }
 
-  // Exchange the code for an access token
   const [accessToken, errResponse] = await fetchUpstreamAuthToken({
     client_id: c.env.AXIOM_OAUTH_CLIENT_ID,
     client_secret: c.env.AXIOM_OAUTH_CLIENT_SECRET,
@@ -235,7 +153,6 @@ app.get('/callback', async (c) => {
     return errResponse;
   }
 
-  // Fetch organizations using the access token
   const orgsResponse = await fetch(`${c.env.ATLAS_API_URL}/v1/orgs`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -251,7 +168,6 @@ app.get('/callback', async (c) => {
     name: string;
   }>;
 
-  // If only one org, complete authorization immediately
   if (orgs.length === 1) {
     const { redirectTo } = await c.env.OAUTH_PROVIDER.completeAuthorization({
       metadata: {},
@@ -268,8 +184,18 @@ app.get('/callback', async (c) => {
     return Response.redirect(redirectTo);
   }
 
-  // Show org selection dialog
-  return renderOrgSelectionDialog(orgs, { oauthReqInfo, accessToken });
+  const encodedState = btoa(JSON.stringify({ oauthReqInfo, accessToken }));
+  const redirectUri = oauthReqInfo.redirectUri || '';
+  const { clientName, clientUri } = extractClientInfo(redirectUri);
+
+  return c.html(
+    <OrgSelector
+      encodedState={encodedState}
+      orgs={orgs}
+      clientName={clientName}
+      clientUri={clientUri}
+    />
+  );
 });
 
 app.post('/org-callback', async (c) => {
@@ -297,6 +223,76 @@ app.post('/org-callback', async (c) => {
   });
 
   return Response.redirect(redirectTo);
+});
+
+app.get('/icon', async (c) => {
+  const domain = c.req.query('domain');
+  if (!domain) {
+    return c.text('Missing domain parameter', 400);
+  }
+
+  let hostname = domain;
+  let protocol = 'https:';
+
+  try {
+    const url = new URL(domain.includes('://') ? domain : `https://${domain}`);
+    hostname = url.hostname;
+    protocol = url.protocol;
+  } catch (e) {
+  }
+
+  // Get root domain (e.g., example.com from app.example.com)
+  const parts = hostname.split('.');
+  const rootDomain = parts.length > 2 ? parts.slice(-2).join('.') : hostname;
+
+  const origins = [`${protocol}//${hostname}`];
+  if (hostname !== rootDomain) {
+    origins.push(`${protocol}//${rootDomain}`);
+  }
+
+  // Icon paths in order of preference (highest quality first)
+  const iconPaths = [
+    '/apple-touch-icon.png',
+    '/apple-touch-icon-precomposed.png',
+    '/apple-touch-icon-180x180.png',
+    '/apple-touch-icon-152x152.png',
+    '/apple-touch-icon-144x144.png',
+    '/apple-touch-icon-120x120.png',
+    '/favicon-32x32.png',
+    '/favicon.ico',
+  ];
+
+  for (const origin of origins) {
+    for (const path of iconPaths) {
+      const iconUrl = origin + path;
+      try {
+        const response = await fetch(iconUrl, {
+          signal: AbortSignal.timeout(2000)
+        });
+        if (response.ok) {
+          const contentType = response.headers.get('content-type') || 'image/png';
+          const iconData = await response.arrayBuffer();
+          return new Response(iconData, {
+            headers: {
+              'Content-Type': contentType,
+              'Cache-Control': 'public, max-age=86400', // Cache for 1 day
+            }
+          });
+        }
+      } catch (e) {
+      }
+    }
+  }
+
+  const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-16 h-16">
+  <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+</svg>`;
+  return new Response(svgIcon, {
+    headers: {
+      'Content-Type': 'image/svg+xml',
+      'Cache-Control': 'public, max-age=86400',
+    }
+  });
 });
 
 export { app as AxiomHandler };
