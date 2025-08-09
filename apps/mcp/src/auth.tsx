@@ -21,7 +21,6 @@ const app = new Hono<{ Bindings: Env & { OAUTH_PROVIDER: OAuthHelpers } }>();
 app.get('/authorize', async (c) => {
   const oauthReqInfo = await c.env.OAUTH_PROVIDER.parseAuthRequest(c.req.raw);
   const { clientId } = oauthReqInfo;
-  console.log(clientId);
   if (!clientId) {
     return c.text('Invalid request', 400);
   }
@@ -54,11 +53,12 @@ app.post('/authorize', async (c) => {
     c.req.raw,
     env.COOKIE_ENCRYPTION_KEY
   );
-  if (!state.oauthReqInfo) {
+  const typedState = state as { oauthReqInfo?: AuthRequest };
+  if (!typedState.oauthReqInfo) {
     return c.text('Invalid request', 400);
   }
 
-  return redirectToGithub(c.req.raw, state.oauthReqInfo, headers);
+  return redirectToGithub(c.req.raw, typedState.oauthReqInfo, headers);
 });
 
 async function redirectToGithub(

@@ -1,4 +1,4 @@
-import type { Logger } from '@axiom/mcp';
+import type { Logger } from '@watchlyhq/mcp';
 
 /**
  * Console-based logger implementation for the MCP app.

@@ -13,6 +13,13 @@ export { AxiomMCP } from './mcp';
 import { AxiomMCP } from './mcp';
 import { sha256 } from './utils';
 
+declare global {
+  interface Env {
+    AXIOM_OAUTH_CLIENT_ID: string;
+    AXIOM_OAUTH_CLIENT_SECRET: string;
+  }
+}
+
 const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
   if (env.AXIOM_TRACES_URL !== '') {
     return {
@@ -47,13 +54,18 @@ const oauthProvider = new OAuthProvider({
 // Create a wrapper to avoid direct instrumentation of OAuth provider internals
 const handler = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    // See if this is header auth
     const token = request.headers.get('authorization');
 
-    // Get org-id from header or query parameter
-    const url = new URL(request.url);
-    const orgId = request.headers.get('x-axiom-org-id') || url.searchParams.get('org-id');
-    
+    let orgId = request.headers.get('x-axiom-org-id');
+    if (!orgId) {
+      try {
+        const url = new URL(request.url);
+        orgId = url.searchParams.get('org-id');
+      } catch (error) {
+        return new Response(`Invalid request URL: ${error}`, { status: 400 });
+      }
+    }
+
     if (token && orgId) {
       const accessToken = token.slice(7);
       if (!accessToken.startsWith('xapt-')) {

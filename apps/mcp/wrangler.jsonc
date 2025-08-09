@@ -1,32 +1,22 @@
-/**
- * For more details on how to configure Wrangler, refer to:
- * https://developers.cloudflare.com/workers/wrangler/configuration/
- */
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "mcp",
   "main": "src/index.ts",
   "compatibility_date": "2025-03-10",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
+  "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "ENV": "dev",
     "COOKIE_ENCRYPTION_KEY": "",
     "ATLAS_API_URL": "",
     "ATLAS_INTERNAL_URL": "",
-    "AXIOM_OAUTH_CLIENT_ID": "",
-    "AXIOM_OAUTH_CLIENT_SECRET": "",
-    "AXIOM_LOGIN_BASE_URL": "",
+    "AXIOM_LOGIN_BASE_URL": "https://login.dev.axiomtestlabs.co",
     "AXIOM_TRACES_KEY": "",
     "AXIOM_TRACES_DATASET": "",
     "AXIOM_TRACES_URL": ""
   },
   "migrations": [
     {
-      "new_sqlite_classes": [
-        "AxiomMCP"
-      ],
+      "new_sqlite_classes": ["AxiomMCP"],
       "tag": "v1"
     }
   ],
@@ -65,9 +55,10 @@
       },
       "vars": {
         "ENV": "staging",
-        "COOKIE_ENCRYPTION_KEY": "oi1j23ij21i213j1oij3",
-        "ATLAS_API_URL": "https://api.axiom.co",
-        "ATLAS_INTERNAL_URL": "https://app.axiom.co",
+        "COOKIE_ENCRYPTION_KEY": "axiom-staging-oi23j4-i2j34",
+        "ATLAS_API_URL": "https://api.dev.axiomtestlabs.co",
+        "ATLAS_INTERNAL_URL": "https://app.dev.axiomtestlabs.co",
+        "AXIOM_LOGIN_BASE_URL": "https://login.dev.axiomtestlabs.co",
         "AXIOM_TRACES_KEY": "",
         "AXIOM_TRACES_DATASET": "",
         "AXIOM_TRACES_URL": ""
