@@ -5,7 +5,7 @@ interface CardProps extends BaseProps {}
 
 export const Card: FC<CardProps> = ({ children, className = '' }) => {
   return (
-    <div className={`border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 ${className}`}>
+    <div className={`bg-white dark:border-gray-700 dark:bg-gray-800 ${className}`}>
       <div className="flex border-b  dark:border-gray-700 justify-between">
         <div className="border-r dark:border-gray-700 w-8 h-8"></div>
         <div className="border-l dark:border-gray-700 w-8 h-8"></div>

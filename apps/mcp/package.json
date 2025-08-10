@@ -15,9 +15,9 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
-    "@cloudflare/workers-oauth-provider": "^0.0.5",
+    "@cloudflare/workers-oauth-provider": "^0.0.6",
     "@microlabs/otel-cf-workers": "^1.0.0-rc.52",
-    "@modelcontextprotocol/sdk": "^1.13.0",
+    "@modelcontextprotocol/sdk": "^1.17.2",
     "@watchly/mcp": "file:../../packages/mcp",
     "agents": "^0.0.95",
     "hono": "^4.8.2",
