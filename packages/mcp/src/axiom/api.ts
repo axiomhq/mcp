@@ -61,6 +61,7 @@ export async function runQuery(
       apl,
       startTime,
       endTime,
+      maxBinAutoGroups: 15,
     }
   );
 }

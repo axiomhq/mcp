@@ -31,11 +31,13 @@
   "kv_namespaces": [
     {
       "binding": "OAUTH_KV",
-      "id": "<Add-KV-ID>"
+      "id": "<Add-KV-ID>",
+      "preview_id": "0dc6a408f92d4edf82ed311527f25f7b"
     },
     {
       "binding": "MCP_KV",
-      "id": "<Add-KV-ID>"
+      "id": "<Add-KV-ID>",
+      "preview_id": "419aa2e839314cf9ba6f038f595b9125"
     }
   ],
   "observability": {
