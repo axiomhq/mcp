@@ -56,35 +56,38 @@ const oauthProvider = new OAuthProvider({
 // Create a wrapper to avoid direct instrumentation of OAuth provider internals
 const handler = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    const token = request.headers.get('authorization');
+    const tokenValue = request.headers.get('authorization');
 
     let orgId = request.headers.get('x-axiom-org-id');
     if (!orgId) {
-      try {
-        const url = new URL(request.url);
-        orgId = url.searchParams.get('org-id');
-      } catch (error) {
-        return new Response(`Invalid request URL: ${error}`, { status: 400 });
+      if (request.url.includes('org-id=')) {
+        try {
+          const url = new URL(request.url);
+          orgId = url.searchParams.get('org-id');
+        } catch (_) {
+          // doesn't matter could be a oauth request
+        }
       }
     }
 
-    const accessToken = token?.slice(7);
-    if (token && accessToken?.startsWith("xapt-") && orgId && orgId.length> 0) {
-      const accessToken = token.slice(7);
-      if (!accessToken.startsWith('xapt-')) {
-        throw new Error(
-          'Must use Axiom personal token (xapt-XXXXX) with this API server'
-        );
+    if (orgId) {
+      if (!tokenValue) {
+        return new Response('Token must be provided when using api authentication', { status: 401 });
       }
 
-      const props: ServerProps = {
-        tokenKey: await sha256(`${accessToken}:${orgId}`),
-        accessToken,
-        orgId,
-      };
+      if (orgId.length < 3) {
+        return new Response('Organization ID must be at least 3 characters long', { status: 400 });
+      }
 
-      ctx.props = props;
-      return AxiomMCP.serveSSE('/sse').fetch(request, env, ctx);
+      const accessToken = tokenValue?.slice(7);
+      const props: ServerProps = {
+          tokenKey: await sha256(`${accessToken}:${orgId}`),
+          accessToken,
+          orgId,
+        };
+
+        ctx.props = props;
+        return AxiomMCP.serveSSE('/sse').fetch(request, env, ctx);
     }
 
     return oauthProvider.fetch(request, env, ctx);
