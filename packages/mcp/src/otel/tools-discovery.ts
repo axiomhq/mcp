@@ -3,7 +3,7 @@ import { QueryResultFormatter } from '../axiom/formatters';
 import { sanitizeDatasetName } from '../axiom/utils';
 import type { ToolContext } from '../core';
 import { stringResult } from '../result';
-import { ParamQueryDateTime } from '../schema';
+import { ParamStartTime, ParamEndTime } from '../schema';
 import { ParamOTelServiceName, ParamOTelTracesDataset } from './schema';
 
 export const ToolListServices = 'otel-listServices';
@@ -20,8 +20,8 @@ export function registerDiscoveryTools({
     `List all available OpenTelemetry services. For services you are curious about, use ${ToolListOperations}, otel-getServiceMetrics and ${ToolGetErrorBreakdown} tools.`,
     {
       datasetName: ParamOTelTracesDataset,
-      startTime: ParamQueryDateTime,
-      endTime: ParamQueryDateTime,
+      startTime: ParamStartTime,
+      endTime: ParamEndTime,
     },
     async ({ datasetName, startTime, endTime }) => {
       const query = `
@@ -47,8 +47,8 @@ ${sanitizeDatasetName(datasetName)}
     {
       datasetName: ParamOTelTracesDataset,
       serviceName: ParamOTelServiceName,
-      startTime: ParamQueryDateTime,
-      endTime: ParamQueryDateTime,
+      startTime: ParamStartTime,
+      endTime: ParamEndTime,
     },
     async ({ datasetName, serviceName, startTime, endTime }) => {
       const query = `
@@ -74,8 +74,8 @@ ${sanitizeDatasetName(datasetName)}
     'Get a breakdown of the top 20 most common errors across all services and operations, including error counts, affected services, and example operations.',
     {
       datasetName: ParamOTelTracesDataset,
-      startTime: ParamQueryDateTime,
-      endTime: ParamQueryDateTime,
+      startTime: ParamStartTime,
+      endTime: ParamEndTime,
     },
     async ({ datasetName, startTime, endTime }) => {
       const query = `
