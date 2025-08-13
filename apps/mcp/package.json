@@ -5,7 +5,7 @@
   "scripts": {
     "deploy": "wrangler deploy",
     "deploy:staging": "wrangler deploy --env staging",
-    "deploy:prod-us": "wrangler deploy --env prod",
+    "deploy:prod": "wrangler deploy --env prod",
     "dev": "wrangler dev",
     "start": "wrangler dev",
     "lint": "ultracite format",
