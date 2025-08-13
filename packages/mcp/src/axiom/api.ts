@@ -19,7 +19,10 @@ import type { Client } from './client';
 const sysTimeField = '_sysTime';
 
 export async function getDatasets(client: Client): Promise<Datasets> {
-  return await client.fetch<Datasets>('get', '/v2/datasets', DatasetsSchema);
+  const datasets = await client.fetch<Datasets>('get', '/v2/datasets', DatasetsSchema);
+  return datasets.map((dataset) => {
+    return { ...dataset, description: dataset.description!.slice(0, 255) };
+  });
 }
 
 export async function getDatasetFields(
@@ -40,7 +43,7 @@ export async function getDatasetFields(
         return {
           name: f.name,
           type: f.type,
-          description: f.description,
+          description: f.description!.slice(0, 255),
         };
       }
       return f;

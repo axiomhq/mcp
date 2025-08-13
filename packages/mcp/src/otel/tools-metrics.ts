@@ -3,7 +3,7 @@ import { QueryResultFormatter } from '../axiom/formatters';
 import { sanitizeDatasetName } from '../axiom/utils';
 import type { ToolContext } from '../core';
 import { stringResult } from '../result';
-import { ParamQueryDateTime } from '../schema';
+import { ParamStartTime, ParamEndTime } from '../schema';
 import {
   ParamOTelOperationName,
   ParamOTelServiceName,
@@ -24,8 +24,8 @@ export function registerMetricsTools({
     {
       datasetName: ParamOTelTracesDataset,
       serviceName: ParamOTelServiceName,
-      startTime: ParamQueryDateTime,
-      endTime: ParamQueryDateTime,
+      startTime: ParamStartTime,
+      endTime: ParamEndTime,
     },
     async ({ datasetName, serviceName, startTime, endTime }) => {
       const query = `
@@ -66,8 +66,8 @@ ${sanitizeDatasetName(datasetName)}
       datasetName: ParamOTelTracesDataset,
       serviceName: ParamOTelServiceName,
       operationName: ParamOTelOperationName,
-      startTime: ParamQueryDateTime,
-      endTime: ParamQueryDateTime,
+      startTime: ParamStartTime,
+      endTime: ParamEndTime,
     },
     async ({ datasetName, serviceName, operationName, startTime, endTime }) => {
       const query = `
