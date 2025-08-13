@@ -3,7 +3,9 @@
   "name": "mcp",
   "main": "src/index.ts",
   "compatibility_date": "2025-03-10",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "vars": {
     "ENV": "dev",
     "COOKIE_ENCRYPTION_KEY": "",
@@ -16,7 +18,9 @@
   },
   "migrations": [
     {
-      "new_sqlite_classes": ["AxiomMCP"],
+      "new_sqlite_classes": [
+        "AxiomMCP"
+      ],
       "tag": "v1"
     }
   ],
@@ -81,6 +85,43 @@
         {
           "binding": "MCP_KV",
           "id": "534f72ecf7084f2db2d713b8ebc9b776"
+        }
+      ],
+      "version_metadata": {
+        "binding": "CF_VERSION_METADATA"
+      }
+    },
+    "prod": {
+      "route": {
+        "pattern": "mcp.axiom.co",
+        "custom_domain": true
+      },
+      "vars": {
+        "ENV": "production",
+        "COOKIE_ENCRYPTION_KEY": "axiom-prod-oij23-i2j34",
+        "ATLAS_API_URL": "https://api.axiom.co",
+        "ATLAS_INTERNAL_URL": "https://app.axiom.co",
+        "AXIOM_LOGIN_BASE_URL": "https://login.axiom.co",
+        "AXIOM_TRACES_KEY": "",
+        "AXIOM_TRACES_DATASET": "",
+        "AXIOM_TRACES_URL": ""
+      },
+      "durable_objects": {
+        "bindings": [
+          {
+            "class_name": "AxiomMCP",
+            "name": "MCP_OBJECT"
+          }
+        ]
+      },
+      "kv_namespaces": [
+        {
+          "binding": "OAUTH_KV",
+          "id": "e11500e1579a4936b2cd732b5f4f7ef7"
+        },
+        {
+          "binding": "MCP_KV",
+          "id": "e11500e1579a4936b2cd732b5f4f7ef7"
         }
       ],
       "version_metadata": {
