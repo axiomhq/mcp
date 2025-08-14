@@ -14,9 +14,5 @@ export const FormGroup: FC<FormGroupProps> = ({
 }) => {
   const baseStyles = 'mb-6';
 
-  return (
-    <div className={`${baseStyles} ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`${baseStyles} ${className}`}>{children}</div>;
 };

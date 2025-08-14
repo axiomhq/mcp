@@ -17,10 +17,10 @@ export const ConnectionVisual: FC<ConnectionVisualProps> = ({
       <div className="flex items-center gap-4">
         {/* Client App Icon */}
         <div className="relative">
-          <div className="w-16 h-16 rounded bg-white flex items-center justify-center overflow-hidden border">
+          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded border bg-white">
             <img
               alt={`${clientName} icon`}
-              className="w-16 h-16 object-contain"
+              className="h-16 w-16 object-contain"
               src={iconUrl}
             />
           </div>
@@ -28,18 +28,28 @@ export const ConnectionVisual: FC<ConnectionVisualProps> = ({
 
         {/* Connection Icon */}
         <div className="flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+          <svg
+            class="size-6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
-
         </div>
 
         {/* Axiom Icon */}
         <div className="relative">
-          <div className="w-16 h-16 rounded bg-white flex items-center justify-center overflow-hidden border">
+          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded border bg-white">
             <img
               alt="Axiom logo"
-              className="w-16 h-16 object-contain"
+              className="h-16 w-16 object-contain"
               src="https://axiom.co/android-chrome-512x512.png"
             />
           </div>

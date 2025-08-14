@@ -9,7 +9,12 @@ import { QueryResultFormatter } from '../axiom/formatters';
 import { newToolErrorWithReason } from '../errors';
 import { Format } from '../lib/markdown';
 import { markdownResult, stringResult } from '../result';
-import { ParamAPLQuery, ParamDatasetName, ParamStartTime, ParamEndTime } from '../schema';
+import {
+  ParamAPLQuery,
+  ParamDatasetName,
+  ParamEndTime,
+  ParamStartTime,
+} from '../schema';
 import type { ToolContext } from '.';
 
 export function registerDatasetTools({
@@ -144,12 +149,7 @@ Common Patterns:
       endTime: ParamEndTime,
     },
     async ({ apl, startTime, endTime }) => {
-      const result = await runQuery(
-        publicClient,
-        apl,
-        startTime,
-        endTime
-      );
+      const result = await runQuery(publicClient, apl, startTime, endTime);
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );

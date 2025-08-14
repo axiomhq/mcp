@@ -57,14 +57,14 @@ export const ApprovalDialog: FC<ApprovalDialogProps> = ({
             <strong>{clientName}</strong> is requesting access
           </H2>
 
-          <Text className="text-sm text-left">
+          <Text className="text-left text-sm">
             This MCP client is requesting to be authorized on the Axiom MCP
             Server. If you approve, you will be redirected to complete
             authentication with Axiom.
           </Text>
         </div>
 
-        <InfoBox  className="mb-6">
+        <InfoBox className="mb-6">
           {clientName && <InfoItem label="Client Name">{clientName}</InfoItem>}
 
           {clientUri && (
@@ -83,11 +83,7 @@ export const ApprovalDialog: FC<ApprovalDialogProps> = ({
             </InfoItem>
           )}
 
-          {contacts && (
-            <InfoItem label="Contact">
-              {contacts}
-            </InfoItem>
-          )}
+          {contacts && <InfoItem label="Contact">{contacts}</InfoItem>}
 
           {(policyUri || tosUri) && (
             <InfoItem className="mt-3" label="Legal">
@@ -110,7 +106,7 @@ export const ApprovalDialog: FC<ApprovalDialogProps> = ({
           )}
         </InfoBox>
 
-        <form action={actionPath} method="post" className="m-0">
+        <form action={actionPath} className="m-0" method="post">
           <input name="state" type="hidden" value={encodedState} />
           <div className="flex gap-3">
             <Button

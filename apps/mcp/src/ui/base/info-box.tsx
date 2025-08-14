@@ -24,7 +24,7 @@ export const InfoItem: FC<InfoItemProps> = ({
   const valueStyles = 'break-all text-gray-600 dark:text-gray-400 text-right';
 
   return (
-    <div className={`flex text-xs py-2 px-4 m-0 ${className}`}>
+    <div className={`m-0 flex px-4 py-2 text-xs ${className}`}>
       <div className={`grow ${labelStyles}`}>{label}</div>
       <div className={`${valueStyles}`}>{children}</div>
     </div>

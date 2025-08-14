@@ -288,7 +288,8 @@ export const Layout: FC<LayoutProps> = ({ title, children }) => {
               <main>{children}</main>
               <footer className="mt-8 text-center text-xs ">
                 <Text variant="muted">
-                  By using Axiom, you agree to its<br />
+                  By using Axiom, you agree to its
+                  <br />
                   <Link
                     href="https://axiom.co/docs/legal/terms-of-service"
                     rel="noopener noreferrer"

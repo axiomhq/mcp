@@ -10,11 +10,16 @@ interface OrgSelectorProps {
   clientUri?: string;
 }
 
-export const OrgSelector: FC<OrgSelectorProps> = ({ orgs, encodedState, clientName = 'MCP Client', clientUri = '' }) => {
+export const OrgSelector: FC<OrgSelectorProps> = ({
+  orgs,
+  encodedState,
+  clientName = 'MCP Client',
+  clientUri = '',
+}) => {
   return (
     <Layout title="Select Organization | Axiom MCP">
       <Card>
-        <ConnectionVisual clientUri={clientUri} clientName={clientName} />
+        <ConnectionVisual clientName={clientName} clientUri={clientUri} />
 
         <div className="mb-6">
           <H2>Select Organization</H2>
@@ -25,13 +30,13 @@ export const OrgSelector: FC<OrgSelectorProps> = ({ orgs, encodedState, clientNa
           </Text>
         </div>
 
-        <form action="/org-callback" method="post" className="m-0 p-0">
+        <form action="/org-callback" className="m-0 p-0" method="post">
           <input name="state" type="hidden" value={encodedState} />
 
           <FormGroup htmlFor="orgId" label="Organization">
             <Select autofocus id="orgId" name="orgId" required>
               <option
-                className="text-sm text-gray-500 dark:text-gray-400"
+                className="text-gray-500 text-sm dark:text-gray-400"
                 disabled
                 selected
                 value=""
@@ -40,7 +45,7 @@ export const OrgSelector: FC<OrgSelectorProps> = ({ orgs, encodedState, clientNa
               </option>
               {orgs.map((org) => (
                 <option
-                  className="text-sm text-gray-900 dark:text-gray-100"
+                  className="text-gray-900 text-sm dark:text-gray-100"
                   key={org.id}
                   value={org.id}
                 >
