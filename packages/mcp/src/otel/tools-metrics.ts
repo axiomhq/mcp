@@ -3,7 +3,7 @@ import { QueryResultFormatter } from '../axiom/formatters';
 import { sanitizeDatasetName } from '../axiom/utils';
 import type { ToolContext } from '../core';
 import { stringResult } from '../result';
-import { ParamStartTime, ParamEndTime } from '../schema';
+import { ParamEndTime, ParamStartTime } from '../schema';
 import {
   ParamOTelOperationName,
   ParamOTelServiceName,

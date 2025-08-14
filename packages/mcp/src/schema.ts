@@ -23,13 +23,17 @@ export const ParamStartTime = z
   .string()
   .trim()
   .default('now-30m')
-  .describe('Start time for the query range. A fixed (RFC3339) or relative (now, now-5m) time value. Defaults to "now-30m".');
+  .describe(
+    'Start time for the query range. A fixed (RFC3339) or relative (now, now-5m) time value. Defaults to "now-30m".'
+  );
 
 export const ParamEndTime = z
   .string()
   .trim()
   .default('now')
-  .describe('End time for the query range. A fixed (RFC3339) or relative (now, now-5m) time value. Defaults to "now".');
+  .describe(
+    'End time for the query range. A fixed (RFC3339) or relative (now, now-5m) time value. Defaults to "now".'
+  );
 
 export const ParamTimeEstimate = z
   .string()

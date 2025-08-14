@@ -45,6 +45,13 @@ export function getUpstreamAuthorizeUrl({
  *
  * @returns {Promise<[string, null] | [null, Response]>} A promise that resolves to an array containing the access token or an error response.
  */
+export interface TokenResponse {
+  access_token: string;
+  refresh_token?: string;
+  expires_in?: number;
+  token_type?: string;
+}
+
 export async function fetchUpstreamAuthToken({
   client_id,
   client_secret,
@@ -57,7 +64,7 @@ export async function fetchUpstreamAuthToken({
   client_secret: string;
   redirect_uri: string;
   client_id: string;
-}): Promise<[string, null] | [null, Response]> {
+}): Promise<[TokenResponse, null] | [null, Response]> {
   if (!code) {
     return [null, new Response('Missing code', { status: 400 })];
   }
@@ -83,11 +90,70 @@ export async function fetchUpstreamAuthToken({
   }
   // biome-ignore lint: _
   const body: any = await resp.json();
+  console.log('OAuth token response:', {
+    has_access_token: !!body.access_token,
+    has_refresh_token: !!body.refresh_token,
+    expires_in: body.expires_in,
+    token_type: body.token_type,
+  });
+  
   const accessToken = body.access_token as string;
   if (!accessToken) {
     return [null, new Response('Missing access token', { status: 400 })];
   }
-  return [accessToken, null];
+  
+  // Return the full token response including refresh token if present
+  return [body, null];
+}
+
+/**
+ * Refresh an access token using a refresh token
+ */
+export async function refreshAccessToken({
+  client_id,
+  client_secret,
+  refresh_token,
+  upstream_url,
+}: {
+  refresh_token: string;
+  upstream_url: string;
+  client_secret: string;
+  client_id: string;
+}): Promise<[TokenResponse, null] | [null, Response]> {
+  const resp = await fetch(upstream_url, {
+    body: new URLSearchParams({
+      client_id,
+      client_secret,
+      refresh_token,
+      grant_type: 'refresh_token',
+    }).toString(),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    method: 'POST',
+  });
+  
+  if (!resp.ok) {
+    console.error('Failed to refresh token:', await resp.text());
+    return [
+      null,
+      new Response('Failed to refresh access token', { status: 500 }),
+    ];
+  }
+  
+  const body: any = await resp.json();
+  console.log('Refresh token response:', {
+    has_access_token: !!body.access_token,
+    has_new_refresh_token: !!body.refresh_token,
+    expires_in: body.expires_in,
+  });
+  
+  const accessToken = body.access_token as string;
+  if (!accessToken) {
+    return [null, new Response('Missing access token in refresh response', { status: 400 })];
+  }
+  
+  return [body, null];
 }
 
 export async function sha256(text: string): Promise<string> {

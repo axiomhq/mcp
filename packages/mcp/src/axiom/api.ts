@@ -19,7 +19,11 @@ import type { Client } from './client';
 const sysTimeField = '_sysTime';
 
 export async function getDatasets(client: Client): Promise<Datasets> {
-  const datasets = await client.fetch<Datasets>('get', '/v2/datasets', DatasetsSchema);
+  const datasets = await client.fetch<Datasets>(
+    'get',
+    '/v2/datasets',
+    DatasetsSchema
+  );
   return datasets.map((dataset) => {
     return { ...dataset, description: dataset.description!.slice(0, 255) };
   });

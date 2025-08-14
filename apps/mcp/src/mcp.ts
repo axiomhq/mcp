@@ -56,8 +56,12 @@ export class AxiomMCP extends McpAgent<
       const ret = await getIntegrations(internalClient);
       integrations = [...new Set(ret.map((i) => i.kind))];
 
-      await this.env.MCP_KV.put(lastCheckKey, Date.now().toString());
-      await this.env.MCP_KV.put(integrationsKey, JSON.stringify(integrations));
+      await this.env.MCP_KV.put(lastCheckKey, Date.now().toString(), {
+        expirationTtl: 60 * 60 * 24 // Expire after 1 day
+      });
+      await this.env.MCP_KV.put(integrationsKey, JSON.stringify(integrations), {
+        expirationTtl: 60 * 60 * 24 // Expire after 1 day
+      });
     } else {
       // Read cached integrations from KV
       const cachedIntegrations = await this.env.MCP_KV.get(integrationsKey);

@@ -8,8 +8,10 @@ import type { ServerProps } from './types';
 import { ApprovalDialog, OrgSelector } from './ui';
 import {
   fetchUpstreamAuthToken,
+  refreshAccessToken,
   getUpstreamAuthorizeUrl,
   sha256,
+  type TokenResponse,
 } from './utils';
 import {
   clientIdAlreadyApproved,
@@ -18,9 +20,12 @@ import {
 
 const app = new Hono<{ Bindings: Env & { OAUTH_PROVIDER: OAuthHelpers } }>();
 
-function extractClientInfo(redirectUri: string): { clientName: string; clientUri: string } {
+function extractClientInfo(redirectUri: string): {
+  clientName: string;
+  clientUri: string;
+} {
   let clientName = 'Unknown Client';
-  let clientUri = redirectUri.replace(/\/callback.*$/, '');
+  const clientUri = redirectUri.replace(/\/callback.*$/, '');
 
   try {
     const url = new URL(redirectUri);
@@ -41,10 +46,9 @@ function extractClientInfo(redirectUri: string): { clientName: string; clientUri
 
     clientName = clientName
       .split(/[.-]/)
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
-  } catch (_) {
-  }
+  } catch (_) {}
 
   return { clientName, clientUri };
 }
@@ -53,8 +57,15 @@ app.get('/authorize', async (c) => {
   const oauthReqInfo = await c.env.OAUTH_PROVIDER.parseAuthRequest(c.req.raw);
   const { clientId } = oauthReqInfo;
 
+  console.log('OAuth authorize request:', {
+    clientId,
+    scope: oauthReqInfo.scope,
+    redirectUri: oauthReqInfo.redirectUri,
+  });
+
   if (!clientId) {
-    return c.text('Invalid request', 400);
+    console.error('Missing clientId in OAuth request');
+    return c.text('Invalid request: missing client_id', 400);
   }
 
   if (
@@ -71,12 +82,12 @@ app.get('/authorize', async (c) => {
   const { clientName, clientUri } = extractClientInfo(redirectUri);
 
   const client = {
-    clientId: clientId,
-    clientName: clientName,
-    clientUri: clientUri,
+    clientId,
+    clientName,
+    clientUri,
     redirectUris: [redirectUri],
-    policyUri: null,
-    tosUri: null,
+    policyUri: undefined,
+    tosUri: undefined,
     contacts: [],
     tokenEndpointAuthMethod: 'none',
   };
@@ -135,14 +146,26 @@ async function redirectToGithub(
  */
 
 app.get('/callback', async (c) => {
-  const oauthReqInfo = JSON.parse(
-    atob(c.req.query('state') as string)
-  ) as AuthRequest;
-  if (!oauthReqInfo.clientId) {
-    return c.text('Invalid state', 400);
+  let oauthReqInfo: AuthRequest;
+  try {
+    const stateParam = c.req.query('state');
+    if (!stateParam) {
+      console.error('Missing state parameter in callback');
+      return c.text('Invalid OAuth callback: missing state', 400);
+    }
+    
+    oauthReqInfo = JSON.parse(atob(stateParam)) as AuthRequest;
+    
+    if (!oauthReqInfo.clientId) {
+      console.error('Missing clientId in OAuth state:', oauthReqInfo);
+      return c.text('Invalid OAuth state: missing client_id', 400);
+    }
+  } catch (error) {
+    console.error('Failed to parse OAuth state:', error);
+    return c.text('Invalid OAuth state format', 400);
   }
 
-  const [accessToken, errResponse] = await fetchUpstreamAuthToken({
+  const [tokenResponse, errResponse] = await fetchUpstreamAuthToken({
     client_id: c.env.AXIOM_OAUTH_CLIENT_ID,
     client_secret: c.env.AXIOM_OAUTH_CLIENT_SECRET,
     code: c.req.query('code'),
@@ -152,6 +175,30 @@ app.get('/callback', async (c) => {
   if (errResponse) {
     return errResponse;
   }
+  
+  const { access_token: accessToken, refresh_token: refreshToken, expires_in: expiresIn } = tokenResponse;
+  
+  // Log token expiry info for debugging
+  console.log('Token expiry info:', {
+    has_refresh_token: !!refreshToken,
+    expires_in_seconds: expiresIn,
+    expires_in_hours: expiresIn ? (expiresIn / 3600).toFixed(1) : 'not specified',
+  });
+  
+  // Store refresh token in KV if present
+  if (refreshToken) {
+    const tokenKey = await sha256(accessToken);
+    await c.env.OAUTH_KV.put(
+      `refresh:${tokenKey}`,
+      JSON.stringify({
+        refresh_token: refreshToken,
+        expires_at: expiresIn ? Date.now() + (expiresIn * 1000) : undefined,
+        client_id: oauthReqInfo.clientId,
+      }),
+      { expirationTtl: 60 * 60 * 24 * 30 } // Keep refresh token for 30 days
+    );
+    console.log('Stored refresh token for client:', oauthReqInfo.clientId);
+  }
 
   const orgsResponse = await fetch(`${c.env.ATLAS_API_URL}/v1/orgs`, {
     headers: {
@@ -160,7 +207,18 @@ app.get('/callback', async (c) => {
   });
 
   if (!orgsResponse.ok) {
-    return c.text('Failed to fetch organizations', 500);
+    const errorText = await orgsResponse.text();
+    console.error('Failed to fetch organizations:', {
+      status: orgsResponse.status,
+      error: errorText,
+    });
+    
+    // If token is invalid or expired, we need to re-authenticate
+    if (orgsResponse.status === 401 || orgsResponse.status === 403) {
+      return c.text('Authentication failed. Please try logging in again.', 401);
+    }
+    
+    return c.text(`Failed to fetch organizations: ${errorText}`, 500);
   }
 
   const orgs = (await orgsResponse.json()) as Array<{
@@ -173,8 +231,10 @@ app.get('/callback', async (c) => {
       metadata: {},
       props: {
         accessToken,
+        refreshToken,
+        expiresAt: expiresIn ? Date.now() + (expiresIn * 1000) : undefined,
         orgId: orgs[0].id,
-        tokenKey: 'bar',
+        tokenKey: await sha256(accessToken),
       } as ServerProps,
       request: oauthReqInfo,
       scope: oauthReqInfo.scope,
@@ -184,16 +244,21 @@ app.get('/callback', async (c) => {
     return Response.redirect(redirectTo);
   }
 
-  const encodedState = btoa(JSON.stringify({ oauthReqInfo, accessToken }));
+  const encodedState = btoa(JSON.stringify({ 
+    oauthReqInfo, 
+    accessToken,
+    refreshToken,
+    expiresIn
+  }));
   const redirectUri = oauthReqInfo.redirectUri || '';
   const { clientName, clientUri } = extractClientInfo(redirectUri);
 
   return c.html(
     <OrgSelector
-      encodedState={encodedState}
-      orgs={orgs}
       clientName={clientName}
       clientUri={clientUri}
+      encodedState={encodedState}
+      orgs={orgs}
     />
   );
 });
@@ -203,6 +268,8 @@ app.post('/org-callback', async (c) => {
   const state = JSON.parse(atob(body.state as string)) as {
     oauthReqInfo: AuthRequest;
     accessToken: string;
+    refreshToken?: string;
+    expiresIn?: number;
   };
   const orgId = body.orgId as string;
 
@@ -214,6 +281,8 @@ app.post('/org-callback', async (c) => {
     metadata: {},
     props: {
       accessToken: state.accessToken,
+      refreshToken: state.refreshToken,
+      expiresAt: state.expiresIn ? Date.now() + (state.expiresIn * 1000) : undefined,
       orgId,
       tokenKey: await sha256(state.accessToken),
     } as ServerProps,
@@ -223,6 +292,35 @@ app.post('/org-callback', async (c) => {
   });
 
   return Response.redirect(redirectTo);
+});
+
+// Token refresh endpoint
+app.post('/refresh', async (c) => {
+  const body = await c.req.parseBody();
+  const refreshToken = body.refresh_token as string;
+  
+  if (!refreshToken) {
+    return c.text('Refresh token is required', 400);
+  }
+  
+  const [tokenResponse, errResponse] = await refreshAccessToken({
+    client_id: c.env.AXIOM_OAUTH_CLIENT_ID,
+    client_secret: c.env.AXIOM_OAUTH_CLIENT_SECRET,
+    refresh_token: refreshToken,
+    upstream_url: `${c.env.AXIOM_LOGIN_BASE_URL}/oauth/token`,
+  });
+  
+  if (errResponse) {
+    return errResponse;
+  }
+  
+  // Return the new tokens
+  return c.json({
+    access_token: tokenResponse.access_token,
+    refresh_token: tokenResponse.refresh_token || refreshToken, // Use new refresh token if provided, otherwise keep the old one
+    expires_in: tokenResponse.expires_in,
+    token_type: tokenResponse.token_type || 'Bearer',
+  });
 });
 
 app.get('/icon', async (c) => {
@@ -238,8 +336,7 @@ app.get('/icon', async (c) => {
     const url = new URL(domain.includes('://') ? domain : `https://${domain}`);
     hostname = url.hostname;
     protocol = url.protocol;
-  } catch (e) {
-  }
+  } catch (e) {}
 
   // Get root domain (e.g., example.com from app.example.com)
   const parts = hostname.split('.');
@@ -267,20 +364,20 @@ app.get('/icon', async (c) => {
       const iconUrl = origin + path;
       try {
         const response = await fetch(iconUrl, {
-          signal: AbortSignal.timeout(2000)
+          signal: AbortSignal.timeout(2000),
         });
         if (response.ok) {
-          const contentType = response.headers.get('content-type') || 'image/png';
+          const contentType =
+            response.headers.get('content-type') || 'image/png';
           const iconData = await response.arrayBuffer();
           return new Response(iconData, {
             headers: {
               'Content-Type': contentType,
               'Cache-Control': 'public, max-age=86400', // Cache for 1 day
-            }
+            },
           });
         }
-      } catch (e) {
-      }
+      } catch (e) {}
     }
   }
 
@@ -291,7 +388,7 @@ app.get('/icon', async (c) => {
     headers: {
       'Content-Type': 'image/svg+xml',
       'Cache-Control': 'public, max-age=86400',
-    }
+    },
   });
 });
 

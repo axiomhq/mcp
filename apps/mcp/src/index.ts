@@ -43,9 +43,9 @@ const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
 const oauthProvider = new OAuthProvider({
   // biome-ignore lint/suspicious/noExplicitAny: Type compatibility with OAuth provider
   apiHandlers: {
-      '/sse': AxiomMCP.serveSSE('/sse'),
-      '/mcp': AxiomMCP.serve('/mcp'),
-    },
+    '/sse': AxiomMCP.serveSSE('/sse'),
+    '/mcp': AxiomMCP.serve('/mcp'),
+  },
   authorizeEndpoint: '/authorize',
   clientRegistrationEndpoint: '/register',
   // biome-ignore lint/suspicious/noExplicitAny: Type compatibility with OAuth provider
@@ -59,35 +59,39 @@ const handler = {
     const tokenValue = request.headers.get('authorization');
 
     let orgId = request.headers.get('x-axiom-org-id');
-    if (!orgId) {
-      if (request.url.includes('org-id=')) {
-        try {
-          const url = new URL(request.url);
-          orgId = url.searchParams.get('org-id');
-        } catch (_) {
-          // doesn't matter could be a oauth request
-        }
+    if (!orgId && request.url.includes('org-id=')) {
+      try {
+        const url = new URL(request.url);
+        orgId = url.searchParams.get('org-id');
+      } catch (_) {
+        // doesn't matter could be a oauth request
       }
     }
 
     if (orgId) {
       if (!tokenValue) {
-        return new Response('Token must be provided when using api authentication', { status: 401 });
+        return new Response(
+          'Token must be provided when using api authentication',
+          { status: 401 }
+        );
       }
 
       if (orgId.length < 3) {
-        return new Response('Organization ID must be at least 3 characters long', { status: 400 });
+        return new Response(
+          'Organization ID must be at least 3 characters long',
+          { status: 400 }
+        );
       }
 
       const accessToken = tokenValue?.slice(7);
       const props: ServerProps = {
-          tokenKey: await sha256(`${accessToken}:${orgId}`),
-          accessToken,
-          orgId,
-        };
+        tokenKey: await sha256(`${accessToken}:${orgId}`),
+        accessToken,
+        orgId,
+      };
 
-        ctx.props = props;
-        return AxiomMCP.serveSSE('/sse').fetch(request, env, ctx);
+      ctx.props = props;
+      return AxiomMCP.serveSSE('/sse').fetch(request, env, ctx);
     }
 
     return oauthProvider.fetch(request, env, ctx);

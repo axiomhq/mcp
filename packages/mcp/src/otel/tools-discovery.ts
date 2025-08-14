@@ -3,7 +3,7 @@ import { QueryResultFormatter } from '../axiom/formatters';
 import { sanitizeDatasetName } from '../axiom/utils';
 import type { ToolContext } from '../core';
 import { stringResult } from '../result';
-import { ParamStartTime, ParamEndTime } from '../schema';
+import { ParamEndTime, ParamStartTime } from '../schema';
 import { ParamOTelServiceName, ParamOTelTracesDataset } from './schema';
 
 export const ToolListServices = 'otel-listServices';
