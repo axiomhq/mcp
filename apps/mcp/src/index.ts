@@ -6,6 +6,7 @@ import {
 } from '@microlabs/otel-cf-workers';
 import { InMemorySpanExporter } from '@opentelemetry/sdk-trace-base';
 import { AxiomHandler } from './auth';
+import { serveLandingPage } from './landing';
 import type { ServerProps } from './types';
 
 export { AxiomMCP } from './mcp';
@@ -92,6 +93,12 @@ const handler = {
 
       ctx.props = props;
       return AxiomMCP.serveSSE('/sse').fetch(request, env, ctx);
+    }
+
+    // Serve landing page on root path
+    const url = new URL(request.url);
+    if (url.pathname === '/' && request.method === 'GET') {
+      return serveLandingPage(request);
     }
 
     return oauthProvider.fetch(request, env, ctx);

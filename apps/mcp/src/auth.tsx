@@ -153,9 +153,9 @@ app.get('/callback', async (c) => {
       console.error('Missing state parameter in callback');
       return c.text('Invalid OAuth callback: missing state', 400);
     }
-    
+
     oauthReqInfo = JSON.parse(atob(stateParam)) as AuthRequest;
-    
+
     if (!oauthReqInfo.clientId) {
       console.error('Missing clientId in OAuth state:', oauthReqInfo);
       return c.text('Invalid OAuth state: missing client_id', 400);
@@ -175,16 +175,16 @@ app.get('/callback', async (c) => {
   if (errResponse) {
     return errResponse;
   }
-  
+
   const { access_token: accessToken, refresh_token: refreshToken, expires_in: expiresIn } = tokenResponse;
-  
+
   // Log token expiry info for debugging
   console.log('Token expiry info:', {
     has_refresh_token: !!refreshToken,
     expires_in_seconds: expiresIn,
     expires_in_hours: expiresIn ? (expiresIn / 3600).toFixed(1) : 'not specified',
   });
-  
+
   // Store refresh token in KV if present
   if (refreshToken) {
     const tokenKey = await sha256(accessToken);
@@ -212,12 +212,12 @@ app.get('/callback', async (c) => {
       status: orgsResponse.status,
       error: errorText,
     });
-    
+
     // If token is invalid or expired, we need to re-authenticate
     if (orgsResponse.status === 401 || orgsResponse.status === 403) {
       return c.text('Authentication failed. Please try logging in again.', 401);
     }
-    
+
     return c.text(`Failed to fetch organizations: ${errorText}`, 500);
   }
 
@@ -244,8 +244,8 @@ app.get('/callback', async (c) => {
     return Response.redirect(redirectTo);
   }
 
-  const encodedState = btoa(JSON.stringify({ 
-    oauthReqInfo, 
+  const encodedState = btoa(JSON.stringify({
+    oauthReqInfo,
     accessToken,
     refreshToken,
     expiresIn
@@ -298,22 +298,22 @@ app.post('/org-callback', async (c) => {
 app.post('/refresh', async (c) => {
   const body = await c.req.parseBody();
   const refreshToken = body.refresh_token as string;
-  
+
   if (!refreshToken) {
     return c.text('Refresh token is required', 400);
   }
-  
+
   const [tokenResponse, errResponse] = await refreshAccessToken({
     client_id: c.env.AXIOM_OAUTH_CLIENT_ID,
     client_secret: c.env.AXIOM_OAUTH_CLIENT_SECRET,
     refresh_token: refreshToken,
     upstream_url: `${c.env.AXIOM_LOGIN_BASE_URL}/oauth/token`,
   });
-  
+
   if (errResponse) {
     return errResponse;
   }
-  
+
   // Return the new tokens
   return c.json({
     access_token: tokenResponse.access_token,

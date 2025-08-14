@@ -15,6 +15,12 @@ export const H2: FC<TypographyProps> = ({ children, className = '' }) => {
   return <h2 className={`${baseStyles} ${className}`}>{children}</h2>;
 };
 
+export const H3: FC<TypographyProps> = ({ children, className = '' }) => {
+  const baseStyles =
+    'mb-2 font-semibold text-gray-900 text-base dark:text-gray-100';
+  return <h3 className={`${baseStyles} ${className}`}>{children}</h3>;
+};
+
 interface TextProps extends BaseProps {
   variant?: 'body' | 'muted';
 }
@@ -25,8 +31,8 @@ export const Text: FC<TextProps> = ({
   variant = 'body',
 }) => {
   const variantStyles = {
-    body: 'p-0 m-0 text-gray-500 leading-tight dark:text-gray-400',
-    muted: 'p-0 m-0 text-gray-400 dark:text-gray-400',
+    body: 'p-0 m-0 text-gray-700 leading-tight dark:text-gray-400',
+    muted: 'p-0 m-0 text-gray-500 dark:text-gray-400',
   };
 
   return <p className={`${variantStyles[variant]} ${className}`}>{children}</p>;

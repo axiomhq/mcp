@@ -182,3 +182,6 @@ result.json
 PLAN.md
 
 tmp/
+
+# Crush directory
+.crush/
