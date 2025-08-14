@@ -47,7 +47,7 @@ const getHTML = (content: string) => `
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     :root {
       --gray-1: hsl(0, 0%, 99.0%);
       --gray-2: hsl(0, 0%, 97.3%);
@@ -60,7 +60,7 @@ const getHTML = (content: string) => `
       --green-9: hsl(151, 55%, 41.5%);
       --red-9: hsl(358, 75%, 59%);
     }
-    
+
     @media (prefers-color-scheme: dark) {
       :root {
         --gray-1: hsl(0, 0%, 8.5%);
@@ -75,7 +75,7 @@ const getHTML = (content: string) => `
         --red-9: hsl(358, 65%, 48.7%);
       }
     }
-    
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       background: var(--gray-1);
@@ -87,7 +87,7 @@ const getHTML = (content: string) => `
       justify-content: center;
       padding: 1rem;
     }
-    
+
     .container {
       max-width: 600px;
       width: 100%;
@@ -96,31 +96,31 @@ const getHTML = (content: string) => `
       padding: 2rem;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-    
+
     h1 {
       margin-bottom: 0.5rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
-    
+
     .subtitle {
       color: var(--gray-11);
       margin-bottom: 2rem;
       font-size: 0.95rem;
     }
-    
+
     .form-group {
       margin-bottom: 1.5rem;
     }
-    
+
     label {
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 500;
       font-size: 0.9rem;
     }
-    
+
     input, select {
       width: 100%;
       padding: 0.75rem;
@@ -130,11 +130,11 @@ const getHTML = (content: string) => `
       color: var(--gray-12);
       font-size: 1rem;
     }
-    
+
     select {
       cursor: pointer;
     }
-    
+
     button {
       width: 100%;
       padding: 0.75rem;
@@ -147,16 +147,16 @@ const getHTML = (content: string) => `
       cursor: pointer;
       transition: background 0.2s;
     }
-    
+
     button:hover {
       background: var(--blue-10);
     }
-    
+
     button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
-    
+
     .info-box {
       background: var(--gray-3);
       border-radius: 8px;
@@ -166,13 +166,13 @@ const getHTML = (content: string) => `
       font-size: 0.85rem;
       word-break: break-all;
     }
-    
+
     .info-box strong {
       display: block;
       margin-bottom: 0.25rem;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     }
-    
+
     .success {
       background: hsl(151, 55%, 41.5%, 0.1);
       border: 1px solid var(--green-9);
@@ -181,7 +181,7 @@ const getHTML = (content: string) => `
       border-radius: 8px;
       margin: 1rem 0;
     }
-    
+
     .error {
       background: hsl(358, 75%, 59%, 0.1);
       border: 1px solid var(--red-9);
@@ -190,7 +190,7 @@ const getHTML = (content: string) => `
       border-radius: 8px;
       margin: 1rem 0;
     }
-    
+
     .token-display {
       background: var(--gray-1);
       border: 1px solid var(--gray-6);
@@ -203,7 +203,7 @@ const getHTML = (content: string) => `
       max-height: 200px;
       overflow-y: auto;
     }
-    
+
     .sse-log {
       background: var(--gray-1);
       border: 1px solid var(--gray-6);
@@ -215,23 +215,23 @@ const getHTML = (content: string) => `
       height: 200px;
       overflow-y: auto;
     }
-    
+
     .sse-log div {
       padding: 0.25rem 0;
       border-bottom: 1px solid var(--gray-3);
     }
-    
+
     .back-link {
       display: inline-block;
       color: var(--blue-9);
       text-decoration: none;
       margin-top: 1rem;
     }
-    
+
     .back-link:hover {
       text-decoration: underline;
     }
-    
+
     #sseStatus {
       display: inline-block;
       padding: 0.25rem 0.5rem;
@@ -239,12 +239,12 @@ const getHTML = (content: string) => `
       font-size: 0.85rem;
       margin-left: 0.5rem;
     }
-    
+
     #sseStatus.connected {
       background: hsl(151, 55%, 41.5%, 0.1);
       color: var(--green-9);
     }
-    
+
     #sseStatus.disconnected {
       background: hsl(358, 75%, 59%, 0.1);
       color: var(--red-9);
@@ -263,36 +263,37 @@ const getHTML = (content: string) => `
 const getMainPage = () => getHTML(`
   <h1>🔐 Axiom MCP OAuth Tester</h1>
   <p class="subtitle">Test the OAuth flow for your MCP server</p>
-  
+
   <form action="/start" method="POST">
     <div class="form-group">
       <label for="environment">Environment</label>
       <select name="environment" id="environment" onchange="updateBaseUrl()">
         <option value="http://localhost:8788">Local (localhost:8788)</option>
-        <option value="https://mcp-staging.axiom.workers.dev">Staging</option>
+        <option value="https://mcp.axiomtestlabs.co">Staging</option>
+        <option value="https://mcp.axiom.co">Production</option>
         <option value="custom">Custom URL</option>
       </select>
     </div>
-    
+
     <div class="form-group" id="customUrlGroup" style="display: none;">
       <label for="customUrl">Custom Base URL</label>
       <input type="url" name="customUrl" id="customUrl" placeholder="https://your-server.com">
     </div>
-    
+
     <div class="form-group">
-      <label for="clientId">Client ID</label>
+      <label for="clientId">Client Name (auto-registered)</label>
       <input type="text" name="clientId" id="clientId" value="test-client" required>
     </div>
-    
+
     <button type="submit">Start OAuth Flow</button>
   </form>
-  
+
   <script>
     function updateBaseUrl() {
       const select = document.getElementById('environment');
       const customGroup = document.getElementById('customUrlGroup');
       const customInput = document.getElementById('customUrl');
-      
+
       if (select.value === 'custom') {
         customGroup.style.display = 'block';
         customInput.required = true;
@@ -308,23 +309,23 @@ const getMainPage = () => getHTML(`
 const getAuthPage = (authUrl: string, sessionId: string, params: any) => getHTML(`
   <h1>🚀 Ready to Authorize</h1>
   <p class="subtitle">Click the button below to start the authorization flow</p>
-  
+
   <div class="info-box">
     <strong>Session ID:</strong>
     ${sessionId}
   </div>
-  
+
   <div class="info-box">
     <strong>OAuth Parameters:</strong>
     State: ${params.state}<br>
     Code Challenge: ${params.codeChallenge}<br>
     Client ID: ${params.clientId}
   </div>
-  
+
   <a href="${authUrl}" style="text-decoration: none;">
     <button>Authorize with Axiom</button>
   </a>
-  
+
   <a href="/" class="back-link">← Start over</a>
 `);
 
@@ -334,79 +335,75 @@ const getCallbackPage = (success: boolean, data: any) => {
     return getHTML(`
       <h1>✅ Authorization Successful!</h1>
       <p class="subtitle">Your access token is ready</p>
-      
+
       <div class="success">
         Successfully exchanged authorization code for access token
       </div>
-      
+
       <div class="info-box">
         <strong>Access Token:</strong>
         <div class="token-display">${data.access_token}</div>
       </div>
-      
+
       ${data.refresh_token ? `
       <div class="info-box">
         <strong>Refresh Token:</strong>
         <div class="token-display">${data.refresh_token}</div>
       </div>
       ` : ''}
-      
+
       <div class="info-box">
         <strong>Token Details:</strong>
         Type: ${data.token_type}<br>
         Expires In: ${data.expires_in} seconds<br>
         Scope: ${data.scope || 'N/A'}
       </div>
-      
+
       <h2 style="margin-top: 2rem;">🔌 SSE Connection Test</h2>
       <p class="subtitle">
         Testing real-time connection
         <span id="sseStatus" class="disconnected">Disconnected</span>
       </p>
-      
+
       <div class="sse-log" id="sseLog">
         <div>Waiting for connection...</div>
       </div>
-      
+
       <a href="/" class="back-link">← Start new test</a>
-      
+
       <script>
         const token = '${data.access_token}';
         const baseUrl = '${data.baseUrl}';
         const log = document.getElementById('sseLog');
         const status = document.getElementById('sseStatus');
-        
+
         function addLog(message) {
           const div = document.createElement('div');
           div.textContent = new Date().toLocaleTimeString() + ' - ' + message;
           log.appendChild(div);
           log.scrollTop = log.scrollHeight;
         }
-        
+
         // Test SSE connection
-        const eventSource = new EventSource(baseUrl + '/sse', {
-          headers: {
-            'Authorization': 'Bearer ' + token
-          }
-        });
-        
+        const eventSource = new EventSource('/sse-proxy?base=' + encodeURIComponent(baseUrl));
+
         eventSource.onopen = () => {
           status.textContent = 'Connected';
           status.className = 'connected';
           addLog('SSE connection established');
         };
-        
+
         eventSource.onmessage = (event) => {
           addLog('Message: ' + event.data);
         };
-        
+
         eventSource.onerror = (error) => {
           status.textContent = 'Disconnected';
           status.className = 'disconnected';
           addLog('Connection error or closed');
           eventSource.close();
         };
-        
+
         // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
           eventSource.close();
@@ -417,18 +414,18 @@ const getCallbackPage = (success: boolean, data: any) => {
     return getHTML(`
       <h1>❌ Authorization Failed</h1>
       <p class="subtitle">Something went wrong during authorization</p>
-      
+
       <div class="error">
         ${data.error}: ${data.error_description || 'Unknown error'}
       </div>
-      
+
       ${data.details ? `
       <div class="info-box">
         <strong>Details:</strong>
         <pre>${JSON.stringify(data.details, null, 2)}</pre>
       </div>
       ` : ''}
-      
+
       <a href="/" class="back-link">← Try again</a>
     `);
   }
@@ -439,68 +436,93 @@ const server = Bun.serve({
   port: PORT,
   async fetch(req) {
     const url = new URL(req.url);
-    
+
     // Main page
     if (url.pathname === '/' && req.method === 'GET') {
       return new Response(getMainPage(), {
         headers: { 'Content-Type': 'text/html' }
       });
     }
-    
+
     // Start OAuth flow
     if (url.pathname === '/start' && req.method === 'POST') {
       const formData = await req.formData();
       const environment = formData.get('environment') as string;
       const customUrl = formData.get('customUrl') as string;
       const clientId = formData.get('clientId') as string;
-      
+
       const baseUrl = environment === 'custom' ? customUrl : environment;
       const sessionId = generateState();
       const state = generateState();
       const codeVerifier = generateCodeVerifier();
       const codeChallenge = generateCodeChallenge(codeVerifier);
-      
+
+      // Dynamic client registration
+      let resolvedClientId = clientId;
+      try {
+        const registerResponse = await fetch(`${baseUrl}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/oauth-client+json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            client_name: clientId || 'Axiom MCP OAuth Tester',
+            redirect_uris: [`http://localhost:${PORT}/callback`],
+            grant_types: ['authorization_code'],
+            response_types: ['code'],
+            token_endpoint_auth_method: 'none',
+            scope: 'mcp:*'
+          })
+        });
+        if (registerResponse.ok) {
+          const reg = await registerResponse.json();
+          if (reg && reg.client_id) {
+            resolvedClientId = reg.client_id;
+          }
+        }
+      } catch (e) {
+        // Fallback to provided clientId if registration is unavailable
+      }
+
       // Store session
       sessions.set(sessionId, {
         codeVerifier,
         state,
         environment: baseUrl,
-        clientId
+        clientId: resolvedClientId
       });
-      
+
       // Build auth URL
       const authUrl = new URL(`${baseUrl}/authorize`);
-      authUrl.searchParams.set('client_id', clientId);
+      authUrl.searchParams.set('client_id', resolvedClientId);
       authUrl.searchParams.set('redirect_uri', `http://localhost:${PORT}/callback`);
       authUrl.searchParams.set('response_type', 'code');
       authUrl.searchParams.set('state', state);
       authUrl.searchParams.set('code_challenge', codeChallenge);
       authUrl.searchParams.set('code_challenge_method', 'S256');
       authUrl.searchParams.set('scope', 'mcp:*');
-      
+
       return new Response(getAuthPage(authUrl.toString(), sessionId, {
         state,
         codeChallenge,
-        clientId
+        clientId: resolvedClientId
       }), {
-        headers: { 
+        headers: {
           'Content-Type': 'text/html',
           'Set-Cookie': `session=${sessionId}; Path=/; HttpOnly; SameSite=Lax`
         }
       });
     }
-    
+
     // OAuth callback
     if (url.pathname === '/callback' && req.method === 'GET') {
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state');
       const error = url.searchParams.get('error');
       const errorDescription = url.searchParams.get('error_description');
-      
+
       // Get session from cookie
       const cookie = req.headers.get('cookie');
       const sessionId = cookie?.match(/session=([^;]+)/)?.[1];
-      
+
       if (!sessionId || !sessions.has(sessionId)) {
         return new Response(getCallbackPage(false, {
           error: 'Session expired',
@@ -509,9 +531,9 @@ const server = Bun.serve({
           headers: { 'Content-Type': 'text/html' }
         });
       }
-      
+
       const session = sessions.get(sessionId)!;
-      
+
       if (error) {
         return new Response(getCallbackPage(false, {
           error,
@@ -520,7 +542,7 @@ const server = Bun.serve({
           headers: { 'Content-Type': 'text/html' }
         });
       }
-      
+
       if (state !== session.state) {
         return new Response(getCallbackPage(false, {
           error: 'State mismatch',
@@ -529,7 +551,7 @@ const server = Bun.serve({
           headers: { 'Content-Type': 'text/html' }
         });
       }
-      
+
       if (!code) {
         return new Response(getCallbackPage(false, {
           error: 'Missing code',
@@ -538,7 +560,7 @@ const server = Bun.serve({
           headers: { 'Content-Type': 'text/html' }
         });
       }
-      
+
       // Exchange code for token
       try {
         const tokenUrl = `${session.environment}/token`;
@@ -549,7 +571,7 @@ const server = Bun.serve({
           client_id: session.clientId,
           code_verifier: session.codeVerifier,
         });
-        
+
         const tokenResponse = await fetch(tokenUrl, {
           method: 'POST',
           headers: {
@@ -557,9 +579,9 @@ const server = Bun.serve({
           },
           body: tokenBody.toString(),
         });
-        
+
         const tokenData = await tokenResponse.json();
-        
+
         if (!tokenResponse.ok) {
           return new Response(getCallbackPage(false, {
             error: 'Token exchange failed',
@@ -569,19 +591,20 @@ const server = Bun.serve({
             headers: { 'Content-Type': 'text/html' }
           });
         }
-        
+
         // Clean up session
         sessions.delete(sessionId);
-        
+
+        const headers = new Headers({ 'Content-Type': 'text/html' });
+        // Clear session cookie
+        headers.append('Set-Cookie', 'session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
+        // Store access token for SSE proxy (HttpOnly)
+        headers.append('Set-Cookie', `access_token=${tokenData.access_token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${Number(tokenData.expires_in) || 3600}`);
+
         return new Response(getCallbackPage(true, {
           ...tokenData,
           baseUrl: session.environment
-        }), {
-          headers: { 
-            'Content-Type': 'text/html',
-            'Set-Cookie': 'session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0'
-          }
-        });
+        }), { headers });
       } catch (error) {
         return new Response(getCallbackPage(false, {
           error: 'Network error',
@@ -592,17 +615,54 @@ const server = Bun.serve({
         });
       }
     }
-    
+
+    // SSE proxy: browser -> this server -> upstream /sse with Authorization header
+    if (url.pathname === '/sse-proxy' && req.method === 'GET') {
+      const base = url.searchParams.get('base');
+      const cookie = req.headers.get('cookie') || '';
+      const accessToken = cookie.match(/(?:^|;\s*)access_token=([^;]+)/)?.[1];
+
+      if (!base) {
+        return new Response('Missing base', { status: 400 });
+      }
+      if (!accessToken) {
+        return new Response('Missing access token', { status: 401 });
+      }
+
+      try {
+        const upstream = await fetch(`${base}/sse`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            Accept: 'text/event-stream',
+          },
+        });
+
+        if (!upstream.ok || !upstream.body) {
+          return new Response(`Upstream SSE error: ${upstream.status}`, { status: 502 });
+        }
+
+        return new Response(upstream.body, {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache, no-transform',
+            'Connection': 'keep-alive',
+          },
+        });
+      } catch (_err) {
+        return new Response('Failed to connect upstream SSE', { status: 502 });
+      }
+    }
+
     return new Response('Not found', { status: 404 });
   }
 });
 
 console.log(`
 🚀 OAuth Test Server Running!
-   
+
    Open in your browser:
    http://localhost:${PORT}
-   
+
    This server will handle the OAuth flow and display your access token.
    Press Ctrl+C to stop.
 `);

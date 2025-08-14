@@ -7,8 +7,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "npm run extract-metadata && tsc",
     "dev": "tsc --watch",
+    "extract-metadata": "tsx scripts/extract-tools.ts",
     "lint": "ultracite format",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
