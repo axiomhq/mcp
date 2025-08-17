@@ -96,7 +96,8 @@ export const LandingPage: FC<LandingPageProps> = ({
   const claudeConfig = `{
   "mcpServers": {
     "axiom": {
-      "url": "${serverUrl}/mcp"
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "${serverUrl}/mcp"]
     }
   }
 }`;
