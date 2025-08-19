@@ -19,6 +19,17 @@ export type ApiRequest = {
   orgId: string;
 };
 
+// MCP server telemetry configuration - similar to axiom.SetUserAgent() in Go SDK
+const MCP_TELEMETRY_HEADERS = {
+  'User-Agent': 'axiom-mcp-server (hosted)',
+  'X-MCP-Server-Type': 'hosted',
+} as const;
+
+
+export function getMcpTelemetryHeaders(): Record<string, string> {
+  return { ...MCP_TELEMETRY_HEADERS };
+}
+
 export async function apiFetch<T>(
   areq: ApiRequest,
   schema: z.ZodSchema<T>
@@ -28,6 +39,8 @@ export async function apiFetch<T>(
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
     Accept: 'application/json',
+    // Add telemetry headers to identify hosted MCP server requests
+    ...getMcpTelemetryHeaders(),
   };
 
   if (orgId) {
