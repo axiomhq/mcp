@@ -24,19 +24,26 @@ declare global {
 const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
   if (env.AXIOM_TRACES_URL !== '') {
     return {
-      service: { name: 'apex', version: env.CF_VERSION_METADATA.id },
+      service: {
+        name: 'axiom-mcp-remote',
+        version: env.CF_VERSION_METADATA.id,
+      },
       exporter: {
         url: env.AXIOM_TRACES_URL,
         headers: {
           Authorization: `Bearer ${env.AXIOM_TRACES_KEY}`,
           'x-axiom-dataset': env.AXIOM_TRACES_DATASET,
+          'X-MCP-Server-Type': 'hosted',
         },
       },
     };
   }
 
   return {
-    service: { name: 'apex', version: env.CF_VERSION_METADATA.id },
+    service: {
+      name: 'axiom-mcp-remote',
+      version: env.CF_VERSION_METADATA.id,
+    },
     exporter: new InMemorySpanExporter(),
   };
 };
