@@ -30,6 +30,7 @@ const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
         headers: {
           Authorization: `Bearer ${env.AXIOM_TRACES_KEY}`,
           'x-axiom-dataset': env.AXIOM_TRACES_DATASET,
+          'X-MCP-Server-Type': 'hosted',
         },
       },
     };
