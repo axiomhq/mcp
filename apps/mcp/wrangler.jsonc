@@ -98,9 +98,9 @@
         "ATLAS_API_URL": "https://api.axiom.co",
         "ATLAS_INTERNAL_URL": "https://app.axiom.co",
         "AXIOM_LOGIN_BASE_URL": "https://login.axiom.co",
-        "AXIOM_TRACES_KEY": "",
-        "AXIOM_TRACES_DATASET": "",
-        "AXIOM_TRACES_URL": ""
+        "AXIOM_TRACES_KEY": "xaat-cd99c914-8057-4523-9532-932c4eb502a8",
+        "AXIOM_TRACES_DATASET": "remote-axiom-mcp",
+        "AXIOM_TRACES_URL": "https://api.staging.axiomtestlabs.co/v1/traces"
       },
       "durable_objects": {
         "bindings": [
