@@ -1,5 +1,10 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Client, getIntegrations, registerAxiomMcpTools } from '@watchlyhq/mcp';
+import {
+  Client,
+  getIntegrations,
+  type Integrations,
+  registerAxiomMcpTools,
+} from '@watchlyhq/mcp';
 import { McpAgent } from 'agents/mcp';
 import { logger } from './logger';
 import type { ServerProps } from './types';
@@ -53,14 +58,14 @@ export class AxiomMCP extends McpAgent<
         this.props.accessToken,
         this.props.orgId
       );
-      const ret = await getIntegrations(internalClient);
+      const ret: Integrations = await getIntegrations(internalClient);
       integrations = [...new Set(ret.map((i) => i.kind))];
 
       await this.env.MCP_KV.put(lastCheckKey, Date.now().toString(), {
-        expirationTtl: 60 * 60 * 24 // Expire after 1 day
+        expirationTtl: 60 * 60 * 24, // Expire after 1 day
       });
       await this.env.MCP_KV.put(integrationsKey, JSON.stringify(integrations), {
-        expirationTtl: 60 * 60 * 24 // Expire after 1 day
+        expirationTtl: 60 * 60 * 24, // Expire after 1 day
       });
     } else {
       // Read cached integrations from KV

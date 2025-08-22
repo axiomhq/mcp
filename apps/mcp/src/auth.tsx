@@ -1,22 +1,27 @@
-import { env } from 'cloudflare:workers';
 import type {
   AuthRequest,
   OAuthHelpers,
 } from '@cloudflare/workers-oauth-provider';
+import { env } from 'cloudflare:workers';
 import { Hono } from 'hono';
+import { logger } from './logger';
 import type { ServerProps } from './types';
 import { ApprovalDialog, OrgSelector } from './ui';
 import {
   fetchUpstreamAuthToken,
-  refreshAccessToken,
   getUpstreamAuthorizeUrl,
+  refreshAccessToken,
   sha256,
-  type TokenResponse,
 } from './utils';
 import {
   clientIdAlreadyApproved,
   parseRedirectApproval,
 } from './workers-oauth-utils';
+
+// Regex patterns moved to top level for better performance
+const CALLBACK_REGEX = /\/callback.*$/;
+const WWW_PREFIX_REGEX = /^www\./;
+const WORD_SEPARATOR_REGEX = /[.-]/;
 
 const app = new Hono<{ Bindings: Env & { OAUTH_PROVIDER: OAuthHelpers } }>();
 
@@ -25,12 +30,12 @@ function extractClientInfo(redirectUri: string): {
   clientUri: string;
 } {
   let clientName = 'Unknown Client';
-  const clientUri = redirectUri.replace(/\/callback.*$/, '');
+  const clientUri = redirectUri.replace(CALLBACK_REGEX, '');
 
   try {
     const url = new URL(redirectUri);
     const hostname = url.hostname;
-    const cleanHostname = hostname.replace(/^www\./, '');
+    const cleanHostname = hostname.replace(WWW_PREFIX_REGEX, '');
 
     if (cleanHostname === 'localhost') {
       clientName = 'Local Development';
@@ -45,10 +50,15 @@ function extractClientInfo(redirectUri: string): {
     }
 
     clientName = clientName
-      .split(/[.-]/)
+      .split(WORD_SEPARATOR_REGEX)
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
-  } catch (_) {}
+  } catch (error) {
+    logger.warn(
+      'Failed to parse redirect URI for client info extraction:',
+      error
+    );
+  }
 
   return { clientName, clientUri };
 }
@@ -57,14 +67,14 @@ app.get('/authorize', async (c) => {
   const oauthReqInfo = await c.env.OAUTH_PROVIDER.parseAuthRequest(c.req.raw);
   const { clientId } = oauthReqInfo;
 
-  console.log('OAuth authorize request:', {
+  logger.info('OAuth authorize request:', {
     clientId,
     scope: oauthReqInfo.scope,
     redirectUri: oauthReqInfo.redirectUri,
   });
 
   if (!clientId) {
-    console.error('Missing clientId in OAuth request');
+    logger.error('Missing clientId in OAuth request');
     return c.text('Invalid request: missing client_id', 400);
   }
 
@@ -150,18 +160,18 @@ app.get('/callback', async (c) => {
   try {
     const stateParam = c.req.query('state');
     if (!stateParam) {
-      console.error('Missing state parameter in callback');
+      logger.error('Missing state parameter in callback');
       return c.text('Invalid OAuth callback: missing state', 400);
     }
 
     oauthReqInfo = JSON.parse(atob(stateParam)) as AuthRequest;
 
     if (!oauthReqInfo.clientId) {
-      console.error('Missing clientId in OAuth state:', oauthReqInfo);
+      logger.error('Missing clientId in OAuth state:', oauthReqInfo);
       return c.text('Invalid OAuth state: missing client_id', 400);
     }
   } catch (error) {
-    console.error('Failed to parse OAuth state:', error);
+    logger.error('Failed to parse OAuth state:', error);
     return c.text('Invalid OAuth state format', 400);
   }
 
@@ -176,13 +186,19 @@ app.get('/callback', async (c) => {
     return errResponse;
   }
 
-  const { access_token: accessToken, refresh_token: refreshToken, expires_in: expiresIn } = tokenResponse;
+  const {
+    access_token: accessToken,
+    refresh_token: refreshToken,
+    expires_in: expiresIn,
+  } = tokenResponse;
 
   // Log token expiry info for debugging
-  console.log('Token expiry info:', {
+  logger.debug('Token expiry info:', {
     has_refresh_token: !!refreshToken,
     expires_in_seconds: expiresIn,
-    expires_in_hours: expiresIn ? (expiresIn / 3600).toFixed(1) : 'not specified',
+    expires_in_hours: expiresIn
+      ? (expiresIn / 3600).toFixed(1)
+      : 'not specified',
   });
 
   // Store refresh token in KV if present
@@ -192,12 +208,12 @@ app.get('/callback', async (c) => {
       `refresh:${tokenKey}`,
       JSON.stringify({
         refresh_token: refreshToken,
-        expires_at: expiresIn ? Date.now() + (expiresIn * 1000) : undefined,
+        expires_at: expiresIn ? Date.now() + expiresIn * 1000 : undefined,
         client_id: oauthReqInfo.clientId,
       }),
       { expirationTtl: 60 * 60 * 24 * 30 } // Keep refresh token for 30 days
     );
-    console.log('Stored refresh token for client:', oauthReqInfo.clientId);
+    logger.debug('Stored refresh token for client:', oauthReqInfo.clientId);
   }
 
   const orgsResponse = await fetch(`${c.env.ATLAS_API_URL}/v1/orgs`, {
@@ -208,7 +224,7 @@ app.get('/callback', async (c) => {
 
   if (!orgsResponse.ok) {
     const errorText = await orgsResponse.text();
-    console.error('Failed to fetch organizations:', {
+    logger.error('Failed to fetch organizations:', {
       status: orgsResponse.status,
       error: errorText,
     });
@@ -234,7 +250,7 @@ app.get('/callback', async (c) => {
       props: {
         accessToken,
         refreshToken,
-        expiresAt: expiresIn ? Date.now() + (expiresIn * 1000) : undefined,
+        expiresAt: expiresIn ? Date.now() + expiresIn * 1000 : undefined,
         orgId: orgs[0].id,
         tokenKey: await sha256(accessToken),
       } as ServerProps,
@@ -246,12 +262,14 @@ app.get('/callback', async (c) => {
     return Response.redirect(redirectTo);
   }
 
-  const encodedState = btoa(JSON.stringify({
-    oauthReqInfo,
-    accessToken,
-    refreshToken,
-    expiresIn
-  }));
+  const encodedState = btoa(
+    JSON.stringify({
+      oauthReqInfo,
+      accessToken,
+      refreshToken,
+      expiresIn,
+    })
+  );
   const redirectUri = oauthReqInfo.redirectUri || '';
   const { clientName, clientUri } = extractClientInfo(redirectUri);
 
@@ -284,7 +302,9 @@ app.post('/org-callback', async (c) => {
     props: {
       accessToken: state.accessToken,
       refreshToken: state.refreshToken,
-      expiresAt: state.expiresIn ? Date.now() + (state.expiresIn * 1000) : undefined,
+      expiresAt: state.expiresIn
+        ? Date.now() + state.expiresIn * 1000
+        : undefined,
       orgId,
       tokenKey: await sha256(state.accessToken),
     } as ServerProps,
@@ -338,7 +358,9 @@ app.get('/icon', async (c) => {
     const url = new URL(domain.includes('://') ? domain : `https://${domain}`);
     hostname = url.hostname;
     protocol = url.protocol;
-  } catch (e) {}
+  } catch (error) {
+    logger.warn('Failed to parse domain URL:', error);
+  }
 
   // Get root domain (e.g., example.com from app.example.com)
   const parts = hostname.split('.');
@@ -379,7 +401,9 @@ app.get('/icon', async (c) => {
             },
           });
         }
-      } catch (e) {}
+      } catch (error) {
+        logger.debug('Failed to fetch icon from', iconUrl, error);
+      }
     }
   }
 
