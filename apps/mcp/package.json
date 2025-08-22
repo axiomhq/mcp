@@ -19,7 +19,7 @@
     "@cloudflare/workers-oauth-provider": "^0.0.6",
     "@microlabs/otel-cf-workers": "^1.0.0-rc.52",
     "@modelcontextprotocol/sdk": "^1.17.2",
-    "@watchly/mcp": "file:../../packages/mcp",
+    "@watchlyhq/mcp": "file:../../packages/mcp",
     "agents": "^0.0.95",
     "hono": "^4.8.2",
     "just-pick": "^4.2.0",
