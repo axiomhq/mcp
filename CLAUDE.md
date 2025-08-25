@@ -80,6 +80,7 @@ Tools are organized by category in `packages/mcp/src/`:
 - `queryDataset`: Execute APL queries with time filtering
 - `checkMonitors`: List monitors and alert states
 - `getMonitorHistory`: Get monitor check history
+- `getSavedQueries`: Retrieve saved/starred queries from Axiom
 
 
 

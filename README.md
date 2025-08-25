@@ -129,6 +129,7 @@ The Axiom MCP server provides intelligent tools that go beyond simple API wrappi
 - **`queryDataset`** - Execute APL queries with 140+ built-in examples
 - **`checkMonitors`** - View monitor health and alert states
 - **`getMonitorHistory`** - Analyze historical monitor checks
+- **`getSavedQueries`** - Retrieve saved/starred queries from Axiom
 
 ## Development
 

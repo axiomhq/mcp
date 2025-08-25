@@ -47,12 +47,6 @@ const apiClient: AxiomApiClient = {
   integrations: {
     list: () => /* your implementation */,
   },
-  genai: {
-    analyzeCosts: (params) => /* your implementation */,
-    analyzeTokenUsage: (params) => /* your implementation */,
-    getModelPerformance: (params) => /* your implementation */,
-    // ... other methods
-  },
 };
 
 // Get integrations to conditionally register tools

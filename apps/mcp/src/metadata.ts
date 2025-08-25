@@ -57,48 +57,6 @@ export const metadata: MCPMetadata = {
       name: "getSavedQueries",
       description: "Retrieve saved/starred queries from Axiom - shows APL queries that users have bookmarked for reuse",
       category: "Core"
-    },
-
-    // GenAI Tools
-    {
-      name: "genai-analyzeCosts",
-      description: "Analyze and breakdown costs for GenAI operations across models and capabilities",
-      category: "GenAI"
-    },
-    {
-      name: "genai-analyzeTokenUsage",
-      description: "Analyze token consumption patterns across models, capabilities, and time",
-      category: "GenAI"
-    },
-    {
-      name: "genai-analyzeToolUsage",
-      description: "Analyze AI tool/function usage patterns and performance",
-      category: "GenAI"
-    },
-    {
-      name: "genai-compareModels",
-      description: "Compare performance, cost, and reliability metrics across different AI models",
-      category: "GenAI"
-    },
-    {
-      name: "genai-findErrors",
-      description: "Find and analyze errors in GenAI operations",
-      category: "GenAI"
-    },
-    {
-      name: "genai-getCapabilityMetrics",
-      description: "Get detailed metrics for specific GenAI capabilities (e.g., chat, completion, embedding)",
-      category: "GenAI"
-    },
-    {
-      name: "genai-getModelPerformance",
-      description: "Get performance metrics for AI models including latency, throughput, and reliability",
-      category: "GenAI"
-    },
-    {
-      name: "genai-getOverview",
-      description: "Get an overview of GenAI operations including request counts, token usage, costs, and error rates",
-      category: "GenAI"
     }
   ],
   prompts: [
