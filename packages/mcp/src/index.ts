@@ -7,6 +7,7 @@ export {
   getIntegrations,
   getMonitors,
   getMonitorsHistory,
+  getSavedQueries,
   runQuery,
 } from './axiom/api';
 export * from './axiom/api.types';

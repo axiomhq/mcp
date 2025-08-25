@@ -16,6 +16,11 @@
       "category": "Core"
     },
     {
+      "name": "getSavedQueries",
+      "description": "Retrieve saved/starred queries from Axiom - shows APL queries that users have bookmarked for reuse",
+      "category": "Core"
+    },
+    {
       "name": "listDatasets",
       "description": "List all available datasets. For datasets you are curious about, use getDatasetFields() tool to find their schema.",
       "category": "Core"

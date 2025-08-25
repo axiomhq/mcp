@@ -53,6 +53,11 @@ export const metadata: MCPMetadata = {
       description: "Get recent check history of monitor. Use the checkMonitors() tool to list all the monitors.",
       category: "Core"
     },
+    {
+      name: "getSavedQueries",
+      description: "Retrieve saved/starred queries from Axiom - shows APL queries that users have bookmarked for reuse",
+      category: "Core"
+    },
 
     // GenAI Tools
     {

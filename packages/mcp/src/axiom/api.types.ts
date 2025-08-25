@@ -97,6 +97,25 @@ export const IntegrationSchema = z.object({
 
 export const IntegrationsSchema = IntegrationSchema.array();
 
+export const SavedQuerySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  dataset: z.string(),
+  kind: z.string(),
+  metadata: z.record(z.unknown()),
+  query: z.object({
+    apl: z.string(),
+    defaultOrder: z.unknown().nullable(),
+    endTime: z.string().optional(),
+    startTime: z.string().optional(),
+    libraries: z.unknown().nullable(),
+    queryOptions: z.record(z.unknown()),
+  }),
+  who: z.string(),
+});
+
+export const SavedQueriesSchema = SavedQuerySchema.array();
+
 export type Dataset = z.infer<typeof DatasetSchema>;
 export type Datasets = z.infer<typeof DatasetsSchema>;
 export type Field = z.infer<typeof FieldSchema>;
@@ -109,6 +128,8 @@ export type QueryResult = z.infer<typeof QueryResultSchema>;
 export type Monitor = z.infer<typeof MonitorSchema>;
 export type Monitors = z.infer<typeof MonitorsSchema>;
 export type MonitorsHistory = z.infer<typeof MonitorsHistorySchema>;
+export type SavedQuery = z.infer<typeof SavedQuerySchema>;
+export type SavedQueries = z.infer<typeof SavedQueriesSchema>;
 
 export type IntegrationBaseDashboard = z.infer<
   typeof IntegrationBaseDashboardSchema
