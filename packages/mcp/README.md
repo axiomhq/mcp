@@ -47,10 +47,10 @@ const apiClient: AxiomApiClient = {
   integrations: {
     list: () => /* your implementation */,
   },
-  openTelemetry: {
-    listServices: (params) => /* your implementation */,
-    listOperations: (params) => /* your implementation */,
-    getServiceMetrics: (params) => /* your implementation */,
+  genai: {
+    analyzeCosts: (params) => /* your implementation */,
+    analyzeTokenUsage: (params) => /* your implementation */,
+    getModelPerformance: (params) => /* your implementation */,
     // ... other methods
   },
 };
@@ -96,21 +96,7 @@ Comprehensive monitor health dashboard showing:
 #### `getMonitorHistory`
 Historical analysis tool for understanding monitor behavior over time, useful for tuning thresholds and reducing false positives.
 
-### OpenTelemetry Tools
 
-#### Service Analysis
-- **`otel-listServices`**: Service discovery with operation counts and error indicators
-- **`otel-getServiceMetrics`**: Deep performance analysis including latency percentiles (p50-p99), error rates, and throughput patterns
-- **`otel-getOperationMetrics`**: Operation-level granular metrics for pinpointing bottlenecks
-
-#### Trace Intelligence  
-- **`otel-findTraces`**: Multi-criteria trace search supporting service, operation, error state, and duration filters
-- **`otel-findSimilarTraces`**: Pattern matching algorithm that finds traces with similar characteristics
-- **`otel-getTraceCriticalPath`**: Identifies the longest dependency chain impacting total duration
-- **`otel-findTraceAnomalies`**: Statistical anomaly detection using z-scores for duration and span count
-
-#### Error Analysis
-- **`otel-getErrorBreakdown`**: Groups errors by type and service, providing examples for quick understanding
 
 ## 📊 Smart Data Processing
 
@@ -197,10 +183,7 @@ src/
 │   ├── tools-*.ts  # Tool implementations
 │   ├── prompts.ts  # Analysis workflow guides
 │   └── schema.ts   # Shared type definitions
-├── otel/           # OpenTelemetry tools
-│   ├── tools-*.ts  # Service, trace, and metric tools
-│   ├── prompts.ts  # OTel-specific workflows
-│   └── schema.ts   # OTel type definitions
+
 ├── axiom/          # Axiom API integration
 │   ├── client.ts   # API client types
 │   ├── formatters.ts # Smart result formatting

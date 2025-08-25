@@ -8,7 +8,7 @@ This isn't just a simple API proxy - it's a carefully designed system that:
 
 1. **Secure Authentication**: Implements a dual-role OAuth system that acts as both server (for MCP clients) and client (for Axiom API)
 2. **Intelligent State Management**: Uses Durable Objects to maintain user context across distributed edge locations
-3. **Complete Observability**: Every operation is instrumented with OpenTelemetry for debugging and performance analysis
+3. **Complete Observability**: Every operation is logged for debugging and performance analysis
 4. **Edge-Native Design**: Leverages Cloudflare's global network for low-latency access from anywhere
 5. **Graceful Error Handling**: Provides meaningful error messages and recovery guidance
 
@@ -17,7 +17,7 @@ This isn't just a simple API proxy - it's a carefully designed system that:
 - **Dual-Role OAuth 2.0**: Secure authentication flow with encrypted state management
 - **MCP Protocol via SSE**: Reliable Server-Sent Events for real-time tool communication
 - **Durable Objects**: Persistent user sessions across the edge network
-- **OpenTelemetry Instrumentation**: Complete tracing of OAuth flows, MCP operations, and API calls
+- **Comprehensive Logging**: Complete logging of OAuth flows, MCP operations, and API calls
 - **Cloudflare AI Integration**: Access to AI models for advanced tool capabilities
 - **KV State Storage**: Efficient caching of OAuth states and integration data
 
@@ -47,7 +47,7 @@ AXIOM_LOGIN_BASE_URL=https://app.axiom.co
 AXIOM_OAUTH_CLIENT_ID=<your-client-id>
 AXIOM_OAUTH_CLIENT_SECRET=<your-client-secret>
 
-# OpenTelemetry (optional but recommended)
+# Environment Configuration
 ENVIRONMENT=dev
 AXIOM_DATASET=mcp-traces
 AXIOM_API_KEY=<your-api-key>
@@ -81,7 +81,7 @@ npx @modelcontextprotocol/inspector@latest
 wrangler secret put AXIOM_OAUTH_CLIENT_ID
 wrangler secret put AXIOM_OAUTH_CLIENT_SECRET  
 wrangler secret put COOKIE_ENCRYPTION_KEY
-wrangler secret put AXIOM_API_KEY  # For OpenTelemetry
+wrangler secret put AXIOM_API_KEY  
 
 # Deploy to Cloudflare Workers
 npm run deploy                # Default environment
@@ -132,7 +132,7 @@ Comprehensive observability is built into every layer using `@microlabs/otel-cf-
    - State validation and encryption
 
 3. **MCP Protocol**
-   - Tool invocation with parameters
+   - Tool execution and results
    - Resource access patterns
    - Prompt execution flows
    - SSE connection lifecycle

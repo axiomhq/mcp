@@ -130,16 +130,6 @@ The Axiom MCP server provides intelligent tools that go beyond simple API wrappi
 - **`checkMonitors`** - View monitor health and alert states
 - **`getMonitorHistory`** - Analyze historical monitor checks
 
-### OpenTelemetry Tools
-
-- **`otel-listServices`** - List services sending traces
-- **`otel-getServiceMetrics`** - Analyze service performance (latency, errors, throughput)
-- **`otel-getErrorBreakdown`** - Group and analyze error patterns
-- **`otel-findTraces`** - Search traces with multiple criteria
-- **`otel-findSimilarTraces`** - Find related issues using pattern matching
-- **`otel-getTraceCriticalPath`** - Identify performance bottlenecks
-- **`otel-findTraceAnomalies`** - Detect outliers using statistical analysis
-
 ## Development
 
 ### Project Structure
@@ -150,8 +140,7 @@ This is a monorepo with two main components:
 mcp/
 ├── packages/mcp/     # Core MCP implementation
 │   ├── src/
-│   │   ├── core/     # Dataset and monitor tools
-│   │   └── otel/     # OpenTelemetry tools
+│   │   └── core/     # Dataset and monitor tools
 │   └── package.json
 └── apps/mcp/         # Cloudflare Workers application
     ├── src/
@@ -174,7 +163,7 @@ The core MCP implementation provides:
 The Cloudflare Workers application handles:
 - **OAuth orchestration** (dual-role implementation)
 - **State management** via Durable Objects
-- **OpenTelemetry instrumentation**
+
 - **Edge deployment** for global low-latency access
 
 ## Deployment & Development
@@ -183,7 +172,7 @@ For detailed setup, deployment, and development instructions, see the [apps/mcp 
 
 - Local development setup with prerequisites and configuration
 - Production deployment to Cloudflare Workers
-- OpenTelemetry instrumentation setup
+
 - Testing with MCP Inspector
 - Debugging tips and troubleshooting
 

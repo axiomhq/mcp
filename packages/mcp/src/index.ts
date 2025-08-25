@@ -21,7 +21,7 @@ export * from './errors';
 // Markdown utilities
 export * from './lib/markdown';
 export * from './logger';
-export * from './otel';
+
 export * from './result';
 export * from './schema';
 
@@ -29,7 +29,6 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Client } from './axiom/client';
 import { registerCoreTools } from './core';
 import type { Logger } from './logger';
-import { registerOpenTelemetryTools } from './otel';
 
 export interface AxiomMcpConfig {
   server: McpServer;
@@ -66,12 +65,4 @@ export function registerAxiomMcpTools(config: AxiomMcpConfig) {
 
   config.logger.debug('[init] Registering core tools');
   registerCoreTools(context);
-
-  // Register OpenTelemetry tools if any otel integration is found
-  if (
-    config.integrations.some((integration) => integration.startsWith('otel'))
-  ) {
-    config.logger.debug('[init] Registering OTel tools');
-    registerOpenTelemetryTools(context);
-  }
 }

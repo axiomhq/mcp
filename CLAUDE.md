@@ -53,7 +53,7 @@ The server acts as both:
 
 1. **`apps/mcp/src/index.ts`**: Worker entry point
    - Sets up OAuth provider configuration
-   - Initializes OpenTelemetry instrumentation
+   - Initializes logging and monitoring
    - Configures Durable Object bindings
 
 2. **`apps/mcp/src/mcp.ts`**: MCP server implementation
@@ -81,17 +81,7 @@ Tools are organized by category in `packages/mcp/src/`:
 - `checkMonitors`: List monitors and alert states
 - `getMonitorHistory`: Get monitor check history
 
-**OpenTelemetry Tools** (`otel/index.ts`):
-- `otel-listServices`: List services sending traces
-- `otel-listOperations`: List operations for a service
-- `otel-getServiceMetrics`: Service performance metrics
-- `otel-getOperationMetrics`: Operation-specific metrics
-- `otel-getErrorBreakdown`: Error pattern analysis
-- `otel-getTraceSpans`: Get spans for a trace
-- `otel-findTraces`: Search traces by criteria
-- `otel-findSimilarTraces`: Find similar trace patterns
-- `otel-getTraceCriticalPath`: Analyze trace critical path
-- `otel-findTraceAnomalies`: Detect outlier traces
+
 
 ## Configuration
 
@@ -104,8 +94,7 @@ ATLAS_INTERNAL_URL=https://app.axiom.co
 AXIOM_OAUTH_CLIENT_ID=<your-client-id>
 AXIOM_OAUTH_CLIENT_SECRET=<your-client-secret>
 AXIOM_LOGIN_BASE_URL=https://app.axiom.co
-AXIOM_API_KEY=<api-key-for-otel>  # Optional: for OpenTelemetry
-AXIOM_DATASET=mcp-traces           # Optional: for OpenTelemetry
+
 ```
 
 ### Production Setup
@@ -120,7 +109,7 @@ AXIOM_DATASET=mcp-traces           # Optional: for OpenTelemetry
    wrangler secret put AXIOM_OAUTH_CLIENT_ID
    wrangler secret put AXIOM_OAUTH_CLIENT_SECRET
    wrangler secret put COOKIE_ENCRYPTION_KEY
-   wrangler secret put AXIOM_API_KEY  # If using OpenTelemetry
+   
    ```
 
 ## Testing
@@ -134,9 +123,9 @@ AXIOM_DATASET=mcp-traces           # Optional: for OpenTelemetry
   # Connect to: http://localhost:8788/sse
   ```
 
-## OpenTelemetry Instrumentation
+## Logging & Monitoring
 
-The worker is instrumented with `@microlabs/otel-cf-workers`:
+The worker includes comprehensive logging:
 - **Service name**: `axiom-mcp-server`
 - **Console exporter**: Active when `ENVIRONMENT=dev`
 - **Axiom exporter**: Active when `AXIOM_DATASET` and `AXIOM_API_KEY` are set
@@ -155,7 +144,7 @@ The worker is instrumented with `@microlabs/otel-cf-workers`:
 
 ## Code Organization Patterns
 
-- Tool implementations grouped by functionality (core, otel)
+- Tool implementations grouped by functionality (core)
 - Each tool category has its own registration function
 - Shared utilities in dedicated modules (client, result, schema)
 - UI components use Hono JSX for server-side rendering

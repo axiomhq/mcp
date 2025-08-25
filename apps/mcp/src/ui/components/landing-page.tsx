@@ -144,7 +144,7 @@ export const LandingPage: FC<LandingPageProps> = ({
             Connect AI assistants to Axiom's observability platform
           </Text>
           <Text variant="muted" className="mt-2">
-            Query datasets, analyze traces, monitor alerts, and explore your data using natural language
+            Query datasets, monitor alerts, and explore your data using natural language
           </Text>
         </div>
 

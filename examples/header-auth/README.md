@@ -114,11 +114,10 @@ If you see "No tools available", your token might not have sufficient permission
 You can call any available tool by modifying the example:
 
 ```javascript
-// Query OpenTelemetry data
+// Query datasets
 const result = await client.callTool({
-  name: 'otel-listServices',
+  name: 'listDatasets',
   arguments: {
-    datasetName: 'otel-traces',
     startTime: 'now-1h',
     endTime: 'now'
   }
