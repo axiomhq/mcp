@@ -13,6 +13,8 @@ import {
   MonitorsSchema,
   type QueryResult,
   QueryResultSchema,
+  type SavedQueries,
+  SavedQueriesSchema,
 } from './api.types';
 import type { Client } from './client';
 
@@ -102,4 +104,12 @@ export async function getIntegrations(client: Client): Promise<Integrations> {
     kind: dash.owner,
     dataset: dash.id.slice(dash.owner.length + 1),
   }));
+}
+
+export async function getSavedQueries(client: Client): Promise<SavedQueries> {
+  return client.fetch<SavedQueries>(
+    'get',
+    '/v2/apl-starred-queries?limit=100&who=all',
+    SavedQueriesSchema
+  );
 }
