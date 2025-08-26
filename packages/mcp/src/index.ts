@@ -7,6 +7,7 @@ export {
   getIntegrations,
   getMonitors,
   getMonitorsHistory,
+  getSavedQueries,
   runQuery,
 } from './axiom/api';
 export * from './axiom/api.types';
@@ -68,10 +69,10 @@ export function registerAxiomMcpTools(config: AxiomMcpConfig) {
   registerCoreTools(context);
 
   // Register OpenTelemetry tools if any otel integration is found
-  if (
-    config.integrations.some((integration) => integration.startsWith('otel'))
-  ) {
-    config.logger.debug('[init] Registering OTel tools');
-    registerOpenTelemetryTools(context);
-  }
-}
+//   if (
+//     config.integrations.some((integration) => integration.startsWith('otel'))
+//   ) {
+//     config.logger.debug('[init] Registering OTel tools');
+//     registerOpenTelemetryTools(context);
+//   }
+ }
