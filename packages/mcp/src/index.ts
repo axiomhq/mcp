@@ -69,6 +69,7 @@ export function registerAxiomMcpTools(config: AxiomMcpConfig) {
   registerCoreTools(context);
 
   // Register OpenTelemetry tools if any otel integration is found
+  // Temporarily disabled otel tools due to stability issues to unblock remote MCP server release to customers
 //   if (
 //     config.integrations.some((integration) => integration.startsWith('otel'))
 //   ) {
