@@ -18,6 +18,9 @@ interface LandingPageProps {
   tools?: ToolMetadata[];
   prompts?: PromptMetadata[];
   serverUrl?: string;
+  showInstallation?: boolean;
+  showTools?: boolean;
+  showPrompts?: boolean;
 }
 
 const CodeBlock: FC<{ children: string; language?: string }> = ({ children }) => {
@@ -73,7 +76,10 @@ const TabButton: FC<{ active: boolean; onclick: string; children: any }> = ({
 export const LandingPage: FC<LandingPageProps> = ({
   tools = [],
   prompts = [],
-  serverUrl = 'https://mcp.axiom.co'
+  serverUrl = 'https://mcp.axiom.co',
+  showInstallation = false,
+  showTools = false,
+  showPrompts = false
 }) => {
   // Group tools by category
   const toolsByCategory = tools.reduce((acc, tool) => {
@@ -149,254 +155,256 @@ export const LandingPage: FC<LandingPageProps> = ({
         </div>
 
         {/* Installation Instructions */}
-        <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 md:p-8">
-          <H2 className="mb-4">Installation</H2>
+        {showInstallation && (
+          <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 md:p-8">
+            <H2 className="mb-4">Installation</H2>
 
-          <div className="space-y-6">
-            {/* Tabs for different clients */}
-            <div>
-              <div className="border-b border-gray-200 dark:border-gray-700 mb-4">
-                <div className="flex space-x-4" id="client-tabs">
-                  <TabButton
-                    active={true}
-                    onclick="
-                      document.querySelectorAll('.client-content').forEach(el => el.style.display = 'none');
-                      document.getElementById('claude-desktop-content').style.display = 'block';
-                      document.querySelectorAll('#client-tabs button').forEach(btn => {
-                        btn.classList.remove('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
-                        btn.classList.add('text-gray-500', 'dark:text-gray-400');
-                      });
-                      event.target.classList.add('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
-                      event.target.classList.remove('text-gray-500', 'dark:text-gray-400');
-                    "
-                  >
-                    Claude Desktop
-                  </TabButton>
-                  <TabButton
-                    active={false}
-                    onclick="
-                      document.querySelectorAll('.client-content').forEach(el => el.style.display = 'none');
-                      document.getElementById('claude-ai-content').style.display = 'block';
-                      document.querySelectorAll('#client-tabs button').forEach(btn => {
-                        btn.classList.remove('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
-                        btn.classList.add('text-gray-500', 'dark:text-gray-400');
-                      });
-                      event.target.classList.add('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
-                      event.target.classList.remove('text-gray-500', 'dark:text-gray-400');
-                    "
-                  >
-                    Claude.ai
-                  </TabButton>
-                  <TabButton
-                    active={false}
-                    onclick="
-                      document.querySelectorAll('.client-content').forEach(el => el.style.display = 'none');
-                      document.getElementById('cursor-content').style.display = 'block';
-                      document.querySelectorAll('#client-tabs button').forEach(btn => {
-                        btn.classList.remove('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
-                        btn.classList.add('text-gray-500', 'dark:text-gray-400');
-                      });
-                      event.target.classList.add('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
-                      event.target.classList.remove('text-gray-500', 'dark:text-gray-400');
-                    "
-                  >
-                    Cursor
-                  </TabButton>
-                  <TabButton
-                    active={false}
-                    onclick="
-                      document.querySelectorAll('.client-content').forEach(el => el.style.display = 'none');
-                      document.getElementById('other-content').style.display = 'block';
-                      document.querySelectorAll('#client-tabs button').forEach(btn => {
-                        btn.classList.remove('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
-                        btn.classList.add('text-gray-500', 'dark:text-gray-400');
-                      });
-                      event.target.classList.add('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
-                      event.target.classList.remove('text-gray-500', 'dark:text-gray-400');
-                    "
-                  >
-                    Other Clients
-                  </TabButton>
-                </div>
-              </div>
-
-              {/* Claude Desktop Content */}
-              <div id="claude-desktop-content" className="client-content space-y-4">
-                <div>
-                  <H3 className="mb-2">1. Install Claude Desktop</H3>
-                  <Text variant="muted">
-                    Download and install{' '}
-                    <Link href="https://claude.ai/download" target="_blank" rel="noopener noreferrer">
+            <div className="space-y-6">
+              {/* Tabs for different clients */}
+              <div>
+                <div className="border-b border-gray-200 dark:border-gray-700 mb-4">
+                  <div className="flex space-x-4" id="client-tabs">
+                    <TabButton
+                      active={true}
+                      onclick="
+                        document.querySelectorAll('.client-content').forEach(el => el.style.display = 'none');
+                        document.getElementById('claude-desktop-content').style.display = 'block';
+                        document.querySelectorAll('#client-tabs button').forEach(btn => {
+                          btn.classList.remove('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
+                          btn.classList.add('text-gray-500', 'dark:text-gray-400');
+                        });
+                        event.target.classList.add('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
+                        event.target.classList.remove('text-gray-500', 'dark:text-gray-400');
+                      "
+                    >
                       Claude Desktop
-                    </Link>{' '}
-                    (version 0.7.0 or later) for your platform.
-                  </Text>
-                </div>
-
-                <div>
-                  <H3 className="mb-2">2. Add Axiom MCP Server</H3>
-                  <Text variant="muted" className="mb-2">
-                    Open Claude Desktop and navigate to:
-                  </Text>
-                  <Text variant="muted" className="text-sm mb-2">
-                    <strong>Settings → Developer → MCP Servers</strong>
-                  </Text>
-                  <Text variant="muted" className="mb-3">
-                    Click "Add Server" and enter:
-                  </Text>
-                  <div className="space-y-2 mb-3">
-                    <Text variant="muted" className="text-sm">
-                      <strong>Name:</strong> <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">Axiom</code>
-                    </Text>
-                    <Text variant="muted" className="text-sm">
-                      <strong>URL:</strong> <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">{serverUrl}/mcp</code>
-                    </Text>
-                  </div>
-
-                  <details className="mt-4">
-                    <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
-                      Manual configuration (advanced users)
-                    </summary>
-                    <div className="mt-3 space-y-2">
-                      <Text variant="muted" className="text-sm">
-                        Edit your Claude Desktop configuration file:
-                      </Text>
-                      <Text variant="muted" className="text-xs">
-                        • macOS: <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">~/Library/Application Support/Claude/claude_desktop_config.json</code>
-                      </Text>
-                      <Text variant="muted" className="text-xs mb-3">
-                        • Windows: <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">%APPDATA%\Claude\claude_desktop_config.json</code>
-                      </Text>
-                      <CodeBlock>{claudeConfig}</CodeBlock>
-                    </div>
-                  </details>
-                </div>
-
-                <div>
-                  <H3 className="mb-2">3. Connect and Authenticate</H3>
-                  <Text variant="muted">
-                    Click "Connect" to activate the server (or restart Claude Desktop if you used manual configuration). You'll be prompted to authenticate with Axiom on first use.
-                  </Text>
-                </div>
-              </div>
-
-              {/* Claude.ai Content */}
-              <div id="claude-ai-content" className="client-content space-y-4" style="display: none;">
-                <div>
-                  <H3 className="mb-2">1. Access Claude.ai</H3>
-                  <Text variant="muted">
-                    Navigate to{' '}
-                    <Link href="https://claude.ai" target="_blank" rel="noopener noreferrer">
-                      claude.ai
-                    </Link>{' '}
-                    and sign in to your account.
-                  </Text>
-                </div>
-
-                <div>
-                  <H3 className="mb-2">2. Enable MCP Features</H3>
-                  <Text variant="muted" className="mb-2">
-                    Ensure you have MCP features enabled in your Claude.ai account (available for Pro users).
-                  </Text>
-                </div>
-
-                <div>
-                  <H3 className="mb-2">3. Add MCP Server</H3>
-                  <Text variant="muted" className="mb-2">
-                    Click on your profile icon and navigate to:
-                  </Text>
-                  <Text variant="muted" className="text-sm mb-2">
-                    <strong>Settings → Connected Apps</strong>
-                  </Text>
-                  <Text variant="muted" className="mb-3">
-                    Click "Connect New App" and add the Axiom MCP server:
-                  </Text>
-                  <div className="space-y-2 mb-3">
-                    <Text variant="muted" className="text-sm">
-                      <strong>Server URL:</strong> <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">{serverUrl}/mcp</code>
-                    </Text>
-                  </div>
-                </div>
-
-                <div>
-                  <H3 className="mb-2">4. Authenticate</H3>
-                  <Text variant="muted">
-                    Complete the OAuth flow to authenticate with Axiom. The server will then be available in your Claude conversations.
-                  </Text>
-                </div>
-              </div>
-
-              {/* Cursor Content */}
-              <div id="cursor-content" className="client-content space-y-4" style="display: none;">
-                <div>
-                  <H3 className="mb-2">1. Install Cursor</H3>
-                  <Text variant="muted">
-                    Download and install{' '}
-                    <Link href="https://cursor.sh" target="_blank" rel="noopener noreferrer">
+                    </TabButton>
+                    <TabButton
+                      active={false}
+                      onclick="
+                        document.querySelectorAll('.client-content').forEach(el => el.style.display = 'none');
+                        document.getElementById('claude-ai-content').style.display = 'block';
+                        document.querySelectorAll('#client-tabs button').forEach(btn => {
+                          btn.classList.remove('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
+                          btn.classList.add('text-gray-500', 'dark:text-gray-400');
+                        });
+                        event.target.classList.add('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
+                        event.target.classList.remove('text-gray-500', 'dark:text-gray-400');
+                      "
+                    >
+                      Claude.ai
+                    </TabButton>
+                    <TabButton
+                      active={false}
+                      onclick="
+                        document.querySelectorAll('.client-content').forEach(el => el.style.display = 'none');
+                        document.getElementById('cursor-content').style.display = 'block';
+                        document.querySelectorAll('#client-tabs button').forEach(btn => {
+                          btn.classList.remove('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
+                          btn.classList.add('text-gray-500', 'dark:text-gray-400');
+                        });
+                        event.target.classList.add('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
+                        event.target.classList.remove('text-gray-500', 'dark:text-gray-400');
+                      "
+                    >
                       Cursor
-                    </Link>{' '}
-                    for your platform.
-                  </Text>
-                </div>
-
-                <div>
-                  <H3 className="mb-2">2. Configure MCP Server</H3>
-                  <Text variant="muted" className="mb-2">
-                    Add the Axiom MCP server to your Cursor settings:
-                  </Text>
-                  <CodeBlock>{cursorConfig}</CodeBlock>
-                </div>
-
-                <div>
-                  <H3 className="mb-2">3. Restart Cursor</H3>
-                  <Text variant="muted">
-                    Restart Cursor to load the Axiom MCP server. You'll be prompted to authenticate with Axiom on first use.
-                  </Text>
-                </div>
-              </div>
-
-              {/* Other Clients Content */}
-              <div id="other-content" className="client-content space-y-4" style="display: none;">
-                <div>
-                  <H3 className="mb-2">MCP Server URLs</H3>
-                  <Text variant="muted" className="mb-2">
-                    The Axiom MCP server supports two endpoints:
-                  </Text>
-                  <div className="space-y-3">
-                    <div>
-                      <Text variant="muted" className="text-sm font-semibold mb-1">
-                        Standard MCP Protocol (recommended):
-                      </Text>
-                      <CodeBlock>{`${serverUrl}/mcp`}</CodeBlock>
-                      <Text variant="muted" className="mt-1 text-xs">
-                        Use this for Claude Desktop 0.7.0+, Claude.ai, and other modern MCP clients
-                      </Text>
-                    </div>
-                    <div>
-                      <Text variant="muted" className="text-sm font-semibold mb-1">
-                        SSE Protocol (legacy):
-                      </Text>
-                      <CodeBlock>{`${serverUrl}/sse`}</CodeBlock>
-                      <Text variant="muted" className="mt-1 text-xs">
-                        Use this for older MCP clients or those that require Server-Sent Events
-                      </Text>
-                    </div>
+                    </TabButton>
+                    <TabButton
+                      active={false}
+                      onclick="
+                        document.querySelectorAll('.client-content').forEach(el => el.style.display = 'none');
+                        document.getElementById('other-content').style.display = 'block';
+                        document.querySelectorAll('#client-tabs button').forEach(btn => {
+                          btn.classList.remove('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
+                          btn.classList.add('text-gray-500', 'dark:text-gray-400');
+                        });
+                        event.target.classList.add('border-b-2', 'border-gray-900', 'text-gray-900', 'dark:border-gray-100', 'dark:text-gray-100');
+                        event.target.classList.remove('text-gray-500', 'dark:text-gray-400');
+                      "
+                    >
+                      Other Clients
+                    </TabButton>
                   </div>
                 </div>
 
-                <div>
-                  <H3 className="mb-2">Authentication</H3>
-                  <Text variant="muted">
-                    The server uses OAuth 2.0 for authentication. Your client will be redirected to Axiom for authorization on first connection.
-                  </Text>
+                {/* Claude Desktop Content */}
+                <div id="claude-desktop-content" className="client-content space-y-4">
+                  <div>
+                    <H3 className="mb-2">1. Install Claude Desktop</H3>
+                    <Text variant="muted">
+                      Download and install{' '}
+                      <Link href="https://claude.ai/download" target="_blank" rel="noopener noreferrer">
+                        Claude Desktop
+                      </Link>{' '}
+                      (version 0.7.0 or later) for your platform.
+                    </Text>
+                  </div>
+
+                  <div>
+                    <H3 className="mb-2">2. Add Axiom MCP Server</H3>
+                    <Text variant="muted" className="mb-2">
+                      Open Claude Desktop and navigate to:
+                    </Text>
+                    <Text variant="muted" className="text-sm mb-2">
+                      <strong>Settings → Developer → MCP Servers</strong>
+                    </Text>
+                    <Text variant="muted" className="mb-3">
+                      Click "Add Server" and enter:
+                    </Text>
+                    <div className="space-y-2 mb-3">
+                      <Text variant="muted" className="text-sm">
+                        <strong>Name:</strong> <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">Axiom</code>
+                      </Text>
+                      <Text variant="muted" className="text-sm">
+                        <strong>URL:</strong> <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">{serverUrl}/mcp</code>
+                      </Text>
+                    </div>
+
+                    <details className="mt-4">
+                      <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
+                        Manual configuration (advanced users)
+                      </summary>
+                      <div className="mt-3 space-y-2">
+                        <Text variant="muted" className="text-sm">
+                          Edit your Claude Desktop configuration file:
+                        </Text>
+                        <Text variant="muted" className="text-xs">
+                          • macOS: <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">~/Library/Application Support/Claude/claude_desktop_config.json</code>
+                        </Text>
+                        <Text variant="muted" className="text-xs mb-3">
+                          • Windows: <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">%APPDATA%\Claude\claude_desktop_config.json</code>
+                        </Text>
+                        <CodeBlock>{claudeConfig}</CodeBlock>
+                      </div>
+                    </details>
+                  </div>
+
+                  <div>
+                    <H3 className="mb-2">3. Connect and Authenticate</H3>
+                    <Text variant="muted">
+                      Click "Connect" to activate the server (or restart Claude Desktop if you used manual configuration). You'll be prompted to authenticate with Axiom on first use.
+                    </Text>
+                  </div>
+                </div>
+
+                {/* Claude.ai Content */}
+                <div id="claude-ai-content" className="client-content space-y-4" style="display: none;">
+                  <div>
+                    <H3 className="mb-2">1. Access Claude.ai</H3>
+                    <Text variant="muted">
+                      Navigate to{' '}
+                      <Link href="https://claude.ai" target="_blank" rel="noopener noreferrer">
+                        claude.ai
+                      </Link>{' '}
+                      and sign in to your account.
+                    </Text>
+                  </div>
+
+                  <div>
+                    <H3 className="mb-2">2. Enable MCP Features</H3>
+                    <Text variant="muted" className="mb-2">
+                      Ensure you have MCP features enabled in your Claude.ai account (available for Pro users).
+                    </Text>
+                  </div>
+
+                  <div>
+                    <H3 className="mb-2">3. Add MCP Server</H3>
+                    <Text variant="muted" className="mb-2">
+                      Click on your profile icon and navigate to:
+                    </Text>
+                    <Text variant="muted" className="text-sm mb-2">
+                      <strong>Settings → Connected Apps</strong>
+                    </Text>
+                    <Text variant="muted" className="mb-3">
+                      Click "Connect New App" and add the Axiom MCP server:
+                    </Text>
+                    <div className="space-y-2 mb-3">
+                      <Text variant="muted" className="text-sm">
+                        <strong>Server URL:</strong> <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">{serverUrl}/mcp</code>
+                      </Text>
+                    </div>
+                  </div>
+
+                  <div>
+                    <H3 className="mb-2">4. Authenticate</H3>
+                    <Text variant="muted">
+                      Complete the OAuth flow to authenticate with Axiom. The server will then be available in your Claude conversations.
+                    </Text>
+                  </div>
+                </div>
+
+                {/* Cursor Content */}
+                <div id="cursor-content" className="client-content space-y-4" style="display: none;">
+                  <div>
+                    <H3 className="mb-2">1. Install Cursor</H3>
+                    <Text variant="muted">
+                      Download and install{' '}
+                      <Link href="https://cursor.sh" target="_blank" rel="noopener noreferrer">
+                        Cursor
+                      </Link>{' '}
+                      for your platform.
+                    </Text>
+                  </div>
+
+                  <div>
+                    <H3 className="mb-2">2. Configure MCP Server</H3>
+                    <Text variant="muted" className="mb-2">
+                      Add the Axiom MCP server to your Cursor settings:
+                    </Text>
+                    <CodeBlock>{cursorConfig}</CodeBlock>
+                  </div>
+
+                  <div>
+                    <H3 className="mb-2">3. Restart Cursor</H3>
+                    <Text variant="muted">
+                      Restart Cursor to load the Axiom MCP server. You'll be prompted to authenticate with Axiom on first use.
+                    </Text>
+                  </div>
+                </div>
+
+                {/* Other Clients Content */}
+                <div id="other-content" className="client-content space-y-4" style="display: none;">
+                  <div>
+                    <H3 className="mb-2">MCP Server URLs</H3>
+                    <Text variant="muted" className="mb-2">
+                      The Axiom MCP server supports two endpoints:
+                    </Text>
+                    <div className="space-y-3">
+                      <div>
+                        <Text variant="muted" className="text-sm font-semibold mb-1">
+                          Standard MCP Protocol (recommended):
+                        </Text>
+                        <CodeBlock>{`${serverUrl}/mcp`}</CodeBlock>
+                        <Text variant="muted" className="mt-1 text-xs">
+                          Use this for Claude Desktop 0.7.0+, Claude.ai, and other modern MCP clients
+                        </Text>
+                      </div>
+                      <div>
+                        <Text variant="muted" className="text-sm font-semibold mb-1">
+                          SSE Protocol (legacy):
+                        </Text>
+                        <CodeBlock>{`${serverUrl}/sse`}</CodeBlock>
+                        <Text variant="muted" className="mt-1 text-xs">
+                          Use this for older MCP clients or those that require Server-Sent Events
+                        </Text>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <H3 className="mb-2">Authentication</H3>
+                    <Text variant="muted">
+                      The server uses OAuth 2.0 for authentication. Your client will be redirected to Axiom for authorization on first connection.
+                    </Text>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Available Tools */}
-        {tools.length > 0 && (
+        {showTools && tools.length > 0 && (
           <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 md:p-8">
             <H2 className="mb-4">Available Tools</H2>
             <Text variant="muted" className="mb-4">
@@ -426,7 +434,7 @@ export const LandingPage: FC<LandingPageProps> = ({
         )}
 
         {/* Available Prompts */}
-        {prompts.length > 0 && (
+        {showPrompts && prompts.length > 0 && (
           <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 md:p-8">
             <H2 className="mb-4">Available Prompts</H2>
             <Text variant="muted" className="mb-4">
@@ -457,16 +465,16 @@ export const LandingPage: FC<LandingPageProps> = ({
 
         {/* Documentation Links */}
         <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 md:p-8">
-          <H2 className="mb-4">Learn More</H2>
+          <H2 className="mb-4">Get Started</H2>
           <div className="grid gap-4 md:grid-cols-2">
             <Link
-              href="https://axiom.co/docs"
+              href="https://axiom.co/docs/llms/mcp-server#axiom-mcp-server"
               target="_blank"
               rel="noopener noreferrer"
               className="block rounded-lg border border-gray-200 p-4 transition-colors hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800"
             >
               <div className="font-semibold text-gray-900 dark:text-gray-100">Axiom Documentation</div>
-              <Text variant="muted" className="mt-1 text-xs">Explore Axiom's features and APIs</Text>
+              <Text variant="muted" className="mt-1 text-xs">Learn how to configure your client to interact with the Axiom MCP server</Text>
             </Link>
             <Link
               href="https://modelcontextprotocol.io"
