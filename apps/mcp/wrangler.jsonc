@@ -101,7 +101,7 @@
         "ENV": "staging",
         "COOKIE_ENCRYPTION_KEY": "axiom-staging-oi23j4-i2j34",
         "ATLAS_API_URL": "https://api.staging.axiomtestlabs.co",
-        "ATLAS_INTERNAL_URL": "https://app.staging.axiomtestlabs.co",
+        "ATLAS_INTERNAL_URL": "https://atlas.staging.axiomtestlabs.co",
         "AXIOM_LOGIN_BASE_URL": "https://login.staging.axiomtestlabs.co",
         "AXIOM_TRACES_KEY": "",
         "AXIOM_TRACES_DATASET": "",
