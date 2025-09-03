@@ -180,9 +180,10 @@ function extractMetadata(): ExtractedMetadata {
   };
 
   // Define categories and their directories
+  // Note: OpenTelemetry tools are temporarily disabled
   const categories = [
     { name: 'Core', dir: 'core' },
-    { name: 'OpenTelemetry', dir: 'otel' },
+    // { name: 'OpenTelemetry', dir: 'otel' }, // Disabled for now - due to stability issues
   ];
 
   for (const { name: categoryName, dir } of categories) {
