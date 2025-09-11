@@ -1,6 +1,5 @@
-import type { FC } from 'hono/jsx';
-import { LandingPage } from './ui';
 import { metadata } from './metadata';
+import { LandingPage } from './ui';
 
 /**
  * Handler for serving the landing page
@@ -12,9 +11,9 @@ export function serveLandingPage(request: Request): Response {
   // Render the landing page with metadata
   const html = (
     <LandingPage
-      tools={metadata.tools}
       prompts={metadata.prompts}
       serverUrl={url.origin}
+      tools={metadata.tools}
     />
   );
 

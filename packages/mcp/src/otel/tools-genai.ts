@@ -1,10 +1,9 @@
 import { z } from 'zod';
 import { runQuery } from '../axiom/api';
 import { QueryResultFormatter } from '../axiom/formatters';
-import { transposeQueryResult } from '../axiom/transpose';
 import { sanitizeDatasetName } from '../axiom/utils';
 import type { ToolContext } from '../core';
-import { markdownResult, stringResult } from '../result';
+import { stringResult } from '../result';
 
 export const ToolGetGenAIOverview = 'genai-getOverview';
 export const ToolAnalyzeTokenUsage = 'genai-analyzeTokenUsage';
@@ -89,14 +88,20 @@ export function registerGenAITools({
       includeCosts,
     }) => {
       const filters: string[] = [];
-      if (system) filters.push(`['attributes.gen_ai.system'] == "${system}"`);
-      if (model)
+      if (system) {
+        filters.push(`['attributes.gen_ai.system'] == "${system}"`);
+      }
+      if (model) {
         filters.push(`['attributes.gen_ai.request.model'] == "${model}"`);
-      if (capability)
+      }
+      if (capability) {
         filters.push(
           `['attributes.gen_ai.capability.name'] == "${capability}"`
         );
-      if (step) filters.push(`['attributes.gen_ai.step.name'] == "${step}"`);
+      }
+      if (step) {
+        filters.push(`['attributes.gen_ai.step.name'] == "${step}"`);
+      }
 
       const whereClause =
         filters.length > 0 ? `| where ${filters.join(' and ')}` : '';
@@ -178,14 +183,20 @@ ${costCalculation}
       groupBy,
     }) => {
       const filters: string[] = [];
-      if (system) filters.push(`['attributes.gen_ai.system'] == "${system}"`);
-      if (model)
+      if (system) {
+        filters.push(`['attributes.gen_ai.system'] == "${system}"`);
+      }
+      if (model) {
         filters.push(`['attributes.gen_ai.request.model'] == "${model}"`);
-      if (capability)
+      }
+      if (capability) {
         filters.push(
           `['attributes.gen_ai.capability.name'] == "${capability}"`
         );
-      if (step) filters.push(`['attributes.gen_ai.step.name'] == "${step}"`);
+      }
+      if (step) {
+        filters.push(`['attributes.gen_ai.step.name'] == "${step}"`);
+      }
 
       const whereClause =
         filters.length > 0 ? `| where ${filters.join(' and ')}` : '';
@@ -253,13 +264,17 @@ ${whereClause}
     },
     async ({ datasetName, system, model, capability, timeRange }) => {
       const filters: string[] = [];
-      if (system) filters.push(`['attributes.gen_ai.system'] == "${system}"`);
-      if (model)
+      if (system) {
+        filters.push(`['attributes.gen_ai.system'] == "${system}"`);
+      }
+      if (model) {
         filters.push(`['attributes.gen_ai.request.model'] == "${model}"`);
-      if (capability)
+      }
+      if (capability) {
         filters.push(
           `['attributes.gen_ai.capability.name'] == "${capability}"`
         );
+      }
 
       const whereClause =
         filters.length > 0 ? `| where ${filters.join(' and ')}` : '';
@@ -333,14 +348,20 @@ ${whereClause}
       groupBy,
     }) => {
       const filters: string[] = [];
-      if (system) filters.push(`['attributes.gen_ai.system'] == "${system}"`);
-      if (model)
+      if (system) {
+        filters.push(`['attributes.gen_ai.system'] == "${system}"`);
+      }
+      if (model) {
         filters.push(`['attributes.gen_ai.request.model'] == "${model}"`);
-      if (capability)
+      }
+      if (capability) {
         filters.push(
           `['attributes.gen_ai.capability.name'] == "${capability}"`
         );
-      if (step) filters.push(`['attributes.gen_ai.step.name'] == "${step}"`);
+      }
+      if (step) {
+        filters.push(`['attributes.gen_ai.step.name'] == "${step}"`);
+      }
 
       const whereClause =
         filters.length > 0 ? `| where ${filters.join(' and ')}` : '';
@@ -433,14 +454,20 @@ ${whereClause}
     }) => {
       const filters: string[] = [];
       filters.push(`['status.code'] == "ERROR"`);
-      if (system) filters.push(`['attributes.gen_ai.system'] == "${system}"`);
-      if (model)
+      if (system) {
+        filters.push(`['attributes.gen_ai.system'] == "${system}"`);
+      }
+      if (model) {
         filters.push(`['attributes.gen_ai.request.model'] == "${model}"`);
-      if (capability)
+      }
+      if (capability) {
         filters.push(
           `['attributes.gen_ai.capability.name'] == "${capability}"`
         );
-      if (step) filters.push(`['attributes.gen_ai.step.name'] == "${step}"`);
+      }
+      if (step) {
+        filters.push(`['attributes.gen_ai.step.name'] == "${step}"`);
+      }
 
       const whereClause = `| where ${filters.join(' and ')}`;
       const searchClause = errorSearch ? `| search "${errorSearch}"` : '';
@@ -582,10 +609,12 @@ ${
     async ({ datasetName, toolName, model, timeRange, limit }) => {
       const filters: string[] = [];
       filters.push(`isnotnull(['attributes.gen_ai.tool.name'])`);
-      if (toolName)
+      if (toolName) {
         filters.push(`['attributes.gen_ai.tool.name'] == "${toolName}"`);
-      if (model)
+      }
+      if (model) {
         filters.push(`['attributes.gen_ai.request.model'] == "${model}"`);
+      }
 
       const whereClause = `| where ${filters.join(' and ')}`;
 
@@ -642,10 +671,15 @@ ${whereClause}
     async ({ datasetName, capability, system, model, step, timeRange }) => {
       const filters: string[] = [];
       filters.push(`['attributes.gen_ai.capability.name'] == "${capability}"`);
-      if (system) filters.push(`['attributes.gen_ai.system'] == "${system}"`);
-      if (model)
+      if (system) {
+        filters.push(`['attributes.gen_ai.system'] == "${system}"`);
+      }
+      if (model) {
         filters.push(`['attributes.gen_ai.request.model'] == "${model}"`);
-      if (step) filters.push(`['attributes.gen_ai.step.name'] == "${step}"`);
+      }
+      if (step) {
+        filters.push(`['attributes.gen_ai.step.name'] == "${step}"`);
+      }
 
       const whereClause = `| where ${filters.join(' and ')}`;
 

@@ -25,7 +25,6 @@ const MCP_TELEMETRY_HEADERS = {
   'X-MCP-Server-Type': 'hosted',
 } as const;
 
-
 export function getMcpTelemetryHeaders(): Record<string, string> {
   return { ...MCP_TELEMETRY_HEADERS };
 }

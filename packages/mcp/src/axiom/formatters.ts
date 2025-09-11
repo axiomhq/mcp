@@ -134,7 +134,6 @@ export class QueryResultFormatter {
     return builder.build();
   }
 
-  // biome-ignore lint/complexity: sometimes things are complicated
   private applyLimits(tables: TransposedTable[]): TransposedTable[] {
     // Calculate total cells needed
     const totalCells = tables.reduce((sum, table) => {
