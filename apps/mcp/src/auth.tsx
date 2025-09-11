@@ -1,8 +1,8 @@
+import { env } from 'cloudflare:workers';
 import type {
   AuthRequest,
   OAuthHelpers,
 } from '@cloudflare/workers-oauth-provider';
-import { env } from 'cloudflare:workers';
 import { Hono } from 'hono';
 import { logger } from './logger';
 import type { ServerProps } from './types';
@@ -154,7 +154,6 @@ async function redirectToGithub(
  * user metadata & the auth token as part of the 'props' on the token passed
  * down to the client. It ends by redirecting the client back to _its_ callback URL
  */
-
 app.get('/callback', async (c) => {
   let oauthReqInfo: AuthRequest;
   try {

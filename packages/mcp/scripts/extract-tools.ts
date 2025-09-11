@@ -5,7 +5,7 @@
  * and generates a JSON file with tool metadata for the landing page
  */
 
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
+import { readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 
 interface ToolMetadata {
@@ -38,9 +38,18 @@ function findTypeScriptFiles(dir: string): string[] {
       const fullPath = join(currentDir, entry);
       const stat = statSync(fullPath);
 
-      if (stat.isDirectory() && !entry.startsWith('.') && entry !== 'node_modules') {
+      if (
+        stat.isDirectory() &&
+        !entry.startsWith('.') &&
+        entry !== 'node_modules'
+      ) {
         walk(fullPath);
-      } else if (stat.isFile() && entry.endsWith('.ts') && !entry.endsWith('.test.ts') && !entry.endsWith('.spec.ts')) {
+      } else if (
+        stat.isFile() &&
+        entry.endsWith('.ts') &&
+        !entry.endsWith('.test.ts') &&
+        !entry.endsWith('.spec.ts')
+      ) {
         files.push(fullPath);
       }
     }
@@ -68,7 +77,8 @@ function extractTools(content: string, category: string): ToolMetadata[] {
   // Match server.tool() calls with both string literals and constants
   // Pattern 1: server.tool('name', 'description', ...)
   // Pattern 2: server.tool(ConstantName, 'description', ...)
-  const toolRegex = /server\.tool\(\s*(?:['"`]([^'"`]+)['"`]|(\w+))\s*,\s*['"`]((?:[^'"`\\]|\\.|(?:['"`](?:[^'"`\\]|\\.)*['"`]))*?)['"`]/gms;
+  const toolRegex =
+    /server\.tool\(\s*(?:['"`]([^'"`]+)['"`]|(\w+))\s*,\s*['"`]((?:[^'"`\\]|\\.|(?:['"`](?:[^'"`\\]|\\.)*['"`]))*?)['"`]/gms;
 
   while ((match = toolRegex.exec(content)) !== null) {
     const [, literalName, constantName, description] = match;
@@ -129,7 +139,8 @@ function extractPrompts(content: string, category: string): PromptMetadata[] {
   }
 
   // Match server.prompt() calls with both string literals and constants
-  const promptRegex = /server\.prompt\(\s*(?:['"`]([^'"`]+)['"`]|(\w+))\s*,\s*['"`]((?:[^'"`\\]|\\.|(?:['"`](?:[^'"`\\]|\\.)*['"`]))*?)['"`]/gms;
+  const promptRegex =
+    /server\.prompt\(\s*(?:['"`]([^'"`]+)['"`]|(\w+))\s*,\s*['"`]((?:[^'"`\\]|\\.|(?:['"`](?:[^'"`\\]|\\.)*['"`]))*?)['"`]/gms;
 
   while ((match = promptRegex.exec(content)) !== null) {
     const [, literalName, constantName, description] = match;
@@ -204,7 +215,10 @@ function extractMetadata(): ExtractedMetadata {
         metadata.prompts.push(...prompts);
       }
     } catch (error) {
-      console.warn(`Warning: Could not process category ${categoryName}:`, error);
+      console.warn(
+        `Warning: Could not process category ${categoryName}:`,
+        error
+      );
     }
   }
 
@@ -296,9 +310,9 @@ export const promptsByCategory = metadata.prompts.reduce((acc, prompt) => {
   console.log(`  Resources: ${metadata.resources.length}`);
 
   // Print by category
-  const toolCategories = [...new Set(metadata.tools.map(t => t.category))];
+  const toolCategories = [...new Set(metadata.tools.map((t) => t.category))];
   for (const category of toolCategories) {
-    const categoryTools = metadata.tools.filter(t => t.category === category);
+    const categoryTools = metadata.tools.filter((t) => t.category === category);
     console.log(`    ${category}: ${categoryTools.length} tools`);
   }
 }

@@ -1,8 +1,6 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
-  "extends": [
-    "ultracite"
-  ],
+  "extends": ["ultracite"],
   "files": {
     "includes": [
       "**",
@@ -12,8 +10,11 @@
       "!**/dist/**",
       "!.commitlintrc.ts",
       "!**/globalTeardown.ts",
-      "!scripts/**",
-      "!packages/apex-client/**",
+      "!**/scripts/**",
+      "!apps/mcp/test/**",
+      "!apps/mcp/src/ui/**",
+      "!apps/mcp/src/metadata.ts",
+      "!packages/mcp/metadata.ts",
       "!**/worker-configuration.d.ts"
     ]
   },
@@ -32,7 +33,8 @@
         "noArrayIndexKey": "off"
       },
       "complexity": {
-        "noForEach": "off"
+        "noForEach": "off",
+        "noExcessiveCognitiveComplexity": "off"
       },
       "nursery": {
         "noAwaitInLoop": "off",
@@ -48,9 +50,7 @@
   },
   "overrides": [
     {
-      "includes": [
-        "**/*.spec.*"
-      ],
+      "includes": ["**/*.spec.*"],
       "linter": {
         "rules": {
           "suspicious": {

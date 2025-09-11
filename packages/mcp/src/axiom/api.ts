@@ -27,7 +27,7 @@ export async function getDatasets(client: Client): Promise<Datasets> {
     DatasetsSchema
   );
   return datasets.map((dataset) => {
-    return { ...dataset, description: dataset.description!.slice(0, 255) };
+    return { ...dataset, description: dataset.description?.slice(0, 255) };
   });
 }
 
@@ -49,7 +49,7 @@ export async function getDatasetFields(
         return {
           name: f.name,
           type: f.type,
-          description: f.description!.slice(0, 255),
+          description: f.description?.slice(0, 255),
         };
       }
       return f;

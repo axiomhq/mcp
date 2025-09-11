@@ -30,7 +30,6 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Client } from './axiom/client';
 import { registerCoreTools } from './core';
 import type { Logger } from './logger';
-import { registerOpenTelemetryTools } from './otel';
 
 export interface AxiomMcpConfig {
   server: McpServer;
@@ -70,10 +69,10 @@ export function registerAxiomMcpTools(config: AxiomMcpConfig) {
 
   // Register OpenTelemetry tools if any otel integration is found
   // Temporarily disabled otel tools due to stability issues to unblock remote MCP server release to customers
-//   if (
-//     config.integrations.some((integration) => integration.startsWith('otel'))
-//   ) {
-//     config.logger.debug('[init] Registering OTel tools');
-//     registerOpenTelemetryTools(context);
-//   }
- }
+  //   if (
+  //     config.integrations.some((integration) => integration.startsWith('otel'))
+  //   ) {
+  //     config.logger.debug('[init] Registering OTel tools');
+  //     registerOpenTelemetryTools(context);
+  //   }
+}

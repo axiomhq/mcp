@@ -161,7 +161,7 @@ Common Patterns:
     {},
     async () => {
       const savedQueries = await getSavedQueries(publicClient);
-      
+
       if (savedQueries.length === 0) {
         return stringResult('No saved queries found.');
       }
@@ -173,7 +173,9 @@ Common Patterns:
             `**Dataset:** ${query.dataset}`,
             `**APL Query:** \`${query.query.apl}\``,
             `**Created by:** ${query.who}`,
-            query.query.endTime ? `**End Time:** ${new Date(query.query.endTime).toLocaleDateString()}` : '',
+            query.query.endTime
+              ? `**End Time:** ${new Date(query.query.endTime).toLocaleDateString()}`
+              : '',
             '---',
           ];
           return lines.filter(Boolean).join('\n');

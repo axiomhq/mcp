@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { sha256 } from '../src/utils';
 
 describe('Auth Utilities', () => {

@@ -90,18 +90,12 @@ export async function fetchUpstreamAuthToken({
   }
   // biome-ignore lint: _
   const body: any = await resp.json();
-  console.log('OAuth token response:', {
-    has_access_token: !!body.access_token,
-    has_refresh_token: !!body.refresh_token,
-    expires_in: body.expires_in,
-    token_type: body.token_type,
-  });
-  
+
   const accessToken = body.access_token as string;
   if (!accessToken) {
     return [null, new Response('Missing access token', { status: 400 })];
   }
-  
+
   // Return the full token response including refresh token if present
   return [body, null];
 }
@@ -132,27 +126,25 @@ export async function refreshAccessToken({
     },
     method: 'POST',
   });
-  
+
   if (!resp.ok) {
-    console.error('Failed to refresh token:', await resp.text());
     return [
       null,
       new Response('Failed to refresh access token', { status: 500 }),
     ];
   }
-  
+
+  // biome-ignore lint: _
   const body: any = await resp.json();
-  console.log('Refresh token response:', {
-    has_access_token: !!body.access_token,
-    has_new_refresh_token: !!body.refresh_token,
-    expires_in: body.expires_in,
-  });
-  
+
   const accessToken = body.access_token as string;
   if (!accessToken) {
-    return [null, new Response('Missing access token in refresh response', { status: 400 })];
+    return [
+      null,
+      new Response('Missing access token in refresh response', { status: 400 }),
+    ];
   }
-  
+
   return [body, null];
 }
 

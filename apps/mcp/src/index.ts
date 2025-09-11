@@ -49,7 +49,6 @@ const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
 };
 
 const oauthProvider = new OAuthProvider({
-  // biome-ignore lint/suspicious/noExplicitAny: Type compatibility with OAuth provider
   apiHandlers: {
     '/sse': AxiomMCP.serveSSE('/sse'),
     '/mcp': AxiomMCP.serve('/mcp'),

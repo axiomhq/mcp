@@ -1,5 +1,5 @@
 import type { FC } from 'hono/jsx';
-import { Button, Card, H1, H2, H3, Link, Text } from '../base';
+import { H1, H2, H3, Link, Text } from '../base';
 import { LandingLayout } from './landing-layout';
 
 interface ToolMetadata {
@@ -23,16 +23,18 @@ interface LandingPageProps {
   showPrompts?: boolean;
 }
 
-const CodeBlock: FC<{ children: string; language?: string }> = ({ children }) => {
+const CodeBlock: FC<{ children: string; language?: string }> = ({
+  children,
+}) => {
   const id = `code-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
     <div className="relative">
-      <pre className="overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100 dark:bg-gray-950">
+      <pre className="overflow-x-auto rounded-lg bg-gray-900 p-4 text-gray-100 text-sm dark:bg-gray-950">
         <code id={id}>{children}</code>
       </pre>
       <button
-        type="button"
+        className="absolute top-2 right-2 rounded bg-gray-800 px-2 py-1 text-gray-300 text-xs transition-colors hover:bg-gray-700 hover:text-white"
         onclick={`
           const el = document.getElementById('${id}');
           const text = el.textContent || '';
@@ -47,7 +49,7 @@ const CodeBlock: FC<{ children: string; language?: string }> = ({ children }) =>
             }, 2000);
           });
         `}
-        className="absolute right-2 top-2 rounded bg-gray-800 px-2 py-1 text-xs text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+        type="button"
       >
         Copy
       </button>
@@ -55,19 +57,20 @@ const CodeBlock: FC<{ children: string; language?: string }> = ({ children }) =>
   );
 };
 
+// biome-ignore lint: _
 const TabButton: FC<{ active: boolean; onclick: string; children: any }> = ({
   active,
   onclick,
-  children
+  children,
 }) => (
   <button
-    type="button"
-    onclick={onclick}
-    className={`px-4 py-2 text-sm font-medium transition-colors ${
+    className={`px-4 py-2 font-medium text-sm transition-colors ${
       active
-        ? 'border-b-2 border-gray-900 text-gray-900 dark:border-gray-100 dark:text-gray-100'
+        ? 'border-gray-900 border-b-2 text-gray-900 dark:border-gray-100 dark:text-gray-100'
         : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
     }`}
+    onclick={onclick}
+    type="button"
   >
     {children}
   </button>
@@ -79,25 +82,31 @@ export const LandingPage: FC<LandingPageProps> = ({
   serverUrl = 'https://mcp.axiom.co',
   showInstallation = false,
   showTools = false,
-  showPrompts = false
+  showPrompts = false,
 }) => {
   // Group tools by category
-  const toolsByCategory = tools.reduce((acc, tool) => {
-    if (!acc[tool.category]) {
-      acc[tool.category] = [];
-    }
-    acc[tool.category].push(tool);
-    return acc;
-  }, {} as Record<string, ToolMetadata[]>);
+  const toolsByCategory = tools.reduce(
+    (acc, tool) => {
+      if (!acc[tool.category]) {
+        acc[tool.category] = [];
+      }
+      acc[tool.category].push(tool);
+      return acc;
+    },
+    {} as Record<string, ToolMetadata[]>
+  );
 
   // Group prompts by category
-  const promptsByCategory = prompts.reduce((acc, prompt) => {
-    if (!acc[prompt.category]) {
-      acc[prompt.category] = [];
-    }
-    acc[prompt.category].push(prompt);
-    return acc;
-  }, {} as Record<string, PromptMetadata[]>);
+  const promptsByCategory = prompts.reduce(
+    (acc, prompt) => {
+      if (!acc[prompt.category]) {
+        acc[prompt.category] = [];
+      }
+      acc[prompt.category].push(prompt);
+      return acc;
+    },
+    {} as Record<string, PromptMetadata[]>
+  );
 
   const claudeConfig = `{
   "mcpServers": {
@@ -120,8 +129,8 @@ export const LandingPage: FC<LandingPageProps> = ({
     <LandingLayout title="Axiom MCP Server">
       <div className="space-y-8">
         {/* Hero Section */}
-        <div className="rounded-lg bg-white p-8 shadow-sm dark:bg-gray-900 md:p-12 text-center">
-          <div className="flex justify-center mb-4">
+        <div className="rounded-lg bg-white p-8 text-center shadow-sm md:p-12 dark:bg-gray-900">
+          <div className="mb-4 flex justify-center">
             <svg
               aria-label="Axiom logomark"
               className="mx-auto"
@@ -140,7 +149,12 @@ export const LandingPage: FC<LandingPageProps> = ({
               </g>
               <defs>
                 <clipPath id="clip0_366_3390">
-                  <rect fill="white" height="19" transform="translate(5 7)" width="22" />
+                  <rect
+                    fill="white"
+                    height="19"
+                    transform="translate(5 7)"
+                    width="22"
+                  />
                 </clipPath>
               </defs>
             </svg>
@@ -149,20 +163,21 @@ export const LandingPage: FC<LandingPageProps> = ({
           <Text className="text-lg">
             Connect AI assistants to Axiom's observability platform
           </Text>
-          <Text variant="muted" className="mt-2">
-            Query datasets, analyze traces, monitor alerts, and explore your data using natural language
+          <Text className="mt-2" variant="muted">
+            Query datasets, analyze traces, monitor alerts, and explore your
+            data using natural language
           </Text>
         </div>
 
         {/* Installation Instructions */}
         {showInstallation && (
-          <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 md:p-8">
+          <div className="rounded-lg bg-white p-6 shadow-sm md:p-8 dark:bg-gray-900">
             <H2 className="mb-4">Installation</H2>
 
             <div className="space-y-6">
               {/* Tabs for different clients */}
               <div>
-                <div className="border-b border-gray-200 dark:border-gray-700 mb-4">
+                <div className="mb-4 border-gray-200 border-b dark:border-gray-700">
                   <div className="flex space-x-4" id="client-tabs">
                     <TabButton
                       active={true}
@@ -228,12 +243,19 @@ export const LandingPage: FC<LandingPageProps> = ({
                 </div>
 
                 {/* Claude Desktop Content */}
-                <div id="claude-desktop-content" className="client-content space-y-4">
+                <div
+                  className="client-content space-y-4"
+                  id="claude-desktop-content"
+                >
                   <div>
                     <H3 className="mb-2">1. Install Claude Desktop</H3>
                     <Text variant="muted">
                       Download and install{' '}
-                      <Link href="https://claude.ai/download" target="_blank" rel="noopener noreferrer">
+                      <Link
+                        href="https://claude.ai/download"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
                         Claude Desktop
                       </Link>{' '}
                       (version 0.7.0 or later) for your platform.
@@ -242,37 +264,50 @@ export const LandingPage: FC<LandingPageProps> = ({
 
                   <div>
                     <H3 className="mb-2">2. Add Axiom MCP Server</H3>
-                    <Text variant="muted" className="mb-2">
+                    <Text className="mb-2" variant="muted">
                       Open Claude Desktop and navigate to:
                     </Text>
-                    <Text variant="muted" className="text-sm mb-2">
+                    <Text className="mb-2 text-sm" variant="muted">
                       <strong>Settings → Developer → MCP Servers</strong>
                     </Text>
-                    <Text variant="muted" className="mb-3">
+                    <Text className="mb-3" variant="muted">
                       Click "Add Server" and enter:
                     </Text>
-                    <div className="space-y-2 mb-3">
-                      <Text variant="muted" className="text-sm">
-                        <strong>Name:</strong> <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">Axiom</code>
+                    <div className="mb-3 space-y-2">
+                      <Text className="text-sm" variant="muted">
+                        <strong>Name:</strong>{' '}
+                        <code className="rounded bg-gray-200 px-1 py-0.5 dark:bg-gray-800">
+                          Axiom
+                        </code>
                       </Text>
-                      <Text variant="muted" className="text-sm">
-                        <strong>URL:</strong> <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">{serverUrl}/mcp</code>
+                      <Text className="text-sm" variant="muted">
+                        <strong>URL:</strong>{' '}
+                        <code className="rounded bg-gray-200 px-1 py-0.5 dark:bg-gray-800">
+                          {serverUrl}/mcp
+                        </code>
                       </Text>
                     </div>
 
                     <details className="mt-4">
-                      <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
+                      <summary className="cursor-pointer text-gray-600 text-sm hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
                         Manual configuration (advanced users)
                       </summary>
                       <div className="mt-3 space-y-2">
-                        <Text variant="muted" className="text-sm">
+                        <Text className="text-sm" variant="muted">
                           Edit your Claude Desktop configuration file:
                         </Text>
-                        <Text variant="muted" className="text-xs">
-                          • macOS: <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">~/Library/Application Support/Claude/claude_desktop_config.json</code>
+                        <Text className="text-xs" variant="muted">
+                          • macOS:{' '}
+                          <code className="rounded bg-gray-200 px-1 py-0.5 dark:bg-gray-800">
+                            ~/Library/Application
+                            Support/Claude/claude_desktop_config.json
+                          </code>
                         </Text>
-                        <Text variant="muted" className="text-xs mb-3">
-                          • Windows: <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">%APPDATA%\Claude\claude_desktop_config.json</code>
+                        <Text className="mb-3 text-xs" variant="muted">
+                          • Windows:{' '}
+                          <code className="rounded bg-gray-200 px-1 py-0.5 dark:bg-gray-800">
+                            %APPDATA%\Claude\claude_desktop_config.json
+                          </code>
                         </Text>
                         <CodeBlock>{claudeConfig}</CodeBlock>
                       </div>
@@ -282,18 +317,28 @@ export const LandingPage: FC<LandingPageProps> = ({
                   <div>
                     <H3 className="mb-2">3. Connect and Authenticate</H3>
                     <Text variant="muted">
-                      Click "Connect" to activate the server (or restart Claude Desktop if you used manual configuration). You'll be prompted to authenticate with Axiom on first use.
+                      Click "Connect" to activate the server (or restart Claude
+                      Desktop if you used manual configuration). You'll be
+                      prompted to authenticate with Axiom on first use.
                     </Text>
                   </div>
                 </div>
 
                 {/* Claude.ai Content */}
-                <div id="claude-ai-content" className="client-content space-y-4" style="display: none;">
+                <div
+                  className="client-content space-y-4"
+                  id="claude-ai-content"
+                  style="display: none;"
+                >
                   <div>
                     <H3 className="mb-2">1. Access Claude.ai</H3>
                     <Text variant="muted">
                       Navigate to{' '}
-                      <Link href="https://claude.ai" target="_blank" rel="noopener noreferrer">
+                      <Link
+                        href="https://claude.ai"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
                         claude.ai
                       </Link>{' '}
                       and sign in to your account.
@@ -302,25 +347,29 @@ export const LandingPage: FC<LandingPageProps> = ({
 
                   <div>
                     <H3 className="mb-2">2. Enable MCP Features</H3>
-                    <Text variant="muted" className="mb-2">
-                      Ensure you have MCP features enabled in your Claude.ai account (available for Pro users).
+                    <Text className="mb-2" variant="muted">
+                      Ensure you have MCP features enabled in your Claude.ai
+                      account (available for Pro users).
                     </Text>
                   </div>
 
                   <div>
                     <H3 className="mb-2">3. Add MCP Server</H3>
-                    <Text variant="muted" className="mb-2">
+                    <Text className="mb-2" variant="muted">
                       Click on your profile icon and navigate to:
                     </Text>
-                    <Text variant="muted" className="text-sm mb-2">
+                    <Text className="mb-2 text-sm" variant="muted">
                       <strong>Settings → Connected Apps</strong>
                     </Text>
-                    <Text variant="muted" className="mb-3">
+                    <Text className="mb-3" variant="muted">
                       Click "Connect New App" and add the Axiom MCP server:
                     </Text>
-                    <div className="space-y-2 mb-3">
-                      <Text variant="muted" className="text-sm">
-                        <strong>Server URL:</strong> <code className="bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">{serverUrl}/mcp</code>
+                    <div className="mb-3 space-y-2">
+                      <Text className="text-sm" variant="muted">
+                        <strong>Server URL:</strong>{' '}
+                        <code className="rounded bg-gray-200 px-1 py-0.5 dark:bg-gray-800">
+                          {serverUrl}/mcp
+                        </code>
                       </Text>
                     </div>
                   </div>
@@ -328,18 +377,28 @@ export const LandingPage: FC<LandingPageProps> = ({
                   <div>
                     <H3 className="mb-2">4. Authenticate</H3>
                     <Text variant="muted">
-                      Complete the OAuth flow to authenticate with Axiom. The server will then be available in your Claude conversations.
+                      Complete the OAuth flow to authenticate with Axiom. The
+                      server will then be available in your Claude
+                      conversations.
                     </Text>
                   </div>
                 </div>
 
                 {/* Cursor Content */}
-                <div id="cursor-content" className="client-content space-y-4" style="display: none;">
+                <div
+                  className="client-content space-y-4"
+                  id="cursor-content"
+                  style="display: none;"
+                >
                   <div>
                     <H3 className="mb-2">1. Install Cursor</H3>
                     <Text variant="muted">
                       Download and install{' '}
-                      <Link href="https://cursor.sh" target="_blank" rel="noopener noreferrer">
+                      <Link
+                        href="https://cursor.sh"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
                         Cursor
                       </Link>{' '}
                       for your platform.
@@ -348,7 +407,7 @@ export const LandingPage: FC<LandingPageProps> = ({
 
                   <div>
                     <H3 className="mb-2">2. Configure MCP Server</H3>
-                    <Text variant="muted" className="mb-2">
+                    <Text className="mb-2" variant="muted">
                       Add the Axiom MCP server to your Cursor settings:
                     </Text>
                     <CodeBlock>{cursorConfig}</CodeBlock>
@@ -357,35 +416,48 @@ export const LandingPage: FC<LandingPageProps> = ({
                   <div>
                     <H3 className="mb-2">3. Restart Cursor</H3>
                     <Text variant="muted">
-                      Restart Cursor to load the Axiom MCP server. You'll be prompted to authenticate with Axiom on first use.
+                      Restart Cursor to load the Axiom MCP server. You'll be
+                      prompted to authenticate with Axiom on first use.
                     </Text>
                   </div>
                 </div>
 
                 {/* Other Clients Content */}
-                <div id="other-content" className="client-content space-y-4" style="display: none;">
+                <div
+                  className="client-content space-y-4"
+                  id="other-content"
+                  style="display: none;"
+                >
                   <div>
                     <H3 className="mb-2">MCP Server URLs</H3>
-                    <Text variant="muted" className="mb-2">
+                    <Text className="mb-2" variant="muted">
                       The Axiom MCP server supports two endpoints:
                     </Text>
                     <div className="space-y-3">
                       <div>
-                        <Text variant="muted" className="text-sm font-semibold mb-1">
+                        <Text
+                          className="mb-1 font-semibold text-sm"
+                          variant="muted"
+                        >
                           Standard MCP Protocol (recommended):
                         </Text>
                         <CodeBlock>{`${serverUrl}/mcp`}</CodeBlock>
-                        <Text variant="muted" className="mt-1 text-xs">
-                          Use this for Claude Desktop 0.7.0+, Claude.ai, and other modern MCP clients
+                        <Text className="mt-1 text-xs" variant="muted">
+                          Use this for Claude Desktop 0.7.0+, Claude.ai, and
+                          other modern MCP clients
                         </Text>
                       </div>
                       <div>
-                        <Text variant="muted" className="text-sm font-semibold mb-1">
+                        <Text
+                          className="mb-1 font-semibold text-sm"
+                          variant="muted"
+                        >
                           SSE Protocol (legacy):
                         </Text>
                         <CodeBlock>{`${serverUrl}/sse`}</CodeBlock>
-                        <Text variant="muted" className="mt-1 text-xs">
-                          Use this for older MCP clients or those that require Server-Sent Events
+                        <Text className="mt-1 text-xs" variant="muted">
+                          Use this for older MCP clients or those that require
+                          Server-Sent Events
                         </Text>
                       </div>
                     </div>
@@ -394,7 +466,9 @@ export const LandingPage: FC<LandingPageProps> = ({
                   <div>
                     <H3 className="mb-2">Authentication</H3>
                     <Text variant="muted">
-                      The server uses OAuth 2.0 for authentication. Your client will be redirected to Axiom for authorization on first connection.
+                      The server uses OAuth 2.0 for authentication. Your client
+                      will be redirected to Axiom for authorization on first
+                      connection.
                     </Text>
                   </div>
                 </div>
@@ -405,85 +479,111 @@ export const LandingPage: FC<LandingPageProps> = ({
 
         {/* Available Tools */}
         {showTools && tools.length > 0 && (
-          <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 md:p-8">
+          <div className="rounded-lg bg-white p-6 shadow-sm md:p-8 dark:bg-gray-900">
             <H2 className="mb-4">Available Tools</H2>
-            <Text variant="muted" className="mb-4">
-              These tools are available to query and interact with your Axiom data:
+            <Text className="mb-4" variant="muted">
+              These tools are available to query and interact with your Axiom
+              data:
             </Text>
 
             <div className="space-y-8">
-              {Object.entries(toolsByCategory).map(([category, categoryTools]) => (
-                <div key={category}>
-                  <H3 className="mb-4 text-lg font-semibold">{category}</H3>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {categoryTools.map((tool) => (
-                      <div key={tool.name} className="border-l-2 border-gray-200 dark:border-gray-700 pl-4 py-2">
-                        <div className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                          {tool.name}
+              {Object.entries(toolsByCategory).map(
+                ([category, categoryTools]) => (
+                  <div key={category}>
+                    <H3 className="mb-4 font-semibold text-lg">{category}</H3>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {categoryTools.map((tool) => (
+                        <div
+                          className="border-gray-200 border-l-2 py-2 pl-4 dark:border-gray-700"
+                          key={tool.name}
+                        >
+                          <div className="mb-1 font-mono font-semibold text-gray-900 text-sm dark:text-gray-100">
+                            {tool.name}
+                          </div>
+                          <Text
+                            className="text-xs leading-relaxed"
+                            variant="muted"
+                          >
+                            {tool.description}
+                          </Text>
                         </div>
-                        <Text variant="muted" className="text-xs leading-relaxed">
-                          {tool.description}
-                        </Text>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         )}
 
         {/* Available Prompts */}
         {showPrompts && prompts.length > 0 && (
-          <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 md:p-8">
+          <div className="rounded-lg bg-white p-6 shadow-sm md:p-8 dark:bg-gray-900">
             <H2 className="mb-4">Available Prompts</H2>
-            <Text variant="muted" className="mb-4">
+            <Text className="mb-4" variant="muted">
               Pre-configured prompts to help you get started:
             </Text>
 
             <div className="space-y-8">
-              {Object.entries(promptsByCategory).map(([category, categoryPrompts]) => (
-                <div key={category}>
-                  <H3 className="mb-4 text-lg font-semibold">{category}</H3>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {categoryPrompts.map((prompt) => (
-                      <div key={prompt.name} className="border-l-2 border-gray-200 dark:border-gray-700 pl-4 py-2">
-                        <div className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                          {prompt.name}
+              {Object.entries(promptsByCategory).map(
+                ([category, categoryPrompts]) => (
+                  <div key={category}>
+                    <H3 className="mb-4 font-semibold text-lg">{category}</H3>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {categoryPrompts.map((prompt) => (
+                        <div
+                          className="border-gray-200 border-l-2 py-2 pl-4 dark:border-gray-700"
+                          key={prompt.name}
+                        >
+                          <div className="mb-1 font-mono font-semibold text-gray-900 text-sm dark:text-gray-100">
+                            {prompt.name}
+                          </div>
+                          <Text
+                            className="text-xs leading-relaxed"
+                            variant="muted"
+                          >
+                            {prompt.description}
+                          </Text>
                         </div>
-                        <Text variant="muted" className="text-xs leading-relaxed">
-                          {prompt.description}
-                        </Text>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         )}
 
         {/* Documentation Links */}
-        <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 md:p-8">
+        <div className="rounded-lg bg-white p-6 shadow-sm md:p-8 dark:bg-gray-900">
           <H2 className="mb-4">Get Started</H2>
           <div className="grid gap-4 md:grid-cols-2">
             <Link
-              href="https://axiom.co/docs/llms/mcp-server#axiom-mcp-server"
-              target="_blank"
-              rel="noopener noreferrer"
               className="block rounded-lg border border-gray-200 p-4 transition-colors hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800"
+              href="https://axiom.co/docs/llms/mcp-server#axiom-mcp-server"
+              rel="noopener noreferrer"
+              target="_blank"
             >
-              <div className="font-semibold text-gray-900 dark:text-gray-100">Axiom Documentation</div>
-              <Text variant="muted" className="mt-1 text-xs">Learn how to configure your client to interact with the Axiom MCP server</Text>
+              <div className="font-semibold text-gray-900 dark:text-gray-100">
+                Axiom Documentation
+              </div>
+              <Text className="mt-1 text-xs" variant="muted">
+                Learn how to configure your client to interact with the Axiom
+                MCP server
+              </Text>
             </Link>
             <Link
-              href="https://modelcontextprotocol.io"
-              target="_blank"
-              rel="noopener noreferrer"
               className="block rounded-lg border border-gray-200 p-4 transition-colors hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800"
+              href="https://modelcontextprotocol.io"
+              rel="noopener noreferrer"
+              target="_blank"
             >
-              <div className="font-semibold text-gray-900 dark:text-gray-100">MCP Documentation</div>
-              <Text variant="muted" className="mt-1 text-xs">Learn about the Model Context Protocol</Text>
+              <div className="font-semibold text-gray-900 dark:text-gray-100">
+                MCP Documentation
+              </div>
+              <Text className="mt-1 text-xs" variant="muted">
+                Learn about the Model Context Protocol
+              </Text>
             </Link>
           </div>
         </div>
