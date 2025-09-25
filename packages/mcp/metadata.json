@@ -6,6 +6,11 @@
       "category": "Core"
     },
     {
+      "name": "getDashboard",
+      "description": "Get detailed information about a specific dashboard by ID.",
+      "category": "Core"
+    },
+    {
       "name": "getDatasetFields",
       "description": "List all fields in a dataset.",
       "category": "Core"
@@ -18,6 +23,11 @@
     {
       "name": "getSavedQueries",
       "description": "Retrieve saved/starred queries from Axiom - shows APL queries that users have bookmarked for reuse",
+      "category": "Core"
+    },
+    {
+      "name": "listDashboards",
+      "description": "List all available dashboards. Shows user-created dashboards with their metadata.",
       "category": "Core"
     },
     {

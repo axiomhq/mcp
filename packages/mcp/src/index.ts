@@ -2,6 +2,8 @@
 
 // Axiom API functions
 export {
+  getDashboard,
+  getDashboards,
   getDatasetFields,
   getDatasets,
   getIntegrations,

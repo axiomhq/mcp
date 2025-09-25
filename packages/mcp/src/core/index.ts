@@ -2,6 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { Client } from '../axiom/client';
 import type { Logger } from '../logger';
 import { registerCorePrompts } from './prompts';
+import { registerDashboardTools } from './tools-dashboards';
 import { registerDatasetTools } from './tools-datasets';
 import { registerMonitorTools } from './tools-monitors';
 
@@ -17,6 +18,7 @@ export interface ToolContext {
 
 export function registerCoreTools(context: ToolContext) {
   registerDatasetTools(context);
+  registerDashboardTools(context);
   registerMonitorTools(context);
   registerCorePrompts(context);
 }
