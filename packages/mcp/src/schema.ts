@@ -46,3 +46,10 @@ export const ParamMonitorId = z
   .describe(
     'The monitor ID. You can find an list of monitors using the `checkMonitors()` tool.'
   );
+
+export const ParamDashboardID = z
+  .string()
+  .trim()
+  .describe(
+    'The dashboard ID. You can find a list of dashboards using the `listDashboards()` tool.'
+  );

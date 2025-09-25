@@ -115,6 +115,40 @@ export const SavedQuerySchema = z.object({
 });
 export const SavedQueriesSchema = SavedQuerySchema.array();
 
+// Dashboard schemas
+export const DashboardOverridesSchema = z.record(z.unknown());
+
+export const DashboardSchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  owner: z.string(),
+  charts: z.unknown(), // JSON data
+  layout: z.unknown(), // JSON data
+  refreshTime: z.number(), // in seconds
+  schemaVersion: z.number(),
+  timeWindowStart: z.string(),
+  timeWindowEnd: z.string(),
+  against: z.string().optional(),
+  againstTimestamp: z.string().optional(),
+  version: z.string(),
+  overrides: z.unknown().optional(),
+  sharedByOrg: z.string().optional(),
+  sharedByOrgName: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  createdBy: z.string(),
+  updatedBy: z.string(),
+  datasets: z.array(z.string()).optional(),
+});
+
+export const DashboardWithIDSchema = z
+  .object({
+    id: z.string(),
+  })
+  .merge(DashboardSchema);
+
+export const DashboardsSchema = DashboardWithIDSchema.array();
+
 export type Dataset = z.infer<typeof DatasetSchema>;
 export type Datasets = z.infer<typeof DatasetsSchema>;
 export type Field = z.infer<typeof FieldSchema>;
@@ -139,3 +173,7 @@ export type Integration = z.infer<typeof IntegrationSchema>;
 export type Integrations = z.infer<typeof IntegrationsSchema>;
 export type SavedQuery = z.infer<typeof SavedQuerySchema>;
 export type SavedQueries = z.infer<typeof SavedQueriesSchema>;
+
+export type Dashboard = z.infer<typeof DashboardSchema>;
+export type DashboardWithID = z.infer<typeof DashboardWithIDSchema>;
+export type Dashboards = z.infer<typeof DashboardsSchema>;
