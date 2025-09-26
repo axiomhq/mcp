@@ -119,7 +119,11 @@ export async function getSavedQueries(client: Client): Promise<SavedQueries> {
 }
 
 export async function getDashboards(client: Client): Promise<Dashboards> {
-  return client.fetch<Dashboards>('get', '/api/internal/dashboards', DashboardsSchema);
+  return client.fetch<Dashboards>(
+    'get',
+    '/api/internal/dashboards',
+    DashboardsSchema
+  );
 }
 
 export async function getDashboard(
