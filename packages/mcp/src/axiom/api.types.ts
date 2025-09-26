@@ -136,8 +136,8 @@ export const DashboardSchema = z.object({
   sharedByOrgName: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
-  createdBy: z.string(),
-  updatedBy: z.string(),
+  createdBy: z.string().optional(),
+  updatedBy: z.string().optional(),
   datasets: z.array(z.string()).optional(),
 });
 
