@@ -38,7 +38,7 @@ export function registerDashboardTools({
             name: dashboard.name,
             description: dashboard.description || 'No description',
             owner: dashboard.owner,
-            createdBy: dashboard.createdBy,
+            createdBy: dashboard.createdBy || 'Unknown',
             createdAt: new Date(dashboard.createdAt).toLocaleDateString(),
             updatedAt: new Date(dashboard.updatedAt).toLocaleDateString(),
             refreshTime: `${dashboard.refreshTime}s`,
@@ -106,8 +106,8 @@ export function registerDashboardTools({
               dashboard.description || 'No description'
             ),
             Format.listItem('Owner', dashboard.owner),
-            Format.listItem('Created By', dashboard.createdBy),
-            Format.listItem('Updated By', dashboard.updatedBy),
+            Format.listItem('Created By', dashboard.createdBy || 'Unknown'),
+            Format.listItem('Updated By', dashboard.updatedBy || 'Unknown'),
             Format.listItem(
               'Created At',
               new Date(dashboard.createdAt).toLocaleString()

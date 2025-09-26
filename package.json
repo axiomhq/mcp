@@ -11,6 +11,7 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "deploy": "turbo run deploy",
+    "deploy:dev": "turbo run deploy:dev",
     "deploy:staging": "turbo run deploy:staging",
     "deploy:prod": "turbo run deploy:prod",
     "lint": "turbo run lint",
