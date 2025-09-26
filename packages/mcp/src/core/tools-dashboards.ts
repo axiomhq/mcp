@@ -5,7 +5,10 @@ import { markdownResult, stringResult } from '../result';
 import { ParamDashboardID } from '../schema';
 import type { ToolContext } from '.';
 
-export function registerDashboardTools({ server, internalClient }: ToolContext) {
+export function registerDashboardTools({
+  server,
+  internalClient,
+}: ToolContext) {
   server.tool(
     'listDashboards',
     'List all available dashboards. Shows user-created dashboards with their metadata.',
