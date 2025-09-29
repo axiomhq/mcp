@@ -30,6 +30,10 @@
       "dependsOn": ["build", "test"],
       "cache": false
     },
+    "deploy:dev": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
     "deploy:staging": {
       "dependsOn": ["build"],
       "cache": false

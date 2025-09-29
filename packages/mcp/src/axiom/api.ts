@@ -1,4 +1,8 @@
 import {
+  type Dashboards,
+  DashboardsSchema,
+  type DashboardWithID,
+  DashboardWithIDSchema,
   type Datasets,
   DatasetsSchema,
   type Field,
@@ -111,5 +115,24 @@ export async function getSavedQueries(client: Client): Promise<SavedQueries> {
     'get',
     '/v2/apl-starred-queries?limit=100&who=all',
     SavedQueriesSchema
+  );
+}
+
+export async function getDashboards(client: Client): Promise<Dashboards> {
+  return client.fetch<Dashboards>(
+    'get',
+    '/api/internal/dashboards',
+    DashboardsSchema
+  );
+}
+
+export async function getDashboard(
+  client: Client,
+  id: string
+): Promise<DashboardWithID> {
+  return client.fetch<DashboardWithID>(
+    'get',
+    `/api/internal/dashboards/${id}`,
+    DashboardWithIDSchema
   );
 }
