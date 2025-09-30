@@ -1,0 +1,166 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mcp",
+  "account_id": "0d3c70d442b552079e96c0bf0350ca38",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-03-10",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "vars": {
+    "ENV": "",
+    "COOKIE_ENCRYPTION_KEY": "",
+    "ATLAS_API_URL": "",
+    "ATLAS_INTERNAL_URL": "",
+    "AXIOM_LOGIN_BASE_URL": "",
+    "AXIOM_TRACES_DATASET": "",
+    "AXIOM_TRACES_URL": ""
+  },
+  "migrations": [
+    {
+      "new_sqlite_classes": [
+        "AxiomMCP"
+      ],
+      "tag": "v1"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "AxiomMCP",
+        "name": "MCP_OBJECT"
+      }
+    ]
+  },
+  "kv_namespaces": [
+    {
+      "binding": "OAUTH_KV",
+      "id": "<Add-KV-ID>",
+      "preview_id": "0dc6a408f92d4edf82ed311527f25f7b"
+    },
+    {
+      "binding": "MCP_KV",
+      "id": "<Add-KV-ID>",
+      "preview_id": "419aa2e839314cf9ba6f038f595b9125"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "dev": {
+    "port": 8788
+  },
+  "version_metadata": {
+    "binding": "CF_VERSION_METADATA"
+  },
+  "env": {
+    "dev": {
+      "route": {
+        "pattern": "mcp.dev.axiomtestlabs.co",
+        "custom_domain": true
+      },
+      "vars": {
+        "ENV": "",
+        "COOKIE_ENCRYPTION_KEY": "",
+        "ATLAS_API_URL": "",
+        "ATLAS_INTERNAL_URL": "",
+        "AXIOM_LOGIN_BASE_URL": "",
+        "AXIOM_TRACES_DATASET": "",
+        "AXIOM_TRACES_URL": ""
+      },
+      "durable_objects": {
+        "bindings": [
+          {
+            "class_name": "AxiomMCP",
+            "name": "MCP_OBJECT"
+          }
+        ]
+      },
+      "kv_namespaces": [
+        {
+          "binding": "OAUTH_KV",
+          "id": "534f72ecf7084f2db2d713b8ebc9b776"
+        },
+        {
+          "binding": "MCP_KV",
+          "id": "534f72ecf7084f2db2d713b8ebc9b776"
+        }
+      ],
+      "version_metadata": {
+        "binding": "CF_VERSION_METADATA"
+      }
+    },
+    "staging": {
+      "route": {
+        "pattern": "mcp.staging.axiomtestlabs.co",
+        "custom_domain": true
+      },
+      "vars": {
+        "ENV": "",
+        "COOKIE_ENCRYPTION_KEY": "",
+        "ATLAS_API_URL": "",
+        "ATLAS_INTERNAL_URL": "",
+        "AXIOM_LOGIN_BASE_URL": "",
+        "AXIOM_TRACES_DATASET": "",
+        "AXIOM_TRACES_URL": ""
+      },
+      "durable_objects": {
+        "bindings": [
+          {
+            "class_name": "AxiomMCP",
+            "name": "MCP_OBJECT"
+          }
+        ]
+      },
+      "kv_namespaces": [
+        {
+          "binding": "OAUTH_KV",
+          "id": "534f72ecf7084f2db2d713b8ebc9b776"
+        },
+        {
+          "binding": "MCP_KV",
+          "id": "534f72ecf7084f2db2d713b8ebc9b776"
+        }
+      ],
+      "version_metadata": {
+        "binding": "CF_VERSION_METADATA"
+      }
+    },
+    "prod": {
+      "route": {
+        "pattern": "mcp.axiom.co",
+        "custom_domain": true
+      },
+      "vars": {
+        "ENV": "",
+        "COOKIE_ENCRYPTION_KEY": "",
+        "ATLAS_API_URL": "",
+        "ATLAS_INTERNAL_URL": "",
+        "AXIOM_LOGIN_BASE_URL": "",
+        "AXIOM_TRACES_DATASET": "",
+        "AXIOM_TRACES_URL": ""
+      },
+      "durable_objects": {
+        "bindings": [
+          {
+            "class_name": "AxiomMCP",
+            "name": "MCP_OBJECT"
+          }
+        ]
+      },
+      "kv_namespaces": [
+        {
+          "binding": "OAUTH_KV",
+          "id": "e11500e1579a4936b2cd732b5f4f7ef7"
+        },
+        {
+          "binding": "MCP_KV",
+          "id": "e11500e1579a4936b2cd732b5f4f7ef7"
+        }
+      ],
+      "version_metadata": {
+        "binding": "CF_VERSION_METADATA"
+      }
+    }
+  }
+}
