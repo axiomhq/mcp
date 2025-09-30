@@ -185,3 +185,5 @@ tmp/
 
 # Crush directory
 .crush/
+
+*_token
