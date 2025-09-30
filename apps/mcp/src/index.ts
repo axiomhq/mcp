@@ -92,10 +92,20 @@ const handler = {
       }
 
       const accessToken = tokenValue?.slice(7);
+      const url = new URL(request.url);
+
+      const maxCellsParam = url.searchParams.get('maxCells');
+      const withOTelParam = url.searchParams.get('withOTel');
+
+      const maxCells = maxCellsParam ? Number.parseInt(maxCellsParam, 10) : undefined;
+      const withOTel = withOTelParam === '1' || withOTelParam === 'true';
+
       const props: ServerProps = {
         tokenKey: await sha256(`${accessToken}:${orgId}`),
         accessToken,
         orgId,
+        maxCells: Number.isFinite(maxCells as number) ? (maxCells as number) : undefined,
+        withOTel,
       };
 
       ctx.props = props;

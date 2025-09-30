@@ -22,6 +22,7 @@ export function registerDatasetTools({
   server,
   publicClient,
   internalClient,
+  formatOptions,
 }: ToolContext) {
   server.tool(
     'listDatasets',

@@ -29,6 +29,19 @@ Issues and contributions are welcome. See AGENTS.md for contributor guidelines.
   - Intelligent result shaping that prioritizes important fields
   - Adaptive truncation based on data volume
 
+## Runtime URL Parameters
+
+When connecting to the hosted server endpoints (`/sse` or `/mcp`), you can pass runtime tuning parameters via query string:
+
+- `maxCells`: Integer. Caps total table cells rendered by tools. Example: `?maxCells=500`.
+- `withOTel`: Boolean (`1`/`true`). Enables OpenTelemetry tool family if your org has OTel integrations. Example: `?withOTel=1`.
+
+Example connection URL (MCP Inspector):
+
+```
+http://localhost:8788/sse?org-id=<ORG_ID>&maxCells=500&withOTel=1
+```
+
 ## Troubleshooting
 
 ### Connection Issues

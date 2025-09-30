@@ -14,6 +14,7 @@ export function registerDiscoveryTools({
   server,
   publicClient,
   logger,
+  formatOptions,
 }: ToolContext) {
   server.tool(
     ToolListServices,
@@ -37,7 +38,9 @@ ${sanitizeDatasetName(datasetName)}
         query,
       });
       const result = await runQuery(publicClient, query, startTime, endTime);
-      return stringResult(new QueryResultFormatter().formatQuery(result));
+      return stringResult(
+        new QueryResultFormatter(formatOptions).formatQuery(result)
+      );
     }
   );
 
@@ -65,7 +68,9 @@ ${sanitizeDatasetName(datasetName)}
         query,
       });
       const result = await runQuery(publicClient, query, startTime, endTime);
-      return stringResult(new QueryResultFormatter().formatQuery(result));
+      return stringResult(
+        new QueryResultFormatter(formatOptions).formatQuery(result)
+      );
     }
   );
 
@@ -110,7 +115,9 @@ ${sanitizeDatasetName(datasetName)}
         query,
       });
       const result = await runQuery(publicClient, query, startTime, endTime);
-      return stringResult(new QueryResultFormatter().formatQuery(result));
+      return stringResult(
+        new QueryResultFormatter(formatOptions).formatQuery(result)
+      );
     }
   );
 }

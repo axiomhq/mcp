@@ -65,6 +65,7 @@ export function registerGenAITools({
   server,
   publicClient,
   logger,
+  formatOptions,
 }: ToolContext) {
   server.tool(
     ToolGetGenAIOverview,
@@ -153,7 +154,10 @@ ${costCalculation}
       );
 
       return stringResult(
-        new QueryResultFormatter().formatQuery(result, 'GenAI Overview')
+        new QueryResultFormatter(formatOptions).formatQuery(
+          result,
+          'GenAI Overview'
+        )
       );
     }
   );
@@ -244,7 +248,7 @@ ${whereClause}
       );
 
       return stringResult(
-        new QueryResultFormatter().formatQuery(
+        new QueryResultFormatter(formatOptions).formatQuery(
           result,
           `Token Usage by ${groupBy}`
         )
@@ -315,7 +319,7 @@ ${whereClause}
       );
 
       return stringResult(
-        new QueryResultFormatter().formatQuery(
+        new QueryResultFormatter(formatOptions).formatQuery(
           result,
           'Model Performance Metrics'
         )
@@ -418,7 +422,7 @@ ${whereClause}
       );
 
       return stringResult(
-        new QueryResultFormatter().formatQuery(
+        new QueryResultFormatter(formatOptions).formatQuery(
           result,
           `Cost Analysis by ${groupBy}`
         )
@@ -591,7 +595,10 @@ ${
       );
 
       return stringResult(
-        new QueryResultFormatter().formatQuery(result, 'Model Comparison')
+        new QueryResultFormatter(formatOptions).formatQuery(
+          result,
+          'Model Comparison'
+        )
       );
     }
   );
@@ -652,7 +659,10 @@ ${whereClause}
       );
 
       return stringResult(
-        new QueryResultFormatter().formatQuery(result, 'Tool Usage Analysis')
+        new QueryResultFormatter(formatOptions).formatQuery(
+          result,
+          'Tool Usage Analysis'
+        )
       );
     }
   );
@@ -725,7 +735,7 @@ ${whereClause}
       );
 
       return stringResult(
-        new QueryResultFormatter().formatQuery(
+        new QueryResultFormatter(formatOptions).formatQuery(
           result,
           `Capability Metrics: ${capability}`
         )

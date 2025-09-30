@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { Client } from '../axiom/client';
 import type { Logger } from '../logger';
+import type { FormatterOptions } from '../axiom/formatters';
 import { registerCorePrompts } from './prompts';
 import { registerDashboardTools } from './tools-dashboards';
 import { registerDatasetTools } from './tools-datasets';
@@ -14,6 +15,7 @@ export interface ToolContext {
   logger: Logger;
   publicClient: Client;
   internalClient: Client;
+  formatOptions?: FormatterOptions;
 }
 
 export function registerCoreTools(context: ToolContext) {
