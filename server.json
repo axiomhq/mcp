@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.axiomhq/mcp",
+  "description": "The Axiom MCP server can list datasets, inspect schemas, run APL queries, and use built-in prompts for exploration, anomaly detection, and monitoring.",
+  "repository": {
+    "url": "https://github.com/axiomhq/mcp",
+    "source": "github",
+    "subfolder": "apps/mcp"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "axiom-mcp-app",
+      "version": "1.0.0",
+      "transport": {
+        "type": "streamable-http"
+      }
+    }
+  ]
+}

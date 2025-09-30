@@ -1,6 +1,6 @@
 {
   "name": "axiom-mcp-monorepo",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "private": true,
   "license": "MIT",
   "packageManager": "npm@10.9.2",
