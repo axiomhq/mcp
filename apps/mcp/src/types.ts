@@ -4,4 +4,7 @@ export type ServerProps = {
   expiresAt?: number;
   tokenKey: string;
   orgId: string;
+  // Optional runtime controls from URL params
+  maxCells?: number;
+  withOTel?: boolean;
 };

@@ -39,6 +39,11 @@ Try with MCP Inspector:
 ```bash
 npx @modelcontextprotocol/inspector@latest
 # Connect to: http://localhost:8788/sse
+# You can pass tuning params via URL, e.g.:
+#   - maxCells: cap formatted table size (integer)
+#   - withOTel: enable OpenTelemetry tools if available (1/true)
+# Example:
+#   http://localhost:8788/sse?maxCells=500&withOTel=1
 ```
 
 ## Test, Type Check, Lint
@@ -85,6 +90,16 @@ Bindings, routes, and env-specific config live in `wrangler.jsonc`.
    - Imports intelligent tools from `@axiom/mcp`
    - Adds authentication context
    - Handles tool registration based on available integrations
+   - Optional OTel tools can be enabled with `withOTel=1` URL param
+
+## Runtime URL Parameters
+
+You can tune the server behavior per-connection using query params:
+
+- `maxCells`: Integer. Caps the total number of table cells the server will format per tool response (affects CSV output shaping). Example: `?maxCells=500`.
+- `withOTel`: Boolean (`1` or `true`). Enables the OpenTelemetry tool family when your organization has OTel integrations detected. Example: `?withOTel=1`.
+
+These can be combined with `org-id` header or query param when using header-based auth.
 
 ## 🧪 Testing & Development
 
@@ -141,6 +156,6 @@ npm run gen:types
 ## 🔐 Security Features
 
 - **Encrypted State**: All OAuth state encrypted with AES-GCM
-- **PKCE Flow**: Proof Key for Code Exchange prevents auth interception  
+- **PKCE Flow**: Proof Key for Code Exchange prevents auth interception
 - **Token Isolation**: Access tokens never exposed to clients
 - **Request Validation**: All inputs sanitized and validated
