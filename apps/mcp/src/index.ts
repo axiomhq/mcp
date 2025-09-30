@@ -18,6 +18,7 @@ declare global {
   interface Env {
     AXIOM_OAUTH_CLIENT_ID: string;
     AXIOM_OAUTH_CLIENT_SECRET: string;
+    AXIOM_TRACES_KEY: string;
   }
 }
 
