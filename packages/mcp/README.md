@@ -1,222 +1,59 @@
-# @axiom/mcp - Intelligent MCP Tools for Observability
+# @watchlyhq/mcp — MCP Tools for Axiom
 
-A sophisticated Model Context Protocol (MCP) implementation that provides AI assistants with intelligent observability tools, going far beyond simple API wrapping to deliver guided analysis workflows and domain expertise.
+TypeScript library of MCP tools and utilities for Axiom observability. It registers tools onto an MCP server (Node or Workers) and exports helpers for queries, monitors, formatting, and result building.
 
-## 🎯 Design Philosophy
-
-This package embodies several key principles that set it apart from basic MCP implementations:
-
-1. **Embedded Intelligence**: Each tool contains extensive examples, best practices, and domain knowledge
-2. **Guided Discovery**: Progressive workflows help users explore unknown datasets systematically
-3. **Smart Defaults**: Automatic time range optimization, field prioritization, and result formatting
-4. **Error Prevention**: Comprehensive validation and helpful error messages guide users to success
-5. **Statistical Analysis**: Built-in anomaly detection, pattern matching, and trend analysis
-6. **Domain Expertise**: Encodes observability best practices for incident investigation and monitoring
-
-## Installation
+## Install
 
 ```bash
-npm install @axiom/mcp
+npm install @watchlyhq/mcp
 ```
 
-## Usage
+## Quick Start
 
-This package provides a context-agnostic MCP server that can be used in any JavaScript environment. You need to provide an MCP server instance and an API client that implements the `AxiomApiClient` interface.
+Register the tools on an existing MCP server instance:
 
-```typescript
-import { registerAxiomMcpTools, type AxiomApiClient } from '@axiom/mcp';
+```ts
+import { registerAxiomMcpTools } from '@watchlyhq/mcp';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
-// Create your MCP server
-const server = new McpServer({
-  name: 'My Axiom Server',
-  version: '1.0.0',
-});
+const server = new McpServer({ name: 'Axiom MCP', version: '0.0.1' });
 
-// Implement the API client for your environment
-const apiClient: AxiomApiClient = {
-  datasets: {
-    list: () => /* your implementation */,
-    getFields: (datasetName) => /* your implementation */,
-    query: (request) => /* your implementation */,
-  },
-  monitors: {
-    list: () => /* your implementation */,
-    getHistory: (monitorId) => /* your implementation */,
-  },
-  integrations: {
-    list: () => /* your implementation */,
-  },
-  openTelemetry: {
-    listServices: (params) => /* your implementation */,
-    listOperations: (params) => /* your implementation */,
-    getServiceMetrics: (params) => /* your implementation */,
-    // ... other methods
-  },
-};
-
-// Get integrations to conditionally register tools
-const integrations = await apiClient.integrations.list();
-const integrationKinds = integrations.map(i => i.kind);
-
-// Register all Axiom MCP tools with optional logger
 registerAxiomMcpTools({
   server,
-  apiClient,
-  integrations: integrationKinds,
-  logger: console, // Optional: for debugging
+  accessToken: '<axiom-token>',
+  apiUrl: 'https://api.axiom.co',
+  internalUrl: 'https://app.axiom.co',
+  integrations: [],        // optional list like ['otel-...']
+  logger: console,         // any object with debug/info/warn/error
+  orgId: '<axiom-org-id>',
 });
 ```
 
-## 🛠️ Intelligent Tools
+## Key Exports
 
-### Dataset Tools
+- Tools: `registerAxiomMcpTools`
+- API helpers: `getDatasets`, `getDatasetFields`, `runQuery`, `getSavedQueries`, `getMonitors`, `getMonitorsHistory`, `getDashboards`, `getDashboard`, `Client`, `apiFetch`, `ApiError`
+- Results/formatting: `result`, `Builder`, `formatQueryResults` and related formatters
+- Types: API request/response types and shared `schema`
+- OTel tooling is exported under `otel/*` but currently optional/experimental
 
-#### `listDatasets`
-Smart dataset discovery that categorizes datasets by type and provides descriptions to help users find the right data quickly.
+## Scripts
 
-#### `getDatasetFields` 
-Schema analysis tool that not only lists fields but provides type information and usage hints, helping users understand data structure before querying.
-
-#### `queryDataset`
-The crown jewel of the toolkit - an APL query execution engine with:
-- **140+ Query Examples**: Covers filters, aggregations, time operations, string manipulation, and more
-- **Best Practices**: Embedded guidance like "ALWAYS restrict time range" and "prefer aggregations over raw data"
-- **Performance Optimization**: Automatic warnings about row limits and suggestions for efficient queries
-- **Progressive Learning**: Examples progress from basic to advanced patterns
-
-### Monitor Tools
-
-#### `checkMonitors`
-Comprehensive monitor health dashboard showing:
-- Current alert states with severity
-- Monitor configurations and thresholds  
-- Quick identification of noisy or failing monitors
-
-#### `getMonitorHistory`
-Historical analysis tool for understanding monitor behavior over time, useful for tuning thresholds and reducing false positives.
-
-### OpenTelemetry Tools
-
-#### Service Analysis
-- **`otel-listServices`**: Service discovery with operation counts and error indicators
-- **`otel-getServiceMetrics`**: Deep performance analysis including latency percentiles (p50-p99), error rates, and throughput patterns
-- **`otel-getOperationMetrics`**: Operation-level granular metrics for pinpointing bottlenecks
-
-#### Trace Intelligence  
-- **`otel-findTraces`**: Multi-criteria trace search supporting service, operation, error state, and duration filters
-- **`otel-findSimilarTraces`**: Pattern matching algorithm that finds traces with similar characteristics
-- **`otel-getTraceCriticalPath`**: Identifies the longest dependency chain impacting total duration
-- **`otel-findTraceAnomalies`**: Statistical anomaly detection using z-scores for duration and span count
-
-#### Error Analysis
-- **`otel-getErrorBreakdown`**: Groups errors by type and service, providing examples for quick understanding
-
-## 📊 Smart Data Processing
-
-### Adaptive Formatting
-The result formatter (`formatters.ts`) implements intelligent data presentation:
-
-```typescript
-// Field scoring algorithm prioritizes important fields
-const scoreField = (field: string) => {
-  let score = 0;
-  // Time fields get highest priority
-  if (field.match(/time|timestamp|_time/i)) score += 100;
-  // Error indicators are critical
-  if (field.match(/error|exception|fail/i)) score += 50;
-  // Performance metrics are important
-  if (field.match(/duration|latency|response/i)) score += 30;
-  // ... more scoring logic
-  return score;
-};
-```
-
-### Result Building
-Consistent, well-formatted output using the builder pattern:
-- Markdown headers for structure
-- CSV tables for data
-- Contextual information about totals and time series
-- Truncation indicators when limits are reached
-
-## 🧭 Guided Analysis Workflows
-
-The package includes pre-built analysis protocols (`prompts.ts`) for complex scenarios:
-
-### Incident Investigation
-Step-by-step guide for root cause analysis:
-1. Identify error spike timing and affected services
-2. Analyze error types and messages
-3. Trace sample errors to understand flow
-4. Check deployment correlation
-5. Examine infrastructure metrics
-
-### Performance Baselines
-Service-type specific recommendations:
-- **API Services**: Response time SLAs, error budgets
-- **Background Jobs**: Completion time targets, retry policies  
-- **Data Pipelines**: Throughput benchmarks, lag monitoring
-
-### Dataset Exploration
-Systematic approach for unknown data:
-1. Schema discovery and field analysis
-2. Sample data examination
-3. Volume and cardinality assessment
-4. Pattern and anomaly detection
-5. Relationship mapping
-
-## 🔧 Development
+From the repo root:
 
 ```bash
-# Install dependencies
-npm install
-
-# Build the package  
-npm run build
-
-# Run tests
-npm test
-
-# Watch mode for development
-npm run dev
-
-# Type checking
-npm run type-check
-
-# Format code
-npm run lint
+npm run build -w packages/mcp       # builds (runs metadata extract + tsc)
+npm test -w packages/mcp            # unit tests (vitest)
+npm run test:watch -w packages/mcp
+npm run type-check -w packages/mcp
 ```
 
-## 🏗️ Architecture
+Tool metadata is generated by `scripts/extract-tools.ts` during `build` and written to `packages/mcp/metadata.*`.
 
-The package is organized into logical modules:
+## Notes
 
-```
-src/
-├── core/           # Core dataset and monitor tools
-│   ├── tools-*.ts  # Tool implementations
-│   ├── prompts.ts  # Analysis workflow guides
-│   └── schema.ts   # Shared type definitions
-├── otel/           # OpenTelemetry tools
-│   ├── tools-*.ts  # Service, trace, and metric tools
-│   ├── prompts.ts  # OTel-specific workflows
-│   └── schema.ts   # OTel type definitions
-├── axiom/          # Axiom API integration
-│   ├── client.ts   # API client types
-│   ├── formatters.ts # Smart result formatting
-│   └── result.ts   # Result builder utilities
-└── index.ts        # Main exports and registration
-```
-
-## 🤝 Contributing
-
-We welcome contributions that enhance the intelligence and usability of these tools:
-
-1. **Add More Examples**: Expand the query examples with real-world patterns
-2. **Improve Formatting**: Enhance the adaptive formatting algorithms
-3. **New Workflows**: Create guided analysis protocols for additional scenarios
-4. **Better Defaults**: Suggest smarter defaults based on data characteristics
-5. **Error Messages**: Make errors even more helpful and actionable
+- Designed for strict TypeScript (ES2021/2022). Named exports preferred.
+- Works in server contexts that can host an MCP server (e.g., Cloudflare Worker via `apps/mcp`).
 
 ## 📝 License
 

@@ -1,203 +1,70 @@
-# Axiom MCP Server - Cloudflare Workers Application
+# Axiom MCP – Cloudflare Worker App
 
-A sophisticated Cloudflare Workers application that hosts the Axiom MCP server with enterprise-grade security, observability, and state management.
+Edge-hosted MCP server + minimal UI, built with Hono and Cloudflare Workers. It handles OAuth with Axiom, manages session state via Durable Objects, uses KV for lightweight storage, and exposes an SSE endpoint for MCP clients.
 
-## 🎯 Why This Implementation Matters
+## What’s Here
 
-This isn't just a simple API proxy - it's a carefully designed system that:
+- Worker entry at `src/index.ts` (Hono routes, SSE at `/sse`).
+- Durable Object `AxiomMCP` for per-user/session state.
+- KV bindings for OAuth/session data.
+- Minimal UI under `src/ui/*` with a landing page and setup help.
 
-1. **Secure Authentication**: Implements a dual-role OAuth system that acts as both server (for MCP clients) and client (for Axiom API)
-2. **Intelligent State Management**: Uses Durable Objects to maintain user context across distributed edge locations
-3. **Complete Observability**: Every operation is instrumented with OpenTelemetry for debugging and performance analysis
-4. **Edge-Native Design**: Leverages Cloudflare's global network for low-latency access from anywhere
-5. **Graceful Error Handling**: Provides meaningful error messages and recovery guidance
+## Quick Start
 
-## Features
+From the repo root:
 
-- **Dual-Role OAuth 2.0**: Secure authentication flow with encrypted state management
-- **MCP Protocol via SSE**: Reliable Server-Sent Events for real-time tool communication
-- **Durable Objects**: Persistent user sessions across the edge network
-- **OpenTelemetry Instrumentation**: Complete tracing of OAuth flows, MCP operations, and API calls
-- **Cloudflare AI Integration**: Access to AI models for advanced tool capabilities
-- **KV State Storage**: Efficient caching of OAuth states and integration data
-
-## 🚀 Setup & Deployment
-
-### Prerequisites
-- Node.js 18+ and npm
-- Cloudflare account with Workers enabled
-- Axiom account with OAuth application configured
-
-### 1. Install Dependencies
 ```bash
-npm install
+npm ci
+npm run dev -w apps/mcp  # runs Wrangler dev on http://localhost:8788
 ```
 
-### 2. Configure Environment
+Config uses Wrangler variables/secrets. For local dev, create `apps/mcp/.dev.vars` with at least:
 
-Create `.dev.vars` with required secrets:
 ```bash
-# Core Configuration
-COOKIE_ENCRYPTION_KEY=<generate-random-32-char-string>
-ATLAS_API_URL=https://api.axiom.co
-ATLAS_INTERNAL_URL=https://app.axiom.co
-AXIOM_LOGIN_BASE_URL=https://app.axiom.co
-
-# OAuth Credentials (from Axiom OAuth app)
-AXIOM_OAUTH_CLIENT_ID=<your-client-id>
-AXIOM_OAUTH_CLIENT_SECRET=<your-client-secret>
-
-# OpenTelemetry (optional but recommended)
-ENVIRONMENT=dev
-AXIOM_DATASET=mcp-traces
-AXIOM_API_KEY=<your-api-key>
+COOKIE_ENCRYPTION_KEY="<32+ char random>"
+AXIOM_OAUTH_CLIENT_ID="<client id>"
+AXIOM_OAUTH_CLIENT_SECRET="<client secret>"
 ```
 
-### 3. Setup KV Namespace
+Optional tracing vars are defined in `wrangler.jsonc` if you want OpenTelemetry.
+
+## Endpoints
+
+- `/` – UI + docs
+- `/sse` – MCP SSE endpoint for clients/inspectors
+- `/oauth/*` – OAuth login/callback flow
+
+Try with MCP Inspector:
 
 ```bash
-# Create KV namespace for OAuth state
-wrangler kv namespace create OAUTH_KV
-
-# Output will show the namespace ID
-# Add it to wrangler.jsonc under kv_namespaces
-```
-
-### 4. Local Development
-
-```bash
-# Start dev server on http://localhost:8788
-npm run dev
-
-# Test with MCP Inspector
 npx @modelcontextprotocol/inspector@latest
 # Connect to: http://localhost:8788/sse
 ```
 
-### 5. Production Deployment
+## Test, Type Check, Lint
 
 ```bash
-# Set production secrets
-wrangler secret put AXIOM_OAUTH_CLIENT_ID
-wrangler secret put AXIOM_OAUTH_CLIENT_SECRET  
-wrangler secret put COOKIE_ENCRYPTION_KEY
-wrangler secret put AXIOM_API_KEY  # For OpenTelemetry
-
-# Deploy to Cloudflare Workers
-npm run deploy                # Default environment
-npm run deploy:staging        # Staging environment
-npm run deploy:prod-us        # Production US
+npm test -w apps/mcp
+npm run test:watch -w apps/mcp
+npm run type-check -w apps/mcp
 ```
 
-### 6. Configure MCP Clients
+## Deploy
 
-**Claude Desktop Configuration:**
-```json
-{
-  "mcpServers": {
-    "axiom": {
-      "command": "npx",
-      "args": [
-        "@cloudflare/mcp-client-cli", 
-        "https://your-worker.workers.dev/sse"
-      ]
-    }
-  }
-}
+Set secrets with Wrangler, then:
+
+```bash
+npm run deploy -w apps/mcp          # default env
+npm run deploy:staging -w apps/mcp  # staging
+npm run deploy:prod -w apps/mcp     # production
 ```
 
-## 🔍 OpenTelemetry Instrumentation
+Bindings, routes, and env-specific config live in `wrangler.jsonc`.
 
-Comprehensive observability is built into every layer using `@microlabs/otel-cf-workers`.
+## See Also
 
-### Instrumentation Strategy
-
-- **Service Name**: `axiom-mcp-server`
-- **Dual Exporters**: 
-  - Console (development): Real-time debugging with `ENVIRONMENT=dev`
-  - Axiom (production): Full APM with `AXIOM_DATASET` and `AXIOM_API_KEY`
-  - Both can run simultaneously for A/B debugging
-
-### What's Traced
-
-1. **HTTP Layer**
-   - Request routing and method dispatch
-   - Response times and status codes
-   - Error tracking with stack traces
-
-2. **OAuth Operations**
-   - Authorization request generation
-   - Token exchange flows
-   - Callback processing
-   - State validation and encryption
-
-3. **MCP Protocol**
-   - Tool invocation with parameters
-   - Resource access patterns
-   - Prompt execution flows
-   - SSE connection lifecycle
-
-4. **Durable Object State**
-   - User context initialization
-   - Session persistence
-   - API client creation
-   - State hydration/dehydration
-
-### Debugging with Traces
-
-1. **Local Development**
-   ```bash
-   # Enable console tracing
-   echo "ENVIRONMENT=dev" >> .dev.vars
-   npm run dev
-   ```
-
-2. **Production Analysis**
-   - Navigate to [Axiom](https://app.axiom.co)
-   - Select your traces dataset
-   - Use APL queries to filter:
-     ```apl
-     ['mcp-traces']
-     | where ['span.kind'] == "server"
-     | where ['service.name'] == "axiom-mcp-server"
-     | summarize count() by ['span.name'], bin(['_time'], 1m)
-     ```
-
-3. **Trace Context**
-   - Each request gets a unique trace ID
-   - Spans show parent-child relationships
-   - Attributes include user ID, tool names, and error details
-
-## 🏗️ Architecture Deep Dive
-
-```
-┌─────────────────┐
-│ MCP Client      │  (Claude Desktop, Cursor, etc.)
-└───────┬───────┘
-         │ SSE Connection
-         ▼
-┌─────────────────┐     ┌──────────────┐
-│ OAuth Provider  │────▶│ OTel Wrapper │
-│ (Dual-Role)     │     │ (Tracing)    │
-└───────┬───────┘     └─────┬───────┘
-         │                      │
-         ▼                      ▼
-┌─────────────────┐     ┌──────────────┐
-│ Durable Object  │     │ Axiom Export │
-│ (AxiomMCP)      │     │ (Metrics)    │
-│ - User Context  │     └──────────────┘
-│ - API Client    │
-│ - Session State │
-└───────┬───────┘
-         │
-         ▼
-┌─────────────────┐     ┌──────────────┐
-│ @axiom/mcp      │────▶│ Axiom API    │
-│ (Smart Tools)   │     │ (Data Source) │
-└─────────────────┘     └──────────────┘
-```
-
-### Key Components
+- `packages/mcp` – shared MCP tooling/telemetry used by this app.
+- Root `README.md` – repo-wide scripts, linting, and workflow.
 
 1. **OAuth Provider (Dual-Role)**
    - Acts as OAuth server for MCP clients (authorization code flow)
