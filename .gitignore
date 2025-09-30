@@ -187,3 +187,5 @@ tmp/
 .crush/
 
 *_token
+
+.DS_Store
