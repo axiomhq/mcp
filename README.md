@@ -12,6 +12,8 @@ Model Context Protocol Server ━━━━━━━━━━━━━━━━�
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Axiom, Inc.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
+
+# axiom-mcp
 The Axiom MCP Server connects AI assistants to your Axiom observability data using the Model Context Protocol (MCP). This repository contains:
 
 - A Cloudflare Workers app that hosts the MCP server (`apps/mcp`).
