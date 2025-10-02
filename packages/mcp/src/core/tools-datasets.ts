@@ -150,8 +150,12 @@ Common Patterns:
       endTime: ParamEndTime,
     },
     async ({ apl, startTime, endTime }) => {
-      const result = await runQuery(publicClient, apl, startTime, endTime);
-      return stringResult(new QueryResultFormatter().formatQuery(result));
+      try {
+        const result = await runQuery(publicClient, apl, startTime, endTime);
+        return stringResult(new QueryResultFormatter().formatQuery(result));
+      } catch (error) {
+        return newToolErrorWithReason('Query failed', error);
+      }
     }
   );
 

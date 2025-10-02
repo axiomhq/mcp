@@ -58,13 +58,29 @@ export async function apiFetch<T>(
   try {
     const res = await fetch(`${baseUrl}${path}`, options);
     if (!res.ok) {
-      throw new ApiError(`API request failed: ${res.statusText}`, res.status);
+      let errorMessage = res.statusText;
+      try {
+        const errorBody = (await res.json()) as {
+          message?: string;
+          code?: number;
+        };
+
+        if (errorBody.message) {
+          errorMessage = errorBody.message;
+        }
+      } catch {
+        // If we can't parse the error body, fall back to statusText
+      }
+      throw new ApiError(errorMessage, res.status);
     }
 
     const json = await res.json();
 
     return schema.parse(json);
   } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
     throw new ApiError(`API request failed: ${error}`, 500);
   }
 }
