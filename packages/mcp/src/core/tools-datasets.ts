@@ -22,6 +22,7 @@ export function registerDatasetTools({
   server,
   publicClient,
   internalClient,
+  formatOptions,
 }: ToolContext) {
   server.tool(
     'listDatasets',
@@ -152,7 +153,9 @@ Common Patterns:
     async ({ apl, startTime, endTime }) => {
       try {
         const result = await runQuery(publicClient, apl, startTime, endTime);
-        return stringResult(new QueryResultFormatter().formatQuery(result));
+        return stringResult(
+          new QueryResultFormatter(formatOptions).formatQuery(result)
+        );
       } catch (error) {
         return newToolErrorWithReason('Query failed', error);
       }
