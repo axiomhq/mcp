@@ -5,6 +5,7 @@ export type ServerProps = {
   tokenKey: string;
   orgId: string;
   // Optional runtime controls from URL params
+  // Parsed from `max-age` and `with-otel`
   maxCells?: number;
   withOTel?: boolean;
 };

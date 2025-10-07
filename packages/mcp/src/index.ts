@@ -30,9 +30,9 @@ export * from './schema';
 
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Client } from './axiom/client';
+import type { FormatterOptions } from './axiom/formatters';
 import { registerCoreTools } from './core';
 import type { Logger } from './logger';
-import type { FormatterOptions } from './axiom/formatters';
 import { registerOpenTelemetryTools } from './otel';
 
 export interface AxiomMcpConfig {

@@ -33,7 +33,9 @@ export class AxiomMCP extends McpAgent<
       logger,
       orgId: this.props.orgId,
       enableOtel: this.props.withOTel === true,
-      formatOptions: this.props.maxCells ? { maxCells: this.props.maxCells } : undefined,
+      formatOptions: this.props.maxCells
+        ? { maxCells: this.props.maxCells }
+        : undefined,
     });
 
     logger.info('Server initialized');

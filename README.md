@@ -33,14 +33,15 @@ Issues and contributions are welcome. See AGENTS.md for contributor guidelines.
 
 When connecting to the hosted server endpoints (`/sse` or `/mcp`), you can pass runtime tuning parameters via query string:
 
-- `maxCells`: Integer. Caps total table cells rendered by tools. Example: `?maxCells=500`.
-- `withOTel`: Boolean (`1`/`true`). Enables OpenTelemetry tool family if your org has OTel integrations. Example: `?withOTel=1`.
+- `max-age`: Integer. Caps total table cells rendered by tools. Example: `?max-age=500`.
+- `with-otel`: Boolean (`1`/`true`). Enables OpenTelemetry tool family if your org has OTel integrations. Example: `?with-otel=1`.
 
 Example connection URL (MCP Inspector):
 
 ```
-http://localhost:8788/sse?org-id=<ORG_ID>&maxCells=500&withOTel=1
+http://localhost:8788/sse?org-id=<ORG_ID>&max-age=500&with-otel=1
 ```
+
 
 ## Troubleshooting
 

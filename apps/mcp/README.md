@@ -40,10 +40,10 @@ Try with MCP Inspector:
 npx @modelcontextprotocol/inspector@latest
 # Connect to: http://localhost:8788/sse
 # You can pass tuning params via URL, e.g.:
-#   - maxCells: cap formatted table size (integer)
-#   - withOTel: enable OpenTelemetry tools if available (1/true)
+#   - max-age: cap formatted table size (integer)
+#   - with-otel: enable OpenTelemetry tools if available (1/true)
 # Example:
-#   http://localhost:8788/sse?maxCells=500&withOTel=1
+#   http://localhost:8788/sse?max-age=500&with-otel=1
 ```
 
 ## Test, Type Check, Lint
@@ -90,16 +90,17 @@ Bindings, routes, and env-specific config live in `wrangler.jsonc`.
    - Imports intelligent tools from `@axiom/mcp`
    - Adds authentication context
    - Handles tool registration based on available integrations
-   - Optional OTel tools can be enabled with `withOTel=1` URL param
+   - Optional OTel tools can be enabled with `with-otel=1` URL param
 
 ## Runtime URL Parameters
 
 You can tune the server behavior per-connection using query params:
 
-- `maxCells`: Integer. Caps the total number of table cells the server will format per tool response (affects CSV output shaping). Example: `?maxCells=500`.
-- `withOTel`: Boolean (`1` or `true`). Enables the OpenTelemetry tool family when your organization has OTel integrations detected. Example: `?withOTel=1`.
+- `max-age`: Integer. Caps the total number of table cells the server will format per tool response (affects CSV output shaping). Example: `?max-age=500`.
+- `with-otel`: Boolean (`1` or `true`). Enables the OpenTelemetry tool family when your organization has OTel integrations detected. Example: `?with-otel=1`.
 
 These can be combined with `org-id` header or query param when using header-based auth.
+
 
 ## 🧪 Testing & Development
 
