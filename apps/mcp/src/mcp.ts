@@ -36,6 +36,7 @@ export class AxiomMCP extends McpAgent<
       formatOptions: this.props.maxCells
         ? { maxCells: this.props.maxCells }
         : undefined,
+      traceHeaders: this.props.traceHeaders,
     });
 
     logger.info('Server initialized');
@@ -60,7 +61,8 @@ export class AxiomMCP extends McpAgent<
       const internalClient = new Client(
         this.env.ATLAS_INTERNAL_URL,
         this.props.accessToken,
-        this.props.orgId
+        this.props.orgId,
+        this.props.traceHeaders
       );
       const ret: Integrations = await getIntegrations(internalClient);
       integrations = [...new Set(ret.map((i) => i.kind))];

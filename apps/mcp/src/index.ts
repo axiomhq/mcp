@@ -103,6 +103,22 @@ const handler = {
         : undefined;
       const withOTel = withOtelParam === '1' || withOtelParam === 'true';
 
+      // Extract trace headers for propagation to downstream services
+      const traceHeaders: Record<string, string> = {};
+      const traceHeaderNames = [
+        'traceparent',
+        'tracestate',
+        'x-trace-id',
+        'x-request-id',
+      ];
+
+      for (const headerName of traceHeaderNames) {
+        const headerValue = request.headers.get(headerName);
+        if (headerValue) {
+          traceHeaders[headerName] = headerValue;
+        }
+      }
+
       const props: ServerProps = {
         tokenKey: await sha256(`${accessToken}:${orgId}`),
         accessToken,
@@ -111,6 +127,8 @@ const handler = {
           ? (maxCells as number)
           : undefined,
         withOTel,
+        traceHeaders:
+          Object.keys(traceHeaders).length > 0 ? traceHeaders : undefined,
       };
 
       ctx.props = props;
