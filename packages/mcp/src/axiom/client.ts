@@ -17,6 +17,7 @@ export type ApiRequest = {
   body?: unknown;
   baseUrl: string;
   orgId: string;
+  traceHeaders?: Record<string, string>;
 };
 
 // MCP server telemetry configuration - similar to axiom.SetUserAgent() in Go SDK
@@ -33,7 +34,7 @@ export async function apiFetch<T>(
   areq: ApiRequest,
   schema: z.ZodSchema<T>
 ): Promise<T> {
-  const { token, method, path, body, baseUrl, orgId } = areq;
+  const { token, method, path, body, baseUrl, orgId, traceHeaders } = areq;
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
@@ -44,6 +45,13 @@ export async function apiFetch<T>(
 
   if (orgId) {
     headers['x-axiom-org-id'] = orgId;
+  }
+
+  // Propagate trace headers for distributed tracing
+  if (traceHeaders) {
+    for (const [key, value] of Object.entries(traceHeaders)) {
+      headers[key] = value;
+    }
   }
 
   const options: RequestInit = {
@@ -89,11 +97,18 @@ export class Client {
   private baseUrl: string;
   private accessToken: string;
   private orgId: string;
+  private traceHeaders?: Record<string, string>;
 
-  constructor(baseUrl: string, accessToken: string, orgId: string) {
+  constructor(
+    baseUrl: string,
+    accessToken: string,
+    orgId: string,
+    traceHeaders?: Record<string, string>
+  ) {
     this.baseUrl = baseUrl;
     this.accessToken = accessToken;
     this.orgId = orgId;
+    this.traceHeaders = traceHeaders;
   }
 
   async fetch<T>(
@@ -110,6 +125,7 @@ export class Client {
         body,
         baseUrl: this.baseUrl,
         orgId: this.orgId,
+        traceHeaders: this.traceHeaders,
       },
       schema
     );
