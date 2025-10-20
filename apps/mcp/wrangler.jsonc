@@ -15,7 +15,8 @@
     "ATLAS_INTERNAL_URL": "",
     "AXIOM_LOGIN_BASE_URL": "",
     "AXIOM_TRACES_DATASET": "",
-    "AXIOM_TRACES_URL": ""
+    "AXIOM_TRACES_URL": "",
+    "AXIOM_TRACES_KEY": ""
   },
   "migrations": [
     {
@@ -65,7 +66,8 @@
         "ATLAS_INTERNAL_URL": "",
         "AXIOM_LOGIN_BASE_URL": "",
         "AXIOM_TRACES_DATASET": "",
-        "AXIOM_TRACES_URL": ""
+        "AXIOM_TRACES_URL": "",
+        "AXIOM_TRACES_KEY": ""
       },
       "durable_objects": {
         "bindings": [

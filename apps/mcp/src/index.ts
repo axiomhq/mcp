@@ -114,7 +114,13 @@ const handler = {
       };
 
       ctx.props = props;
-      return AxiomMCP.serveSSE('/sse').fetch(request, env, ctx);
+      
+      // Route to appropriate MCP endpoint - fixed to handle sub-paths
+      if (url.pathname.startsWith('/sse')) {
+        return AxiomMCP.serveSSE('/sse').fetch(request, env, ctx);
+      } else if (url.pathname.startsWith('/mcp')) {
+        return AxiomMCP.serve('/mcp').fetch(request, env, ctx);
+      }
     }
 
     // Serve landing page on root path
