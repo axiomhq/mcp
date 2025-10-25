@@ -241,8 +241,6 @@ app.get('/callback', async (c) => {
     name: string;
   }>;
 
-  orgs.sort((a, b) => a.name.localeCompare(b.name));
-
   if (orgs.length === 1) {
     const { redirectTo } = await c.env.OAUTH_PROVIDER.completeAuthorization({
       metadata: {},
