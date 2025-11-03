@@ -52,6 +52,7 @@
       },
       "vars": {},
       "observability": {
+        "enabled": true,
         "traces": {
           "enabled": true,
           "destinations": ["axiom-traces-dev"]
@@ -86,6 +87,7 @@
       },
       "vars": {},
       "observability": {
+        "enabled": true,
         "traces": {
           "enabled": true,
           "destinations": ["axiom-traces-staging"]
@@ -120,6 +122,7 @@
       },
       "vars": {},
       "observability": {
+        "enabled": true,
         "traces": {
           "enabled": true,
           "destinations": ["axiom-traces-prod"]
@@ -154,6 +157,7 @@
       },
       "vars": {},
       "observability": {
+        "enabled": true,
         "traces": {
           "enabled": true,
           "destinations": ["axiom-traces-eu-prod"]
