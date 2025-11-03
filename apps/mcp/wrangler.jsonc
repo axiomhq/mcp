@@ -8,16 +8,7 @@
   "assets": {
     "directory": "public"
   },
-  "vars": {
-    "ENV": "",
-    "COOKIE_ENCRYPTION_KEY": "",
-    "ATLAS_API_URL": "",
-    "ATLAS_INTERNAL_URL": "",
-    "AXIOM_LOGIN_BASE_URL": "",
-    "AXIOM_TRACES_DATASET": "",
-    "AXIOM_TRACES_URL": "",
-    "AXIOM_TRACES_KEY": ""
-  },
+  "vars": {},
   "migrations": [
     {
       "new_sqlite_classes": ["AxiomMCP"],
@@ -59,16 +50,7 @@
         "pattern": "mcp.dev.axiomtestlabs.co",
         "custom_domain": true
       },
-      "vars": {
-        "ENV": "",
-        "COOKIE_ENCRYPTION_KEY": "",
-        "ATLAS_API_URL": "",
-        "ATLAS_INTERNAL_URL": "",
-        "AXIOM_LOGIN_BASE_URL": "",
-        "AXIOM_TRACES_DATASET": "",
-        "AXIOM_TRACES_URL": "",
-        "AXIOM_TRACES_KEY": ""
-      },
+      "vars": {},
       "durable_objects": {
         "bindings": [
           {
@@ -96,15 +78,7 @@
         "pattern": "mcp.staging.axiomtestlabs.co",
         "custom_domain": true
       },
-      "vars": {
-        "ENV": "",
-        "COOKIE_ENCRYPTION_KEY": "",
-        "ATLAS_API_URL": "",
-        "ATLAS_INTERNAL_URL": "",
-        "AXIOM_LOGIN_BASE_URL": "",
-        "AXIOM_TRACES_DATASET": "",
-        "AXIOM_TRACES_URL": ""
-      },
+      "vars": {},
       "durable_objects": {
         "bindings": [
           {
@@ -132,15 +106,7 @@
         "pattern": "mcp.axiom.co",
         "custom_domain": true
       },
-      "vars": {
-        "ENV": "",
-        "COOKIE_ENCRYPTION_KEY": "",
-        "ATLAS_API_URL": "",
-        "ATLAS_INTERNAL_URL": "",
-        "AXIOM_LOGIN_BASE_URL": "",
-        "AXIOM_TRACES_DATASET": "",
-        "AXIOM_TRACES_URL": ""
-      },
+      "vars": {},
       "durable_objects": {
         "bindings": [
           {
@@ -157,6 +123,34 @@
         {
           "binding": "MCP_KV",
           "id": "e11500e1579a4936b2cd732b5f4f7ef7"
+        }
+      ],
+      "version_metadata": {
+        "binding": "CF_VERSION_METADATA"
+      }
+    },
+    "prod-eu": {
+      "route": {
+        "pattern": "mcp.eu.axiom.co",
+        "custom_domain": true
+      },
+      "vars": {},
+      "durable_objects": {
+        "bindings": [
+          {
+            "class_name": "AxiomMCP",
+            "name": "MCP_OBJECT"
+          }
+        ]
+      },
+      "kv_namespaces": [
+        {
+          "binding": "OAUTH_KV",
+          "id": "3a4dc852958f43d89d28c4b023b3492a"
+        },
+        {
+          "binding": "MCP_KV",
+          "id": "09f99217e0b843aaaae9bd15a149571c"
         }
       ],
       "version_metadata": {
