@@ -8,6 +8,7 @@
     "deploy:dev": "wrangler deploy --env dev",
     "deploy:staging": "wrangler deploy --env staging",
     "deploy:prod": "wrangler deploy --env prod",
+    "deploy:prod-eu": "wrangler deploy --env prod-eu",
     "dev": "wrangler dev",
     "start": "wrangler dev",
     "lint": "ultracite format",
