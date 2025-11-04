@@ -51,6 +51,13 @@
         "custom_domain": true
       },
       "vars": {},
+      "observability": {
+        "enabled": true,
+        "traces": {
+          "enabled": true,
+          "destinations": ["axiom-traces-dev"]
+        }
+      },
       "durable_objects": {
         "bindings": [
           {
@@ -79,6 +86,13 @@
         "custom_domain": true
       },
       "vars": {},
+      "observability": {
+        "enabled": true,
+        "traces": {
+          "enabled": true,
+          "destinations": ["axiom-traces-staging"]
+        }
+      },
       "durable_objects": {
         "bindings": [
           {
@@ -107,6 +121,13 @@
         "custom_domain": true
       },
       "vars": {},
+      "observability": {
+        "enabled": true,
+        "traces": {
+          "enabled": true,
+          "destinations": ["axiom-traces-prod"]
+        }
+      },
       "durable_objects": {
         "bindings": [
           {
@@ -135,6 +156,13 @@
         "custom_domain": true
       },
       "vars": {},
+      "observability": {
+        "enabled": true,
+        "traces": {
+          "enabled": true,
+          "destinations": ["axiom-traces-eu-prod"]
+        }
+      },
       "durable_objects": {
         "bindings": [
           {
