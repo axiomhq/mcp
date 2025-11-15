@@ -14,16 +14,8 @@ export { AxiomMCP } from './mcp';
 import { AxiomMCP } from './mcp';
 import { sha256 } from './utils';
 
-declare global {
-  interface Env {
-    AXIOM_OAUTH_CLIENT_ID: string;
-    AXIOM_OAUTH_CLIENT_SECRET: string;
-    AXIOM_TRACES_KEY: string;
-  }
-}
-
 const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
-  if (env.AXIOM_TRACES_URL !== '') {
+  if (env.AXIOM_TRACES_URL && env.AXIOM_TRACES_URL !== '') {
     return {
       service: {
         name: 'axiom-mcp-remote',
@@ -114,7 +106,7 @@ const handler = {
       };
 
       ctx.props = props;
-      
+
       // Route to appropriate MCP endpoint - fixed to handle sub-paths
       if (url.pathname.startsWith('/sse')) {
         return AxiomMCP.serveSSE('/sse').fetch(request, env, ctx);
