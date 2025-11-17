@@ -54,7 +54,7 @@ const oauthProvider = new OAuthProvider({
   tokenEndpoint: '/token',
 });
 
-// Create a wrapper to avoid direct instrumentation of OAuth provider internals
+// create a wrapper to avoid direct instrumentation of OAuth provider internals
 const handler = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     const tokenValue = request.headers.get('authorization');
@@ -87,7 +87,7 @@ const handler = {
       const accessToken = tokenValue?.slice(7);
       const url = new URL(request.url);
 
-      // Preferred kebab-case params only
+      // preferred kebab-case params only
       const maxAgeParam = url.searchParams.get('max-age');
       const withOtelParam = url.searchParams.get('with-otel');
 
@@ -96,7 +96,7 @@ const handler = {
         : undefined;
       const withOTel = withOtelParam === '1' || withOtelParam === 'true';
 
-      // Extract trace headers for manual propagation FIRST
+      // extract trace headers for manual propagation FIRST
       const manualTraceHeaders: Record<string, string> = {};
       if (request.headers.has('traceparent')) {
         manualTraceHeaders['traceparent'] = request.headers.get('traceparent')!;
@@ -118,18 +118,18 @@ const handler = {
 
       ctx.props = props;
 
-      // Extract trace context from incoming request headers and create active span
+      // extract trace context from incoming request headers and create active span
       const extractedContext = propagation.extract(
         context.active(),
         request.headers
       );
 
-      // Create tracer and start span within extracted context
+      // create tracer and start span within extracted context
       const tracer = trace.getTracer('axiom-mcp-server');
 
       return context.with(extractedContext, async () => {
         const span = tracer.startSpan(`mcp-request ${url.pathname}`, {
-          kind: 1, // SERVER span kind
+          kind: 1, // server span kind
           attributes: {
             'http.method': request.method,
             'http.url': request.url,
@@ -137,7 +137,6 @@ const handler = {
             'axiom.org_id': orgId,
           },
         });
-
 
         try {
           return await context.with(
@@ -157,7 +156,7 @@ const handler = {
       });
     }
 
-    // Serve landing page on root path
+    // serve landing page on root path
     const url = new URL(request.url);
     if (url.pathname === '/' && request.method === 'GET') {
       return serveLandingPage(request);

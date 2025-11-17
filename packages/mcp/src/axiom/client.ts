@@ -21,7 +21,7 @@ export type ApiRequest = {
   manualTraceHeaders?: Record<string, string>;
 };
 
-// MCP server telemetry configuration - similar to axiom.SetUserAgent() in Go SDK
+// mcp server telemetry configuration - similar to axiom.SetUserAgent() in Go SDK
 const MCP_TELEMETRY_HEADERS = {
   'User-Agent': 'axiom-mcp-server (hosted)',
   'X-MCP-Server-Type': 'hosted',
@@ -40,7 +40,7 @@ export async function apiFetch<T>(
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
     Accept: 'application/json',
-    // Add telemetry headers to identify hosted MCP server requests
+    // add telemetry headers to identify hosted MCP server requests
     ...getMcpTelemetryHeaders(),
   };
 
@@ -48,27 +48,27 @@ export async function apiFetch<T>(
     headers['x-axiom-org-id'] = orgId;
   }
 
-  // Inject trace context into outgoing headers for distributed tracing
+  // inject trace context into outgoing headers for distributed tracing
   try {
     const currentSpan = trace.getActiveSpan();
     const activeContext = context.active();
-    
-    // Try to inject from active context (may have trace context even without active span)
+
+    // try to inject from active context (may have trace context even without active span)
     const traceHeaders: Record<string, string> = {};
     propagation.inject(activeContext, traceHeaders);
-    
+
     if (Object.keys(traceHeaders).length > 0) {
       Object.assign(headers, traceHeaders);
     } else if (currentSpan) {
-      // Fallback to span-specific injection
+      // fallback to span-specific injection
       propagation.inject(trace.setSpan(context.active(), currentSpan), traceHeaders);
       Object.assign(headers, traceHeaders);
     } else if (manualTraceHeaders && Object.keys(manualTraceHeaders).length > 0) {
-      // Fallback to manual trace headers from MCP context
+      // fallback to manual trace headers from MCP context
       Object.assign(headers, manualTraceHeaders);
     }
   } catch (error) {
-    // Trace injection shouldn't break the request - fail silently
+    // trace injection shouldn't break the request - fail silently
   }
 
   const options: RequestInit = {
@@ -95,7 +95,7 @@ export async function apiFetch<T>(
           errorMessage = errorBody.message;
         }
       } catch {
-        // If we can't parse the error body, fall back to statusText
+        // if we can't parse the error body, fall back to statusText
       }
       throw new ApiError(errorMessage, res.status);
     }

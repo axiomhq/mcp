@@ -62,7 +62,6 @@ export class AxiomMCP extends McpAgent<
       let integrations: string[] = [];
 
       if (checkDiff > 300_000) {
-
         try {
           const internalClient = new Client(
             this.env.ATLAS_INTERNAL_URL,
@@ -71,34 +70,29 @@ export class AxiomMCP extends McpAgent<
           );
           const ret: Integrations = await getIntegrations(internalClient);
 
-          logger.info(
-            `API response received - ${ret.length} integrations`
-          );
-
           integrations = [...new Set(ret.map((i) => i.kind))];
-          logger.info(`Unique integration types: ${integrations.length}`);
 
           await this.env.MCP_KV.put(lastCheckKey, Date.now().toString(), {
-            expirationTtl: 60 * 60 * 24, // Expire after 1 day
+            expirationTtl: 60 * 60 * 24, // expire after 1 day
           });
           await this.env.MCP_KV.put(
             integrationsKey,
             JSON.stringify(integrations),
             {
-              expirationTtl: 60 * 60 * 24, // Expire after 1 day
+              expirationTtl: 60 * 60 * 24, // expire after 1 day
             }
           );
         } catch (error) {
           logger.error(`❌ Integration API error:`, error);
           logger.error('Failed to fetch integrations:', error);
-          // Continue with empty integrations array to prevent blocking MCP server
+          // continue with empty integrations array to prevent blocking MCP server
           integrations = [];
           logger.info(
             `Continuing with empty integrations to prevent server blocking`
           );
         }
       } else {
-        // Read cached integrations from KV
+        // read cached integrations from KV
         const cachedIntegrations = await this.env.MCP_KV.get(integrationsKey);
         if (cachedIntegrations) {
           integrations = JSON.parse(cachedIntegrations);
@@ -106,10 +100,8 @@ export class AxiomMCP extends McpAgent<
         }
       }
 
-      logger.info(`Final integrations list:`, integrations);
       return integrations;
     } catch (error) {
-      logger.error(`Critical error in getIntegrations:`, error);
       logger.error('Critical error in getIntegrations:', error);
       return [];
     }
