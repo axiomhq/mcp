@@ -13,6 +13,7 @@ export { AxiomMCP } from './mcp';
 
 import { AxiomMCP } from './mcp';
 import { sha256 } from './utils';
+import { context, propagation, trace } from '@opentelemetry/api';
 
 const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
   if (env.AXIOM_TRACES_URL && env.AXIOM_TRACES_URL !== '') {
@@ -95,6 +96,15 @@ const handler = {
         : undefined;
       const withOTel = withOtelParam === '1' || withOtelParam === 'true';
 
+      // Extract trace headers for manual propagation FIRST
+      const manualTraceHeaders: Record<string, string> = {};
+      if (request.headers.has('traceparent')) {
+        manualTraceHeaders['traceparent'] = request.headers.get('traceparent')!;
+      }
+      if (request.headers.has('tracestate')) {
+        manualTraceHeaders['tracestate'] = request.headers.get('tracestate')!;
+      }
+
       const props: ServerProps = {
         tokenKey: await sha256(`${accessToken}:${orgId}`),
         accessToken,
@@ -103,16 +113,48 @@ const handler = {
           ? (maxCells as number)
           : undefined,
         withOTel,
+        traceHeaders: manualTraceHeaders,
       };
 
       ctx.props = props;
 
-      // Route to appropriate MCP endpoint - fixed to handle sub-paths
-      if (url.pathname.startsWith('/sse')) {
-        return AxiomMCP.serveSSE('/sse').fetch(request, env, ctx);
-      } else if (url.pathname.startsWith('/mcp')) {
-        return AxiomMCP.serve('/mcp').fetch(request, env, ctx);
-      }
+      // Extract trace context from incoming request headers and create active span
+      const extractedContext = propagation.extract(
+        context.active(),
+        request.headers
+      );
+
+      // Create tracer and start span within extracted context
+      const tracer = trace.getTracer('axiom-mcp-server');
+
+      return context.with(extractedContext, async () => {
+        const span = tracer.startSpan(`mcp-request ${url.pathname}`, {
+          kind: 1, // SERVER span kind
+          attributes: {
+            'http.method': request.method,
+            'http.url': request.url,
+            'http.path': url.pathname,
+            'axiom.org_id': orgId,
+          },
+        });
+
+
+        try {
+          return await context.with(
+            trace.setSpan(context.active(), span),
+            async () => {
+              if (url.pathname.startsWith('/sse')) {
+                return await AxiomMCP.serveSSE('/sse').fetch(request, env, ctx);
+              } else if (url.pathname.startsWith('/mcp')) {
+                return await AxiomMCP.serve('/mcp').fetch(request, env, ctx);
+              }
+              throw new Error('No matching endpoint');
+            }
+          );
+        } finally {
+          span.end();
+        }
+      });
     }
 
     // Serve landing page on root path

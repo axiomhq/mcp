@@ -45,18 +45,21 @@ export interface AxiomMcpConfig {
   orgId: string;
   enableOtel?: boolean;
   formatOptions?: FormatterOptions;
+  traceHeaders?: Record<string, string>;
 }
 
 export function registerAxiomMcpTools(config: AxiomMcpConfig) {
   const publicClient = new Client(
     config.apiUrl,
     config.accessToken,
-    config.orgId
+    config.orgId,
+    config.traceHeaders
   );
   const internalClient = new Client(
     config.internalUrl,
     config.accessToken,
-    config.orgId
+    config.orgId,
+    config.traceHeaders
   );
 
   const context = {
