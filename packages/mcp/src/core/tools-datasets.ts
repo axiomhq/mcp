@@ -89,18 +89,21 @@ export function registerDatasetTools({
     'queryDataset',
     `# Instructions
 1. Query Axiom datasets using Axiom Processing Language (APL). The query must be a valid APL query string.
-2. ALWAYS get the schema of the dataset before running queries rather than guessing.
+2. **CRITICAL: Nearly all APL queries must start with the dataset name in square brackets ['dataset-name'].** This is MANDATORY for proper query execution, except for global operators like 'search' and 'union' that can work across multiple datasets.
+3. ALWAYS get the schema of the dataset before running queries rather than guessing.
     You can do this by getting a single event and projecting all fields.
-3. Keep in mind that there's a maximum row limit of 65000 rows per query.
-4. Prefer aggregations over non aggregating queries when possible to reduce the amount of data returned.
-5. Be selective in what you project in each query (unless otherwise needed, like for discovering the schema).
+4. Keep in mind that there's a maximum row limit of 65000 rows per query.
+5. Prefer aggregations over non aggregating queries when possible to reduce the amount of data returned.
+6. Be selective in what you project in each query (unless otherwise needed, like for discovering the schema).
     It's expensive to project all fields.
-6. ALWAYS restrict the time range of the query to the smallest possible range that
+7. ALWAYS restrict the time range of the query to the smallest possible range that
     meets your needs. This will reduce the amount of data scanned and improve query performance.
-7. NEVER guess the schema of the dataset. If you don't where something is, use search first to find in which fields
+8. NEVER guess the schema of the dataset. If you don't where something is, use search first to find in which fields
     it appears.
 
 # Examples
+**Notice: Most examples start with the dataset name in square brackets - this is REQUIRED except for global operations like 'search' and 'union'!**
+
 Basic:
 - Filter: ['logs'] | where ['severity'] == "error" or ['duration'] > 500ms
 - Time range: ['logs'] | where ['_time'] > ago(2h) and ['_time'] < now()

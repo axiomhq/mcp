@@ -1,4 +1,5 @@
 import type z from 'zod';
+import { context, propagation, trace } from '@opentelemetry/api';
 
 export class ApiError extends Error {
   status: number;
@@ -17,9 +18,10 @@ export type ApiRequest = {
   body?: unknown;
   baseUrl: string;
   orgId: string;
+  manualTraceHeaders?: Record<string, string>;
 };
 
-// MCP server telemetry configuration - similar to axiom.SetUserAgent() in Go SDK
+// mcp server telemetry configuration - similar to axiom.SetUserAgent() in Go SDK
 const MCP_TELEMETRY_HEADERS = {
   'User-Agent': 'axiom-mcp-server (hosted)',
   'X-MCP-Server-Type': 'hosted',
@@ -33,17 +35,40 @@ export async function apiFetch<T>(
   areq: ApiRequest,
   schema: z.ZodSchema<T>
 ): Promise<T> {
-  const { token, method, path, body, baseUrl, orgId } = areq;
+  const { token, method, path, body, baseUrl, orgId, manualTraceHeaders } = areq;
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
     Accept: 'application/json',
-    // Add telemetry headers to identify hosted MCP server requests
+    // add telemetry headers to identify hosted MCP server requests
     ...getMcpTelemetryHeaders(),
   };
 
   if (orgId) {
     headers['x-axiom-org-id'] = orgId;
+  }
+
+  // inject trace context into outgoing headers for distributed tracing
+  try {
+    const currentSpan = trace.getActiveSpan();
+    const activeContext = context.active();
+
+    // try to inject from active context (may have trace context even without active span)
+    const traceHeaders: Record<string, string> = {};
+    propagation.inject(activeContext, traceHeaders);
+
+    if (Object.keys(traceHeaders).length > 0) {
+      Object.assign(headers, traceHeaders);
+    } else if (currentSpan) {
+      // fallback to span-specific injection
+      propagation.inject(trace.setSpan(context.active(), currentSpan), traceHeaders);
+      Object.assign(headers, traceHeaders);
+    } else if (manualTraceHeaders && Object.keys(manualTraceHeaders).length > 0) {
+      // fallback to manual trace headers from MCP context
+      Object.assign(headers, manualTraceHeaders);
+    }
+  } catch (error) {
+    // trace injection shouldn't break the request - fail silently
   }
 
   const options: RequestInit = {
@@ -54,6 +79,7 @@ export async function apiFetch<T>(
   if (body) {
     options.body = JSON.stringify(body);
   }
+
 
   try {
     const res = await fetch(`${baseUrl}${path}`, options);
@@ -69,7 +95,7 @@ export async function apiFetch<T>(
           errorMessage = errorBody.message;
         }
       } catch {
-        // If we can't parse the error body, fall back to statusText
+        // if we can't parse the error body, fall back to statusText
       }
       throw new ApiError(errorMessage, res.status);
     }
@@ -89,11 +115,13 @@ export class Client {
   private baseUrl: string;
   private accessToken: string;
   private orgId: string;
+  private manualTraceHeaders?: Record<string, string>;
 
-  constructor(baseUrl: string, accessToken: string, orgId: string) {
+  constructor(baseUrl: string, accessToken: string, orgId: string, traceHeaders?: Record<string, string>) {
     this.baseUrl = baseUrl;
     this.accessToken = accessToken;
     this.orgId = orgId;
+    this.manualTraceHeaders = traceHeaders;
   }
 
   async fetch<T>(
@@ -110,6 +138,7 @@ export class Client {
         body,
         baseUrl: this.baseUrl,
         orgId: this.orgId,
+        manualTraceHeaders: this.manualTraceHeaders,
       },
       schema
     );
