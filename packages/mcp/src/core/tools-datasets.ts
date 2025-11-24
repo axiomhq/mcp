@@ -14,6 +14,7 @@ import {
   ParamAPLQuery,
   ParamDatasetName,
   ParamEndTime,
+  ParamFilterNulls,
   ParamStartTime,
 } from '../schema';
 import type { ToolContext } from '.';
@@ -149,12 +150,16 @@ Common Patterns:
       apl: ParamAPLQuery,
       startTime: ParamStartTime,
       endTime: ParamEndTime,
+      filterNulls: ParamFilterNulls,
     },
-    async ({ apl, startTime, endTime }) => {
+    async ({ apl, startTime, endTime, filterNulls }) => {
       try {
         const result = await runQuery(publicClient, apl, startTime, endTime);
         return stringResult(
-          new QueryResultFormatter(formatOptions).formatQuery(result)
+          new QueryResultFormatter({
+            ...formatOptions,
+            filterNulls,
+          }).formatQuery(result)
         );
       } catch (error) {
         return newToolErrorWithReason('Query failed', error);

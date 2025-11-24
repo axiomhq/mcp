@@ -94,16 +94,19 @@ class DefaultFieldChooser implements FieldChooser {
 export interface FormatterOptions {
   maxCells?: number;
   fieldChooser?: FieldChooser;
+  filterNulls?: boolean;
 }
 
 export class QueryResultFormatter {
   private static DEFAULT_MAX_CELLS = 1000;
   private maxCells: number;
   private fieldChooser: FieldChooser;
+  private filterNulls: boolean;
 
   constructor(options: FormatterOptions = {}) {
     this.maxCells = options.maxCells ?? QueryResultFormatter.DEFAULT_MAX_CELLS;
     this.fieldChooser = options.fieldChooser ?? new DefaultFieldChooser();
+    this.filterNulls = options.filterNulls ?? true;
   }
 
   formatQuery(result: QueryResult, title = 'Query results'): string {
@@ -115,8 +118,13 @@ export class QueryResultFormatter {
 
     builder.h1(title);
 
+    // Filter null columns if enabled (before transpose for efficiency)
+    const filteredResult = this.filterNulls
+      ? this.filterNullColumns(result)
+      : result;
+
     // Transpose the results to work with rows
-    const transposed = transposeQueryResult(result);
+    const transposed = transposeQueryResult(filteredResult);
 
     // Apply cell limits
     const limitedTables = this.applyLimits(transposed.tables);
@@ -335,5 +343,56 @@ export class QueryResultFormatter {
     }
 
     return String(value);
+  }
+
+  /**
+   * Filters out columns where all values are null from the query result.
+   * This reduces response size when many columns contain only null values.
+   */
+  private filterNullColumns(result: QueryResult): QueryResult {
+    if (!result.tables || result.tables.length === 0) {
+      return result;
+    }
+
+    const filteredTables = result.tables.map((table) => {
+      // If no columns or fields, return table as-is
+      if (!(table.columns && table.fields) || table.columns.length === 0) {
+        return table;
+      }
+
+      // Find indices of columns that have at least one non-null value
+      const keepIndices: number[] = [];
+
+      for (let i = 0; i < table.columns.length; i++) {
+        const column = table.columns[i];
+        // Check if column has any non-null values
+        const hasNonNullValue = column.some(
+          (value) => value !== null && value !== undefined
+        );
+        if (hasNonNullValue) {
+          keepIndices.push(i);
+        }
+      }
+
+      // If all columns are kept, return table as-is
+      if (keepIndices.length === table.columns.length) {
+        return table;
+      }
+
+      // Filter fields and columns to only keep non-null columns
+      const filteredFields = keepIndices.map((index) => table.fields[index]);
+      const filteredColumns = keepIndices.map((index) => table.columns[index]);
+
+      return {
+        ...table,
+        fields: filteredFields,
+        columns: filteredColumns,
+      };
+    });
+
+    return {
+      ...result,
+      tables: filteredTables,
+    };
   }
 }
