@@ -53,3 +53,8 @@ export const ParamDashboardID = z
   .describe(
     'The dashboard ID. You can find a list of dashboards using the `listDashboards()` tool.'
   );
+
+export const ParamFilterNulls = z
+  .boolean()
+  .default(true)
+  .describe('Filter out columns where all values are null from the query results');
