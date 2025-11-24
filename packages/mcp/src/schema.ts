@@ -57,4 +57,6 @@ export const ParamDashboardID = z
 export const ParamFilterNulls = z
   .boolean()
   .default(true)
-  .describe('Filter out columns where all values are null from the query results');
+  .describe(
+    'Filter out columns where all values are null from the query results'
+  );
