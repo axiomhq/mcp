@@ -306,21 +306,12 @@ export class QueryResultFormatter {
 
     if (typeof value === 'string') {
       // Escape pipe characters in table cells
-      const escaped = value.replace(/\|/g, '\\|');
-      // Truncate long strings
-      if (escaped.length > 50) {
-        return `${escaped.slice(0, 47)}...`;
-      }
-      return escaped;
+      return value.replace(/\|/g, '\\|');
     }
 
     if (typeof value === 'object') {
       const json = JSON.stringify(value);
-      const escaped = json.replace(/\|/g, '\\|');
-      if (escaped.length > 50) {
-        return `${escaped.slice(0, 47)}...`;
-      }
-      return escaped;
+      return json.replace(/\|/g, '\\|');
     }
 
     if (typeof value === 'number') {
