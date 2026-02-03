@@ -37,7 +37,7 @@
     },
     {
       "name": "queryDataset",
-      "description": "# Instructions 1. Query Axiom datasets using Axiom Processing Language (APL). The query must be a valid APL query string. 2. ALWAYS get the schema of the dataset before running queries rather than guessing. You can do this by getting a single event and projecting all fields. 3. Keep in mind that there",
+      "description": "# Instructions 1. Query Axiom datasets using Axiom Processing Language (APL). The query must be a valid APL query string. 2. **CRITICAL: Nearly all APL queries must start with the dataset name in square brackets [",
       "category": "Core"
     }
   ],

@@ -8,4 +8,5 @@ export type ServerProps = {
   // Parsed from `max-age` and `with-otel`
   maxCells?: number;
   withOTel?: boolean;
+  traceHeaders?: Record<string, string>;
 };
