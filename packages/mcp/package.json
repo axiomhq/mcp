@@ -16,7 +16,7 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.25.0",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "zod": "^3.25.67"
   },
   "devDependencies": {
@@ -25,6 +25,6 @@
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
-    "@modelcontextprotocol/sdk": "^1.25.0"
+    "@modelcontextprotocol/sdk": "^1.26.0"
   }
 }
