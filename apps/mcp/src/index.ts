@@ -12,7 +12,7 @@ import type { ServerProps } from './types';
 export { AxiomMCP } from './mcp';
 
 import { AxiomMCP } from './mcp';
-import { sha256 } from './utils';
+import { extractAccessToken, sha256 } from './utils';
 
 const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
   if (env.AXIOM_TRACES_URL && env.AXIOM_TRACES_URL !== '') {
@@ -83,7 +83,7 @@ const handler = {
         );
       }
 
-      const accessToken = tokenValue?.slice(7);
+      const accessToken = extractAccessToken(tokenValue);
       const url = new URL(request.url);
 
       // Preferred kebab-case params only
