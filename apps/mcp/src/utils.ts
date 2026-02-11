@@ -148,6 +148,21 @@ export async function refreshAccessToken({
   return [body, null];
 }
 
+/**
+ * Extracts the access token from an Authorization header value.
+ * Supports both "Bearer <token>" format and raw token values,
+ * since some clients (e.g. AWS DevOps agents) send the raw token
+ * without the "Bearer " prefix.
+ */
+export function extractAccessToken(
+  headerValue: string | null
+): string | null {
+  if (!headerValue) return null;
+  return headerValue.startsWith('Bearer ')
+    ? headerValue.slice(7)
+    : headerValue;
+}
+
 export async function sha256(text: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(text);
