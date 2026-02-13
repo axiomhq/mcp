@@ -12,6 +12,8 @@ export interface ToolContext {
   accessToken: string;
   apiUrl: string;
   internalUrl: string;
+  apexQueryUrl: string;
+  orgId: string;
   logger: Logger;
   publicClient: Client;
   internalClient: Client;

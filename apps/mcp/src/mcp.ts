@@ -42,6 +42,7 @@ export class AxiomMCP extends McpAgent<
       accessToken: this.props.accessToken,
       apiUrl: this.env.ATLAS_API_URL,
       internalUrl: this.env.ATLAS_INTERNAL_URL,
+      apexQueryUrl: this.env.APEX_QUERY_URL,
       integrations,
       logger,
       orgId: this.props.orgId,

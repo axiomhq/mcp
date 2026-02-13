@@ -50,7 +50,9 @@ const ParamAnomalyType = z
 
 export function registerTracesTools({
   server,
-  publicClient,
+  accessToken,
+  apexQueryUrl,
+  orgId,
   logger,
 }: ToolContext) {
   server.tool(
@@ -82,10 +84,13 @@ ${sanitizeDatasetName(datasetName)}
       end.setMinutes(point.getMinutes() + 10);
 
       const result = await runQuery(
-        publicClient,
         query,
         start.toISOString(),
-        end.toISOString()
+        end.toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
       return stringResult(
         new QueryResultFormatter().formatQuery(result, `Trace ${traceId} spans`)
@@ -158,10 +163,13 @@ ${whereClause}
         query,
       });
       const result = await runQuery(
-        publicClient,
         query,
         new Date(Date.now() - 3_600_000).toISOString(), // Default 1 hour ago
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
@@ -198,10 +206,13 @@ ${sanitizeDatasetName(datasetName)}
         query: referenceQuery,
       });
       const referenceResult = await runQuery(
-        publicClient,
         referenceQuery,
         new Date(Date.now() - 86_400_000).toISOString(), // Default 24 hours ago
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
 
       // Transpose the result to make it easier to work with
@@ -244,10 +255,13 @@ by trace_id
         query: similarQuery,
       });
       const result = await runQuery(
-        publicClient,
         similarQuery,
         new Date(Date.now() - 86_400_000).toISOString(), // Default 24 hours ago
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
 
       return stringResult(
@@ -287,10 +301,13 @@ ${sanitizeDatasetName(datasetName)}
         query,
       });
       const result = await runQuery(
-        publicClient,
         query,
         new Date(Date.now() - 3_600_000).toISOString(), // Default 1 hour ago
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
       return stringResult(
         new QueryResultFormatter().formatQuery(
@@ -354,10 +371,13 @@ by trace_id
         query: tracesQuery,
       });
       const tracesResult = await runQuery(
-        publicClient,
         tracesQuery,
         new Date(Date.now() - 21_600_000).toISOString(), // Default 6 hours ago
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
 
       // Second query: Calculate statistics
@@ -381,10 +401,13 @@ by trace_id
         query: statsQuery,
       });
       const statsResult = await runQuery(
-        publicClient,
         statsQuery,
         new Date(Date.now() - 21_600_000).toISOString(), // Default 6 hours ago
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
 
       // Transpose results for easier processing

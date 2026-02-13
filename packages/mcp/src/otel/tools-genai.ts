@@ -63,7 +63,9 @@ const ParamIncludeCosts = z
 
 export function registerGenAITools({
   server,
-  publicClient,
+  accessToken,
+  apexQueryUrl,
+  orgId,
   logger,
   formatOptions,
 }: ToolContext) {
@@ -147,10 +149,13 @@ ${costCalculation}
       });
 
       const result = await runQuery(
-        publicClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
 
       return stringResult(
@@ -241,10 +246,13 @@ ${whereClause}
       });
 
       const result = await runQuery(
-        publicClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
 
       return stringResult(
@@ -312,10 +320,13 @@ ${whereClause}
       });
 
       const result = await runQuery(
-        publicClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
 
       return stringResult(
@@ -415,10 +426,13 @@ ${whereClause}
       });
 
       const result = await runQuery(
-        publicClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
 
       return stringResult(
@@ -508,10 +522,13 @@ ${searchClause}
       });
 
       const result = await runQuery(
-        publicClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
 
       return stringResult(
@@ -588,10 +605,13 @@ ${
       });
 
       const result = await runQuery(
-        publicClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
 
       return stringResult(
@@ -652,10 +672,13 @@ ${whereClause}
       });
 
       const result = await runQuery(
-        publicClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
 
       return stringResult(
@@ -728,10 +751,13 @@ ${whereClause}
       });
 
       const result = await runQuery(
-        publicClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
-        new Date().toISOString()
+        new Date().toISOString(),
+        [datasetName],
+        apexQueryUrl,
+        accessToken,
+        orgId
       );
 
       return stringResult(
