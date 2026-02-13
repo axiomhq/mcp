@@ -9,14 +9,12 @@ import { registerMonitorTools } from './tools-monitors';
 
 export interface ToolContext {
   server: McpServer;
-  accessToken: string;
   apiUrl: string;
   internalUrl: string;
-  apexQueryUrl: string;
-  orgId: string;
   logger: Logger;
   publicClient: Client;
   internalClient: Client;
+  apexClient: Client;
   formatOptions?: FormatterOptions;
 }
 

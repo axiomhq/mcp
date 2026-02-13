@@ -59,17 +59,20 @@ export function registerAxiomMcpTools(config: AxiomMcpConfig) {
     config.accessToken,
     config.orgId
   );
+  const apexClient = new Client(
+    config.apexQueryUrl,
+    config.accessToken,
+    config.orgId
+  );
 
   const context = {
     server: config.server,
-    accessToken: config.accessToken,
     apiUrl: config.apiUrl,
     internalUrl: config.internalUrl,
-    apexQueryUrl: config.apexQueryUrl,
-    orgId: config.orgId,
     logger: config.logger,
     publicClient,
     internalClient,
+    apexClient,
     formatOptions: config.formatOptions,
   };
 

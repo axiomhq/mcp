@@ -15,9 +15,7 @@ export const ToolGetOperationMetrics = 'otel-getOperationMetrics';
 
 export function registerMetricsTools({
   server,
-  accessToken,
-  apexQueryUrl,
-  orgId,
+  apexClient,
   logger,
 }: ToolContext) {
   server.tool(
@@ -56,7 +54,7 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await runQuery(query, startTime, endTime, [datasetName], apexQueryUrl, accessToken, orgId);
+      const result = await runQuery(apexClient, query, startTime, endTime, [datasetName]);
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );
@@ -99,7 +97,7 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await runQuery(query, startTime, endTime, [datasetName], apexQueryUrl, accessToken, orgId);
+      const result = await runQuery(apexClient, query, startTime, endTime, [datasetName]);
       return stringResult(new QueryResultFormatter().formatQuery(result));
     }
   );

@@ -1,4 +1,5 @@
 import type z from 'zod';
+import { type QueryResult, QueryResultSchema } from './api.types';
 
 export class ApiError extends Error {
   status: number;
@@ -113,5 +114,59 @@ export class Client {
       },
       schema
     );
+  }
+
+  async runQuery(
+    apl: string,
+    startTime: string,
+    endTime: string,
+    datasets: string[],
+  ): Promise<QueryResult> {
+    const url = `${this.baseUrl}/querygate/query?format=tabular`;
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${this.accessToken}`,
+      'x-axiom-org-id': this.orgId,
+      'Content-Type': 'application/json',
+      'X-Request-Start': Date.now().toString(),
+      ...getMcpTelemetryHeaders(),
+    };
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          apl,
+          startTime,
+          endTime,
+          datasets,
+          maxBinAutoGroups: 15,
+        }),
+      });
+
+      if (!res.ok) {
+        let errorMessage = res.statusText;
+        try {
+          const errorBody = (await res.json()) as {
+            message?: string;
+            code?: number;
+          };
+          if (errorBody.message) {
+            errorMessage = errorBody.message;
+          }
+        } catch {
+          // Fall back to statusText
+        }
+        throw new ApiError(errorMessage, res.status);
+      }
+
+      const json = await res.json();
+      return QueryResultSchema.parse(json);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError(`API request failed: ${error}`, 500);
+    }
   }
 }

@@ -21,11 +21,9 @@ import type { ToolContext } from '.';
 
 export function registerDatasetTools({
   server,
-  accessToken,
   publicClient,
   internalClient,
-  apexQueryUrl,
-  orgId,
+  apexClient,
   formatOptions,
 }: ToolContext) {
   server.tool(
@@ -163,13 +161,11 @@ Common Patterns:
     async ({ apl, startTime, endTime, datasets }) => {
       try {
         const result = await runQuery(
+          apexClient,
           apl,
           startTime,
           endTime,
           datasets,
-          apexQueryUrl,
-          accessToken,
-          orgId
         );
         return stringResult(
           new QueryResultFormatter(formatOptions).formatQuery(result)

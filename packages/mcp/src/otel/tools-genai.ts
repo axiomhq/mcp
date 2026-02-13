@@ -63,9 +63,7 @@ const ParamIncludeCosts = z
 
 export function registerGenAITools({
   server,
-  accessToken,
-  apexQueryUrl,
-  orgId,
+  apexClient,
   logger,
   formatOptions,
 }: ToolContext) {
@@ -149,13 +147,11 @@ ${costCalculation}
       });
 
       const result = await runQuery(
+        apexClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
         new Date().toISOString(),
         [datasetName],
-        apexQueryUrl,
-        accessToken,
-        orgId
       );
 
       return stringResult(
@@ -246,13 +242,11 @@ ${whereClause}
       });
 
       const result = await runQuery(
+        apexClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
         new Date().toISOString(),
         [datasetName],
-        apexQueryUrl,
-        accessToken,
-        orgId
       );
 
       return stringResult(
@@ -320,13 +314,11 @@ ${whereClause}
       });
 
       const result = await runQuery(
+        apexClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
         new Date().toISOString(),
         [datasetName],
-        apexQueryUrl,
-        accessToken,
-        orgId
       );
 
       return stringResult(
@@ -426,13 +418,11 @@ ${whereClause}
       });
 
       const result = await runQuery(
+        apexClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
         new Date().toISOString(),
         [datasetName],
-        apexQueryUrl,
-        accessToken,
-        orgId
       );
 
       return stringResult(
@@ -522,13 +512,11 @@ ${searchClause}
       });
 
       const result = await runQuery(
+        apexClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
         new Date().toISOString(),
         [datasetName],
-        apexQueryUrl,
-        accessToken,
-        orgId
       );
 
       return stringResult(
@@ -605,13 +593,11 @@ ${
       });
 
       const result = await runQuery(
+        apexClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
         new Date().toISOString(),
         [datasetName],
-        apexQueryUrl,
-        accessToken,
-        orgId
       );
 
       return stringResult(
@@ -672,13 +658,11 @@ ${whereClause}
       });
 
       const result = await runQuery(
+        apexClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
         new Date().toISOString(),
         [datasetName],
-        apexQueryUrl,
-        accessToken,
-        orgId
       );
 
       return stringResult(
@@ -751,13 +735,11 @@ ${whereClause}
       });
 
       const result = await runQuery(
+        apexClient,
         query,
         new Date(Date.now() - 86_400_000).toISOString(),
         new Date().toISOString(),
         [datasetName],
-        apexQueryUrl,
-        accessToken,
-        orgId
       );
 
       return stringResult(
