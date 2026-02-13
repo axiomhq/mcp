@@ -90,13 +90,11 @@ export class Client {
   private baseUrl: string;
   private accessToken: string;
   private orgId: string;
-  private userId?: string;
 
-  constructor(baseUrl: string, accessToken: string, orgId: string, userId?: string) {
+  constructor(baseUrl: string, accessToken: string, orgId: string) {
     this.baseUrl = baseUrl;
     this.accessToken = accessToken;
     this.orgId = orgId;
-    this.userId = userId;
   }
 
   async fetch<T>(
@@ -133,9 +131,6 @@ export class Client {
       'X-Request-Start': Date.now().toString(),
       ...getMcpTelemetryHeaders(),
     };
-    if (this.userId) {
-      headers['x-user-id'] = this.userId;
-    }
 
     try {
       const res = await fetch(url, {
