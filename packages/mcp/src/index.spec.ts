@@ -32,7 +32,7 @@ describe('registerAxiomMcpTools', () => {
     accessToken: 't',
     apiUrl: 'https://api',
     internalUrl: 'https://internal',
-    apexQueryUrl: 'https://apex',
+    apexUrl: 'https://apex',
     integrations: [],
     logger: {
       debug: vi.fn(),
