@@ -40,6 +40,7 @@ export interface AxiomMcpConfig {
   accessToken: string;
   apiUrl: string;
   internalUrl: string;
+  apexUrl: string;
   integrations: string[];
   logger: Logger;
   orgId: string;
@@ -58,16 +59,20 @@ export function registerAxiomMcpTools(config: AxiomMcpConfig) {
     config.accessToken,
     config.orgId
   );
+  const apexClient = new Client(
+    config.apexUrl,
+    config.accessToken,
+    config.orgId
+  );
 
   const context = {
     server: config.server,
-    accessToken: config.accessToken,
     apiUrl: config.apiUrl,
     internalUrl: config.internalUrl,
     logger: config.logger,
     publicClient,
     internalClient,
-    orgId: config.orgId,
+    apexClient,
     formatOptions: config.formatOptions,
   };
 

@@ -16,7 +16,6 @@ import {
   MonitorsHistorySchema,
   MonitorsSchema,
   type QueryResult,
-  QueryResultSchema,
   type SavedQueries,
   SavedQueriesSchema,
 } from './api.types';
@@ -64,19 +63,10 @@ export async function runQuery(
   client: Client,
   apl: string,
   startTime: string,
-  endTime: string
+  endTime: string,
+  datasets: string[],
 ): Promise<QueryResult> {
-  return await client.fetch<QueryResult>(
-    'post',
-    '/v1/datasets/_apl?format=tabular',
-    QueryResultSchema,
-    {
-      apl,
-      startTime,
-      endTime,
-      maxBinAutoGroups: 15,
-    }
-  );
+  return client.runQuery(apl, startTime, endTime, datasets);
 }
 
 export async function getMonitors(client: Client): Promise<Monitors> {

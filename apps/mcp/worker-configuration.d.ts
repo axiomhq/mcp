@@ -7,6 +7,7 @@ declare namespace Cloudflare {
 		MCP_KV: KVNamespace;
 		ATLAS_API_URL: string;
 		ATLAS_INTERNAL_URL: string;
+		APEX_URL: string;
 		AXIOM_LOGIN_BASE_URL: string;
 		COOKIE_ENCRYPTION_KEY: string;
 		AXIOM_TRACES_KEY: string;

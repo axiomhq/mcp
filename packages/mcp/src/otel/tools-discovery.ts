@@ -12,7 +12,7 @@ export const ToolGetErrorBreakdown = 'otel-getErrorBreakdown';
 
 export function registerDiscoveryTools({
   server,
-  publicClient,
+  apexClient,
   logger,
   formatOptions,
 }: ToolContext) {
@@ -37,7 +37,7 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await runQuery(publicClient, query, startTime, endTime);
+      const result = await runQuery(apexClient, query, startTime, endTime, [datasetName]);
       return stringResult(
         new QueryResultFormatter(formatOptions).formatQuery(result)
       );
@@ -67,7 +67,7 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await runQuery(publicClient, query, startTime, endTime);
+      const result = await runQuery(apexClient, query, startTime, endTime, [datasetName]);
       return stringResult(
         new QueryResultFormatter(formatOptions).formatQuery(result)
       );
@@ -114,7 +114,7 @@ ${sanitizeDatasetName(datasetName)}
         endTime,
         query,
       });
-      const result = await runQuery(publicClient, query, startTime, endTime);
+      const result = await runQuery(apexClient, query, startTime, endTime, [datasetName]);
       return stringResult(
         new QueryResultFormatter(formatOptions).formatQuery(result)
       );
