@@ -44,6 +44,7 @@ export interface AxiomMcpConfig {
   integrations: string[];
   logger: Logger;
   orgId: string;
+  userId?: string;
   enableOtel?: boolean;
   formatOptions?: FormatterOptions;
 }
@@ -62,7 +63,8 @@ export function registerAxiomMcpTools(config: AxiomMcpConfig) {
   const apexClient = new Client(
     config.apexQueryUrl,
     config.accessToken,
-    config.orgId
+    config.orgId,
+    config.userId
   );
 
   const context = {

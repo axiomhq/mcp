@@ -30,7 +30,10 @@ export class AxiomMCP extends McpAgent<
     logger.debug(`🔥 MCP Init - OTel enabled: ${this.props.withOTel}`);
     logger.debug(`📊 MCP Init - Max cells: ${this.props.maxCells}`);
 
-    const integrations = await this.getIntegrations();
+    const [integrations, userId] = await Promise.all([
+      this.getIntegrations(),
+      this.getUserId(),
+    ]);
     logger.info(
       `🔌 MCP Init - Loaded ${integrations.length} integrations:`,
       integrations
@@ -46,6 +49,7 @@ export class AxiomMCP extends McpAgent<
       integrations,
       logger,
       orgId: this.props.orgId,
+      userId,
       enableOtel: this.props.withOTel === true,
       formatOptions: this.props.maxCells
         ? { maxCells: this.props.maxCells }
@@ -54,6 +58,24 @@ export class AxiomMCP extends McpAgent<
     logger.debug('✅ MCP tools registered successfully');
 
     logger.info('✅ Server initialized');
+  }
+
+  async getUserId(): Promise<string | undefined> {
+    try {
+      const res = await fetch(`${this.env.ATLAS_API_URL}/v2/user`, {
+        headers: { Authorization: `Bearer ${this.props.accessToken}` },
+      });
+      if (!res.ok) {
+        logger.warn(`⚠️ Failed to fetch user ID: ${res.status}`);
+        return undefined;
+      }
+      const user = (await res.json()) as { id: string };
+      logger.debug(`👤 Resolved user ID: ${user.id}`);
+      return user.id;
+    } catch (error) {
+      logger.warn(`⚠️ Failed to fetch user ID: ${error}`);
+      return undefined;
+    }
   }
 
   async getIntegrations() {

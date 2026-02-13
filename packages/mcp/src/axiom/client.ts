@@ -90,11 +90,13 @@ export class Client {
   private baseUrl: string;
   private accessToken: string;
   private orgId: string;
+  private userId?: string;
 
-  constructor(baseUrl: string, accessToken: string, orgId: string) {
+  constructor(baseUrl: string, accessToken: string, orgId: string, userId?: string) {
     this.baseUrl = baseUrl;
     this.accessToken = accessToken;
     this.orgId = orgId;
+    this.userId = userId;
   }
 
   async fetch<T>(
@@ -127,9 +129,13 @@ export class Client {
       Authorization: `Bearer ${this.accessToken}`,
       'x-axiom-org-id': this.orgId,
       'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
       'X-Request-Start': Date.now().toString(),
       ...getMcpTelemetryHeaders(),
     };
+    if (this.userId) {
+      headers['x-user-id'] = this.userId;
+    }
 
     try {
       const res = await fetch(url, {
@@ -141,6 +147,7 @@ export class Client {
           endTime,
           datasets,
           maxBinAutoGroups: 15,
+          queryOptions: {},
         }),
       });
 
@@ -160,13 +167,31 @@ export class Client {
         throw new ApiError(errorMessage, res.status);
       }
 
-      const json = await res.json();
-      return QueryResultSchema.parse(json);
+      const text = await res.text();
+      const finalResultData = this.parseSseEvent(text, 'final-result-v1');
+      if (!finalResultData) {
+        throw new ApiError('No final-result-v1 event in query response', 500);
+      }
+
+      return QueryResultSchema.parse(JSON.parse(finalResultData));
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;
       }
       throw new ApiError(`API request failed: ${error}`, 500);
     }
+  }
+
+  private parseSseEvent(raw: string, eventName: string): string | null {
+    const lines = raw.split('\n');
+    let currentEvent = '';
+    for (const line of lines) {
+      if (line.startsWith('event: ')) {
+        currentEvent = line.slice(7).trim();
+      } else if (line.startsWith('data: ') && currentEvent === eventName) {
+        return line.slice(6);
+      }
+    }
+    return null;
   }
 }
