@@ -22,7 +22,7 @@
     "@microlabs/otel-cf-workers": "^1.0.0-rc.52",
     "@modelcontextprotocol/sdk": "^1.25.2",
     "@watchlyhq/mcp": "file:../../packages/mcp",
-    "agents": "^0.0.95",
+    "agents": "^0.3.10",
     "hono": "^4.11.7",
     "just-pick": "^4.2.0",
     "workers-mcp": "^0.0.13",
