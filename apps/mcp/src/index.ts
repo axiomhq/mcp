@@ -5,7 +5,7 @@ import {
   type TraceConfig,
 } from '@microlabs/otel-cf-workers';
 import { InMemorySpanExporter } from '@opentelemetry/sdk-trace-base';
-import { AxiomHandler } from './auth';
+import { AxiomHandler, isUnsafeRedirectUri } from './auth';
 import { serveLandingPage } from './landing';
 import type { ServerProps } from './types';
 
@@ -157,6 +157,22 @@ const handler = {
     // Serve landing page on root path
     if (url.pathname === '/' && request.method === 'GET') {
       return serveLandingPage(request);
+    }
+
+    // Validate redirect_uri on token requests before delegating to OAuth provider
+    if (url.pathname === '/token' && request.method === 'POST') {
+      const cloned = request.clone();
+      const body = await cloned.formData().catch(() => null);
+      const redirectUri = body?.get('redirect_uri');
+      if (
+        typeof redirectUri === 'string' &&
+        isUnsafeRedirectUri(redirectUri, request.url)
+      ) {
+        return new Response(
+          'Invalid request: redirect URI must use http or https',
+          { status: 400 }
+        );
+      }
     }
 
     logger.debug('Delegating to OAuth provider:', {
