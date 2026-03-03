@@ -16,14 +16,12 @@ import {
   ParamEndTime,
   ParamStartTime,
 } from '../schema';
-import { z } from 'zod';
 import type { ToolContext } from '.';
 
 export function registerDatasetTools({
   server,
   publicClient,
   internalClient,
-  apexClient,
   formatOptions,
 }: ToolContext) {
   server.tool(
@@ -151,22 +149,10 @@ Common Patterns:
       apl: ParamAPLQuery,
       startTime: ParamStartTime,
       endTime: ParamEndTime,
-      datasets: z
-        .array(z.string().trim().min(1))
-        .min(1)
-        .describe(
-          'The dataset names being queried. Must include all datasets referenced in the APL query.'
-        ),
     },
-    async ({ apl, startTime, endTime, datasets }) => {
+    async ({ apl, startTime, endTime }) => {
       try {
-        const result = await runQuery(
-          apexClient,
-          apl,
-          startTime,
-          endTime,
-          datasets,
-        );
+        const result = await runQuery(publicClient, apl, startTime, endTime);
         return stringResult(
           new QueryResultFormatter(formatOptions).formatQuery(result)
         );
