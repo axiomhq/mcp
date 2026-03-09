@@ -31,6 +31,7 @@ import {
   SavedQueriesSchema,
 } from './api.types';
 import type { Client } from './client';
+import { isValid, parseISO } from 'date-fns';
 import z from 'zod';
 
 const sysTimeField = '_sysTime';
@@ -148,33 +149,23 @@ export async function getDashboard(
   );
 }
 
-const RELATIVE_TIME_RE = /^now(?:-(\d+)([smhd]))?$/;
-
-function resolveRelativeTime(time: string): Date {
-  const match = time.match(RELATIVE_TIME_RE);
-  if (!match) {
-    const d = new Date(time);
-    if (Number.isNaN(d.getTime())) {
-      throw new Error(`Invalid time value: ${time}`);
-    }
-    return d;
-  }
-  const now = Date.now();
-  if (!match[1]) return new Date(now); // "now"
-  const amount = Number.parseInt(match[1], 10);
-  const unit = match[2];
-  const multipliers: Record<string, number> = {
-    s: 1_000,
-    m: 60_000,
-    h: 3_600_000,
-    d: 86_400_000,
-  };
-  return new Date(now - amount * multipliers[unit]);
-}
-
 function toRFC3339(time: string): string {
-  if (/^\d{4}-\d{2}-\d{2}T/.test(time)) return time;
-  return resolveRelativeTime(time).toISOString();
+  if (isValid(parseISO(time))) return time;
+  const now = Date.now();
+  if (time === 'now') return new Date(now).toISOString();
+  const match = time.match(/^now-(\d+)([smhd])$/);
+  if (match) {
+    const amount = Number.parseInt(match[1], 10);
+    const unit = match[2];
+    const multipliers: Record<string, number> = {
+      s: 1000,
+      m: 60 * 1000,
+      h: 60 * 60 * 1000,
+      d: 24 * 60 * 60 * 1000,
+    };
+    return new Date(now - amount * multipliers[unit]).toISOString();
+  }
+  return time;
 }
 
 type ResolvedEndpoint = {
@@ -281,8 +272,8 @@ export async function runMetricsQuery(
     MetricsQueryResultSchema,
     {
       apl: mpl,
-      startTime: toRFC3339(startTime),
-      endTime: toRFC3339(endTime),
+      startTime,
+      endTime,
       ...(endpoint.region ? { queryRegion: endpoint.region } : {}),
     },
     { baseUrl: endpoint.baseUrl }

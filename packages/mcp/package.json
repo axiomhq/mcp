@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.0",
+    "date-fns": "^4.1.0",
     "zod": "^3.25.67"
   },
   "devDependencies": {
