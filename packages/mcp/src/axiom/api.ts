@@ -175,13 +175,8 @@ function toRFC3339(time: string): string {
   return resolveRelativeTime(time).toISOString();
 }
 
-function toUnixSeconds(time: string): number {
-  return Math.floor(resolveRelativeTime(time).getTime() / 1000);
-}
-
 type ResolvedEndpoint = {
   baseUrl: string;
-  useEdge: boolean;
   region: string | undefined;
 };
 
@@ -199,10 +194,11 @@ type RegionMap = Map<string, string>; // region id → edge domain
 const regionsCache = new Map<string, { regions: RegionMap; expires: number }>();
 const REGIONS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-function apiToCloudUrl(apiBaseUrl: string): string {
-  // https://api.axiom.co → https://cloud.axiom.co
-  // https://api.dev.axiomtestlabs.co → https://cloud.dev.axiomtestlabs.co
-  return apiBaseUrl.replace('://api.', '://cloud.');
+function apiToAppUrl(apiBaseUrl: string): string {
+  // https://api.axiom.co → https://app.axiom.co
+  // https://api.dev.axiomtestlabs.co → https://app.dev.axiomtestlabs.co
+  // https://api.staging.axiomtestlabs.co → https://app.staging.axiomtestlabs.co
+  return apiBaseUrl.replace('://api.', '://app.');
 }
 
 async function getRegionMap(client: Client): Promise<RegionMap> {
@@ -213,13 +209,13 @@ async function getRegionMap(client: Client): Promise<RegionMap> {
   }
 
   try {
-    const cloudUrl = apiToCloudUrl(client.getBaseUrl());
+    const appUrl = apiToAppUrl(client.getBaseUrl());
     const response = await client.fetch(
       'get',
       '/api/internal/regions/axiom',
       RegionsResponseSchema,
       undefined,
-      { baseUrl: cloudUrl }
+      { baseUrl: appUrl }
     );
     const regionMap: RegionMap = new Map();
     for (const r of response.axiom) {
@@ -227,9 +223,8 @@ async function getRegionMap(client: Client): Promise<RegionMap> {
     }
     regionsCache.set(cacheKey, { regions: regionMap, expires: Date.now() + REGIONS_CACHE_TTL_MS });
     return regionMap;
-  } catch {
-    // If regions API fails, return empty map — will fall back to v2
-    return new Map();
+  } catch (err) {
+    throw new Error(`Failed to fetch regions API: ${err instanceof Error ? err.message : err}`);
   }
 }
 
@@ -255,7 +250,7 @@ async function resolveMetricsEndpoint(client: Client, dataset: string): Promise<
   }
 
   if (!region) {
-    return { baseUrl: client.getBaseUrl(), useEdge: false, region };
+    throw new Error(`Dataset '${dataset}' has no region assigned`);
   }
 
   // Step 2: look up the edge domain for this region
@@ -263,40 +258,15 @@ async function resolveMetricsEndpoint(client: Client, dataset: string): Promise<
   const edgeDomain = regionMap.get(region);
 
   if (!edgeDomain) {
-    return { baseUrl: client.getBaseUrl(), useEdge: false, region };
+    throw new Error(`No edge domain found for region '${region}'`);
   }
 
-  return { baseUrl: edgeDomain, useEdge: true, region };
+  return { baseUrl: edgeDomain, region };
 }
 
 function parseDatasetFromQuery(query: string): string {
   const match = query.match(/`([^`:|]+)`:|(?:^|[(,])\s*([^`:|(\s]+):/m);
   return match?.[1] ?? match?.[2] ?? '';
-}
-
-// v2 query returns tuple pairs: [[{metric,tags}, {start,resolution,data}], ...]
-// Normalize to flat MetricsQueryResult format.
-const V2MetricsSeriesTupleSchema = z.tuple([
-  z.object({
-    metric: z.string(),
-    tags: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])),
-  }),
-  z.object({
-    start: z.number(),
-    resolution: z.number(),
-    data: z.array(z.number().nullable()),
-  }),
-]);
-const V2MetricsQueryResultSchema = z.array(V2MetricsSeriesTupleSchema);
-
-function v2ToFlatResult(tuples: z.infer<typeof V2MetricsQueryResultSchema>): MetricsQueryResult {
-  return tuples.map(([meta, data]) => ({
-    metric: meta.metric,
-    tags: meta.tags,
-    start: data.start,
-    resolution: data.resolution,
-    data: data.data,
-  }));
 }
 
 export async function runMetricsQuery(
@@ -306,41 +276,23 @@ export async function runMetricsQuery(
   endTime: string
 ): Promise<MetricsQueryResult> {
   const dataset = parseDatasetFromQuery(mpl);
-  const endpoint = dataset
-    ? await resolveMetricsEndpoint(client, dataset)
-    : { baseUrl: client.getBaseUrl(), useEdge: false, region: undefined };
-
-  if (endpoint.useEdge) {
-    return await client.fetch<MetricsQueryResult>(
-      'post',
-      '/v1/query/_mpl?format=metrics-v1',
-      MetricsQueryResultSchema,
-      {
-        apl: mpl,
-        startTime: toRFC3339(startTime),
-        endTime: toRFC3339(endTime),
-        ...(endpoint.region ? { queryRegion: endpoint.region } : {}),
-      },
-      { baseUrl: endpoint.baseUrl }
-    );
+  if (!dataset) {
+    throw new Error('Could not extract dataset name from query');
   }
+  const endpoint = await resolveMetricsEndpoint(client, dataset);
 
-  // Fallback: v2 core endpoint with application/vnd.mpl content-type
-  const start = toUnixSeconds(startTime);
-  const end = toUnixSeconds(endTime);
-  const v2Result = await client.fetch(
+  return await client.fetch<MetricsQueryResult>(
     'post',
-    `/v2/metrics/query?start=${start}&end=${end}`,
-    V2MetricsQueryResultSchema,
-    undefined,
+    '/v1/query/_mpl?format=metrics-v1',
+    MetricsQueryResultSchema,
     {
-      baseUrl: endpoint.baseUrl,
-      contentType: 'application/vnd.mpl',
-      rawBody: mpl,
-      extraHeaders: { 'X-Axiom-Dataset': dataset },
-    }
+      apl: mpl,
+      startTime: toRFC3339(startTime),
+      endTime: toRFC3339(endTime),
+      ...(endpoint.region ? { queryRegion: endpoint.region } : {}),
+    },
+    { baseUrl: endpoint.baseUrl }
   );
-  return v2ToFlatResult(v2Result);
 }
 
 export async function getMetrics(
@@ -352,12 +304,9 @@ export async function getMetrics(
   const endpoint = await resolveMetricsEndpoint(client, dataset);
   const start = toRFC3339(startTime);
   const end = toRFC3339(endTime);
-  const infoBase = endpoint.useEdge
-    ? '/v1/query/metrics/info'
-    : '/v2/metrics/info';
   return await client.fetch<MetricsInfoMetrics>(
     'get',
-    `${infoBase}/datasets/${dataset}/metrics?start=${start}&end=${end}`,
+    `/v1/query/metrics/info/datasets/${dataset}/metrics?start=${start}&end=${end}`,
     MetricsInfoMetricsSchema,
     undefined,
     { baseUrl: endpoint.baseUrl }
@@ -373,12 +322,9 @@ export async function getMetricTags(
   const endpoint = await resolveMetricsEndpoint(client, dataset);
   const start = toRFC3339(startTime);
   const end = toRFC3339(endTime);
-  const infoBase = endpoint.useEdge
-    ? '/v1/query/metrics/info'
-    : '/v2/metrics/info';
   return await client.fetch<MetricsInfoTags>(
     'get',
-    `${infoBase}/datasets/${dataset}/tags?start=${start}&end=${end}`,
+    `/v1/query/metrics/info/datasets/${dataset}/tags?start=${start}&end=${end}`,
     MetricsInfoTagsSchema,
     undefined,
     { baseUrl: endpoint.baseUrl }
@@ -395,12 +341,9 @@ export async function getMetricTagValues(
   const endpoint = await resolveMetricsEndpoint(client, dataset);
   const start = toRFC3339(startTime);
   const end = toRFC3339(endTime);
-  const infoBase = endpoint.useEdge
-    ? '/v1/query/metrics/info'
-    : '/v2/metrics/info';
   return await client.fetch<MetricsInfoTagValues>(
     'get',
-    `${infoBase}/datasets/${dataset}/tags/${tag}/values?start=${start}&end=${end}`,
+    `/v1/query/metrics/info/datasets/${dataset}/tags/${tag}/values?start=${start}&end=${end}`,
     MetricsInfoTagValuesSchema,
     undefined,
     { baseUrl: endpoint.baseUrl }
