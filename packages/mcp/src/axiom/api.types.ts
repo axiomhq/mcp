@@ -5,6 +5,7 @@ export const DatasetSchema = z.object({
   name: z.string(),
   description: z.string(),
   kind: z.string().optional(),
+  region: z.string().optional(),
 });
 
 export const DatasetsSchema = DatasetSchema.array();
@@ -149,6 +150,24 @@ export const DashboardWithIDSchema = z
 
 export const DashboardsSchema = DashboardWithIDSchema.array();
 
+// Metrics API schemas
+export const MetricsSeriesSchema = z.object({
+  metric: z.string(),
+  tags: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])),
+  start: z.number(),
+  resolution: z.number(),
+  data: z.array(z.number().nullable()),
+  summary: z.number().nullable().optional(),
+});
+
+export const MetricsQueryResultSchema = z.array(MetricsSeriesSchema);
+
+export const MetricsInfoMetricsSchema = z.array(z.string());
+
+export const MetricsInfoTagsSchema = z.array(z.string());
+
+export const MetricsInfoTagValuesSchema = z.array(z.string());
+
 export type Dataset = z.infer<typeof DatasetSchema>;
 export type Datasets = z.infer<typeof DatasetsSchema>;
 export type Field = z.infer<typeof FieldSchema>;
@@ -177,3 +196,9 @@ export type SavedQueries = z.infer<typeof SavedQueriesSchema>;
 export type Dashboard = z.infer<typeof DashboardSchema>;
 export type DashboardWithID = z.infer<typeof DashboardWithIDSchema>;
 export type Dashboards = z.infer<typeof DashboardsSchema>;
+
+export type MetricsSeries = z.infer<typeof MetricsSeriesSchema>;
+export type MetricsQueryResult = z.infer<typeof MetricsQueryResultSchema>;
+export type MetricsInfoMetrics = z.infer<typeof MetricsInfoMetricsSchema>;
+export type MetricsInfoTags = z.infer<typeof MetricsInfoTagsSchema>;
+export type MetricsInfoTagValues = z.infer<typeof MetricsInfoTagValuesSchema>;
