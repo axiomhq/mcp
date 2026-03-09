@@ -3,6 +3,7 @@ import {
   getMetricTags,
   getMetricTagValues,
   runMetricsQuery,
+  searchMetrics,
 } from '../axiom/api';
 import { MetricsResultFormatter } from '../axiom/metrics-formatter';
 import { newToolErrorWithReason } from '../errors';
@@ -13,6 +14,7 @@ import {
   ParamEndTime,
   ParamMetricsQuery,
   ParamStartTime,
+  ParamSearchValue,
   ParamTagName,
 } from '../schema';
 import type { ToolContext } from '.';
@@ -214,6 +216,39 @@ Fill gaps:
           .result();
       } catch (error) {
         return newToolErrorWithReason('Failed to list metric tags', error);
+      }
+    }
+  );
+
+  server.tool(
+    'searchMetrics',
+    'Search for metrics matching a known tag value (e.g. a service name, host, or endpoint). Returns metric names associated with the given value. Useful when you know a tag value but not which metrics contain it.',
+    {
+      datasetName: ParamDatasetName,
+      value: ParamSearchValue,
+      startTime: ParamStartTime,
+      endTime: ParamEndTime,
+    },
+    async ({ datasetName, value, startTime, endTime }) => {
+      try {
+        const result = await searchMetrics(
+          publicClient,
+          datasetName,
+          value,
+          startTime,
+          endTime
+        );
+
+        const metricNames = Object.keys(result);
+        return markdownResult()
+          .h1(`Metrics matching ${Format.ident(value)} in ${Format.ident(datasetName)}`)
+          .list(
+            metricNames,
+            'No metrics found matching this value.'
+          )
+          .result();
+      } catch (error) {
+        return newToolErrorWithReason('Failed to search metrics', error);
       }
     }
   );

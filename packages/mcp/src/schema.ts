@@ -61,6 +61,12 @@ export const ParamTagName = z
   .min(1)
   .describe('The tag name to list values for.');
 
+export const ParamSearchValue = z
+  .string()
+  .trim()
+  .min(1)
+  .describe('The tag value to search for (e.g. "frontend", "api-gateway").');
+
 export const ParamDashboardID = z
   .string()
   .trim()

@@ -13,6 +13,8 @@ import {
   type Integrations,
   type MetricsInfoMetrics,
   MetricsInfoMetricsSchema,
+  type MetricsSearchResult,
+  MetricsSearchResultSchema,
   type MetricsInfoTags,
   MetricsInfoTagsSchema,
   type MetricsInfoTagValues,
@@ -327,6 +329,25 @@ export async function getMetricTags(
     `/v1/query/metrics/info/datasets/${dataset}/tags?start=${start}&end=${end}`,
     MetricsInfoTagsSchema,
     undefined,
+    { baseUrl: endpoint.baseUrl }
+  );
+}
+
+export async function searchMetrics(
+  client: Client,
+  dataset: string,
+  value: string,
+  startTime: string,
+  endTime: string
+): Promise<MetricsSearchResult> {
+  const endpoint = await resolveMetricsEndpoint(client, dataset);
+  const start = toRFC3339(startTime);
+  const end = toRFC3339(endTime);
+  return await client.fetch<MetricsSearchResult>(
+    'post',
+    `/v1/query/metrics/info/datasets/${dataset}/metrics?start=${start}&end=${end}`,
+    MetricsSearchResultSchema,
+    { value },
     { baseUrl: endpoint.baseUrl }
   );
 }

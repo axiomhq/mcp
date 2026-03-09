@@ -164,6 +164,8 @@ export const MetricsQueryResultSchema = z.array(MetricsSeriesSchema);
 
 export const MetricsInfoMetricsSchema = z.array(z.string());
 
+export const MetricsSearchResultSchema = z.record(z.string(), z.array(z.string()));
+
 export const MetricsInfoTagsSchema = z.array(z.string());
 
 export const MetricsInfoTagValuesSchema = z.array(z.string());
@@ -200,5 +202,6 @@ export type Dashboards = z.infer<typeof DashboardsSchema>;
 export type MetricsSeries = z.infer<typeof MetricsSeriesSchema>;
 export type MetricsQueryResult = z.infer<typeof MetricsQueryResultSchema>;
 export type MetricsInfoMetrics = z.infer<typeof MetricsInfoMetricsSchema>;
+export type MetricsSearchResult = z.infer<typeof MetricsSearchResultSchema>;
 export type MetricsInfoTags = z.infer<typeof MetricsInfoTagsSchema>;
 export type MetricsInfoTagValues = z.infer<typeof MetricsInfoTagValuesSchema>;
