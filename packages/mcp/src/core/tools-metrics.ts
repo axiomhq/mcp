@@ -140,14 +140,16 @@ Fill gaps:
 `,
     {
       mpl: ParamMetricsQuery,
+      datasetName: ParamDatasetName,
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
-    async ({ mpl, startTime, endTime }) => {
+    async ({ mpl, datasetName, startTime, endTime }) => {
       try {
         const result = await runMetricsQuery(
           publicClient,
           mpl,
+          datasetName,
           startTime,
           endTime
         );

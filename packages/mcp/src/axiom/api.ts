@@ -266,22 +266,14 @@ async function resolveMetricsEndpoint(client: Client, dataset: string): Promise<
   return { baseUrl: edgeDomain, region };
 }
 
-function parseDatasetFromQuery(query: string): string {
-  const match = query.match(/`([^`:|]+)`:|(?:^|[(,])\s*([^`:|(\s]+):/m);
-  return match?.[1] ?? match?.[2] ?? '';
-}
-
 export async function runMetricsQuery(
   client: Client,
   mpl: string,
+  datasetName: string,
   startTime: string,
   endTime: string
 ): Promise<MetricsQueryResult> {
-  const dataset = parseDatasetFromQuery(mpl);
-  if (!dataset) {
-    throw new Error('Could not extract dataset name from query');
-  }
-  const endpoint = await resolveMetricsEndpoint(client, dataset);
+  const endpoint = await resolveMetricsEndpoint(client, datasetName);
 
   return await client.fetch<MetricsQueryResult>(
     'post',

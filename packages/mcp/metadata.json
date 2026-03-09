@@ -59,6 +59,11 @@
       "name": "queryMetrics",
       "description": "# Instructions 1. Query OpenTelemetry metrics stored in Axiom using MPL (Metrics Processing Language). NOT APL. 2. The query targets a metrics dataset (kind",
       "category": "Core"
+    },
+    {
+      "name": "searchMetrics",
+      "description": "Search for metrics matching a known tag value (e.g. a service name, host, or endpoint). Returns metric names associated with the given value. Useful when you know a tag value but not which metrics contain it.",
+      "category": "Core"
     }
   ],
   "prompts": [
