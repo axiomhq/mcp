@@ -32,6 +32,7 @@ import {
 } from './api.types';
 import type { Client } from './client';
 import { isValid, parseISO } from 'date-fns';
+import ms from 'ms';
 import z from 'zod';
 
 const sysTimeField = '_sysTime';
@@ -153,17 +154,11 @@ function toRFC3339(time: string): string {
   if (isValid(parseISO(time))) return time;
   const now = Date.now();
   if (time === 'now') return new Date(now).toISOString();
-  const match = time.match(/^now-(\d+)([smhd])$/);
-  if (match) {
-    const amount = Number.parseInt(match[1], 10);
-    const unit = match[2];
-    const multipliers: Record<string, number> = {
-      s: 1000,
-      m: 60 * 1000,
-      h: 60 * 60 * 1000,
-      d: 24 * 60 * 60 * 1000,
-    };
-    return new Date(now - amount * multipliers[unit]).toISOString();
+  if (time.startsWith('now-')) {
+    try {
+      const duration = ms(time.slice(4) as ms.StringValue);
+      if (duration) return new Date(now - duration).toISOString();
+    } catch {}
   }
   return time;
 }
