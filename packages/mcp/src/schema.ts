@@ -47,6 +47,26 @@ export const ParamMonitorId = z
     'The monitor ID. You can find an list of monitors using the `checkMonitors()` tool.'
   );
 
+export const ParamMetricsQuery = z
+  .string()
+  .trim()
+  .min(1)
+  .describe(
+    'The metrics query string. Format: <dataset>:<metric> | <operations>'
+  );
+
+export const ParamTagName = z
+  .string()
+  .trim()
+  .min(1)
+  .describe('The tag name to list values for.');
+
+export const ParamSearchValue = z
+  .string()
+  .trim()
+  .min(1)
+  .describe('The tag value to search for (e.g. "frontend", "api-gateway").');
+
 export const ParamDashboardID = z
   .string()
   .trim()

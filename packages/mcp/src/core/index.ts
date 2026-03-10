@@ -5,6 +5,7 @@ import type { Logger } from '../logger';
 import { registerCorePrompts } from './prompts';
 import { registerDashboardTools } from './tools-dashboards';
 import { registerDatasetTools } from './tools-datasets';
+import { registerMetricsTools } from './tools-metrics';
 import { registerMonitorTools } from './tools-monitors';
 
 export interface ToolContext {
@@ -22,5 +23,6 @@ export function registerCoreTools(context: ToolContext) {
   registerDatasetTools(context);
   registerDashboardTools(context);
   registerMonitorTools(context);
+  registerMetricsTools(context);
   registerCorePrompts(context);
 }
