@@ -1,4 +1,4 @@
-import type z from 'zod';
+import z from 'zod';
 
 export class ApiError extends Error {
   status: number;
@@ -91,6 +91,97 @@ export async function apiFetch<T>(
   }
 }
 
+
+// Regions API: fetches edge domains from /api/internal/regions/axiom
+const RegionSchema = z.object({
+  id: z.string(),
+  domain: z.string(),
+});
+const RegionsResponseSchema = z.object({
+  axiom: z.array(RegionSchema),
+});
+
+type RegionMap = Map<string, string>;
+const regionsCache = new Map<
+  string,
+  { regions: RegionMap; expires: number }
+>();
+const REGIONS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; 
+
+function apiToAppUrl(apiBaseUrl: string): string {
+  return apiBaseUrl.replace('://api.', '://app.');
+}
+
+export async function getRegionMap(client: Client): Promise<RegionMap> {
+  const cacheKey = client.getBaseUrl();
+  const cached = regionsCache.get(cacheKey);
+  if (cached && cached.expires > Date.now()) {
+    return cached.regions;
+  }
+
+  const appUrl = apiToAppUrl(client.getBaseUrl());
+  const response = await client.fetch(
+    'get',
+    '/api/internal/regions/axiom',
+    RegionsResponseSchema,
+    undefined,
+    { baseUrl: appUrl }
+  );
+  const regionMap: RegionMap = new Map();
+  for (const r of response.axiom) {
+    regionMap.set(r.id, r.domain);
+  }
+  regionsCache.set(cacheKey, {
+    regions: regionMap,
+    expires: Date.now() + REGIONS_CACHE_TTL_MS,
+  });
+  return regionMap;
+}
+
+const datasetRegionCache = new Map<
+  string,
+  { region: string | null | undefined; expires: number }
+>();
+const DATASET_CACHE_TTL_MS = 5 * 60 * 1000;
+
+export async function resolveEdgeUrl(
+  client: Client,
+  datasetName: string
+): Promise<string | undefined> {
+  try {
+    // Step 1: resolve dataset region (cached 5 min)
+    const dsCacheKey = `${client.getBaseUrl()}:${datasetName}`;
+    let region: string | null | undefined;
+    const cached = datasetRegionCache.get(dsCacheKey);
+    if (cached && cached.expires > Date.now()) {
+      region = cached.region;
+    } else {
+      const { DatasetsSchema } = await import('./api.types');
+      const datasets = await client.fetch(
+        'get',
+        '/v2/datasets',
+        DatasetsSchema
+      );
+      const ds = datasets.find((d) => d.name === datasetName);
+      region = ds?.region;
+      datasetRegionCache.set(dsCacheKey, {
+        region,
+        expires: Date.now() + DATASET_CACHE_TTL_MS,
+      });
+    }
+
+    if (!region) {
+      return undefined;
+    }
+
+    // Step 2: resolve edge domain for this region (cached 24h)
+    const regionMap = await getRegionMap(client);
+    return regionMap.get(region);
+  } catch {
+    return undefined;
+  }
+}
+
 export class Client {
   private baseUrl: string;
   private accessToken: string;
@@ -100,6 +191,10 @@ export class Client {
     this.baseUrl = baseUrl;
     this.accessToken = accessToken;
     this.orgId = orgId;
+  }
+
+  getBaseUrl(): string {
+    return this.baseUrl;
   }
 
   async fetch<T>(
@@ -121,9 +216,5 @@ export class Client {
       },
       schema
     );
-  }
-
-  getBaseUrl(): string {
-    return this.baseUrl;
   }
 }

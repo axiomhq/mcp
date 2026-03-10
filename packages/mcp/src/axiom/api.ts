@@ -77,18 +77,24 @@ export async function runQuery(
   client: Client,
   apl: string,
   startTime: string,
-  endTime: string
+  endTime: string,
+  edgeUrl?: string
 ): Promise<QueryResult> {
+  const path = edgeUrl
+    ? '/v1/query/_apl?format=tabular'
+    : '/v1/datasets/_apl?format=tabular';
+
   return await client.fetch<QueryResult>(
     'post',
-    '/v1/datasets/_apl?format=tabular',
+    path,
     QueryResultSchema,
     {
       apl,
       startTime,
       endTime,
       maxBinAutoGroups: 15,
-    }
+    },
+    edgeUrl ? { baseUrl: edgeUrl } : undefined
   );
 }
 
@@ -233,7 +239,7 @@ async function resolveMetricsEndpoint(client: Client, dataset: string): Promise<
       DatasetsSchema
     );
     const ds = datasets.find((d) => d.name === dataset);
-    region = ds?.region;
+    region = ds?.region ?? undefined;
     datasetRegionCache.set(dsCacheKey, { region, expires: Date.now() + DATASET_CACHE_TTL_MS });
   }
 
