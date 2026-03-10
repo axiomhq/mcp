@@ -6,6 +6,7 @@ import {
   runQuery,
 } from '../axiom/api';
 import { DefaultDatasetKind } from '../axiom/api.types';
+import { resolveEdgeUrl } from '../axiom/client';
 import { QueryResultFormatter } from '../axiom/formatters';
 import { newToolErrorWithReason } from '../errors';
 import { Format } from '../lib/markdown';
@@ -152,7 +153,22 @@ Common Patterns:
     },
     async ({ apl, startTime, endTime }) => {
       try {
-        const result = await runQuery(publicClient, apl, startTime, endTime);
+        let edgeUrl: string | undefined;
+        const datasetMatch = apl.match(
+          /^\s*(?:\[['"]([^'"]+)['"]\]|(\w[\w-]*))/
+        );
+        const datasetName = datasetMatch?.[1] || datasetMatch?.[2];
+        if (datasetName) {
+          edgeUrl = await resolveEdgeUrl(publicClient, datasetName);
+        }
+
+        const result = await runQuery(
+          publicClient,
+          apl,
+          startTime,
+          endTime,
+          edgeUrl
+        );
         return stringResult(
           new QueryResultFormatter(formatOptions).formatQuery(result)
         );

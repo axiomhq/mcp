@@ -64,18 +64,24 @@ export async function runQuery(
   client: Client,
   apl: string,
   startTime: string,
-  endTime: string
+  endTime: string,
+  edgeUrl?: string
 ): Promise<QueryResult> {
+  const path = edgeUrl
+    ? '/v1/query/_apl?format=tabular'
+    : '/v1/datasets/_apl?format=tabular';
+
   return await client.fetch<QueryResult>(
     'post',
-    '/v1/datasets/_apl?format=tabular',
+    path,
     QueryResultSchema,
     {
       apl,
       startTime,
       endTime,
       maxBinAutoGroups: 15,
-    }
+    },
+    edgeUrl
   );
 }
 
