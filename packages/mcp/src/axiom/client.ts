@@ -92,7 +92,7 @@ export async function apiFetch<T>(
 }
 
 
-// Regions API: fetches edge domains from /api/internal/regions/axiom on the
+// Regions API: fetches edge domains from /api/internal/regions/axiom
 const RegionSchema = z.object({
   id: z.string(),
   domain: z.string(),
