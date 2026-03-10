@@ -17,6 +17,9 @@ export type ApiRequest = {
   body?: unknown;
   baseUrl: string;
   orgId: string;
+  contentType?: string;
+  rawBody?: string;
+  extraHeaders?: Record<string, string>;
 };
 
 // MCP server telemetry configuration - similar to axiom.SetUserAgent() in Go SDK
@@ -33,13 +36,14 @@ export async function apiFetch<T>(
   areq: ApiRequest,
   schema: z.ZodSchema<T>
 ): Promise<T> {
-  const { token, method, path, body, baseUrl, orgId } = areq;
+  const { token, method, path, body, baseUrl, orgId, contentType, rawBody, extraHeaders } = areq;
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
+    'Content-Type': contentType ?? 'application/json',
     Accept: 'application/json',
     // Add telemetry headers to identify hosted MCP server requests
     ...getMcpTelemetryHeaders(),
+    ...extraHeaders,
   };
 
   if (orgId) {
@@ -51,7 +55,9 @@ export async function apiFetch<T>(
     headers,
   };
 
-  if (body) {
+  if (rawBody != null) {
+    options.body = rawBody;
+  } else if (body) {
     options.body = JSON.stringify(body);
   }
 
@@ -119,7 +125,7 @@ export async function getRegionMap(client: Client): Promise<RegionMap> {
     '/api/internal/regions/axiom',
     RegionsResponseSchema,
     undefined,
-    appUrl
+    { baseUrl: appUrl }
   );
   const regionMap: RegionMap = new Map();
   for (const r of response.axiom) {
@@ -196,7 +202,7 @@ export class Client {
     path: string,
     schema: z.ZodSchema<T>,
     body?: unknown,
-    baseUrlOverride?: string
+    options?: { contentType?: string; rawBody?: string; extraHeaders?: Record<string, string>; baseUrl?: string }
   ): Promise<T> {
     return apiFetch(
       {
@@ -204,8 +210,9 @@ export class Client {
         method,
         path,
         body,
-        baseUrl: baseUrlOverride || this.baseUrl,
+        baseUrl: options?.baseUrl ?? this.baseUrl,
         orgId: this.orgId,
+        ...options,
       },
       schema
     );
