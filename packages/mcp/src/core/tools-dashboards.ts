@@ -7,7 +7,7 @@ import type { ToolContext } from '.';
 
 export function registerDashboardTools({
   server,
-  internalClient,
+  publicClient,
 }: ToolContext) {
   server.tool(
     'listDashboards',
@@ -15,14 +15,14 @@ export function registerDashboardTools({
     {},
     async () => {
       try {
-        const dashboards = await getDashboards(internalClient);
+        const resources = await getDashboards(publicClient);
 
-        if (dashboards.length === 0) {
+        if (resources.length === 0) {
           return stringResult('No dashboards found.');
         }
 
-        const encoded = dashboards.map((dashboard) => {
-          // Parse charts to get count
+        const encoded = resources.map((resource) => {
+          const dashboard = resource.dashboard;
           let chartCount = 'Unknown';
           try {
             const charts = Array.isArray(dashboard.charts)
@@ -34,17 +34,17 @@ export function registerDashboardTools({
           }
 
           return {
-            id: dashboard.id,
+            uid: resource.uid,
+            id: resource.id,
             name: dashboard.name,
             description: dashboard.description || 'No description',
             owner: dashboard.owner,
-            createdBy: dashboard.createdBy || 'Unknown',
-            createdAt: new Date(dashboard.createdAt).toLocaleDateString(),
-            updatedAt: new Date(dashboard.updatedAt).toLocaleDateString(),
+            createdBy: resource.createdBy,
+            createdAt: new Date(resource.createdAt).toLocaleDateString(),
+            updatedAt: new Date(resource.updatedAt).toLocaleDateString(),
             refreshTime: `${dashboard.refreshTime}s`,
             chartCount,
             datasets: dashboard.datasets?.join(', ') || 'None',
-            sharedByOrg: dashboard.sharedByOrgName || 'No',
           };
         });
 
@@ -52,6 +52,7 @@ export function registerDashboardTools({
           .h1('dashboards.csv')
           .csv(
             [
+              'uid',
               'id',
               'name',
               'description',
@@ -62,20 +63,19 @@ export function registerDashboardTools({
               'refreshTime',
               'chartCount',
               'datasets',
-              'sharedByOrg',
             ],
-            encoded.map((dashboard) => [
-              dashboard.id,
-              dashboard.name,
-              dashboard.description,
-              dashboard.owner,
-              dashboard.createdBy,
-              dashboard.createdAt,
-              dashboard.updatedAt,
-              dashboard.refreshTime,
-              dashboard.chartCount,
-              dashboard.datasets,
-              dashboard.sharedByOrg,
+            encoded.map((d) => [
+              d.uid,
+              d.id,
+              d.name,
+              d.description,
+              d.owner,
+              d.createdBy,
+              d.createdAt,
+              d.updatedAt,
+              d.refreshTime,
+              d.chartCount,
+              d.datasets,
             ])
           )
           .result();
@@ -87,34 +87,36 @@ export function registerDashboardTools({
 
   server.tool(
     'getDashboard',
-    'Get detailed information about a specific dashboard by ID.',
+    'Get detailed information about a specific dashboard by UID.',
     {
       dashboardId: ParamDashboardID,
     },
     async ({ dashboardId }) => {
       try {
-        const dashboard = await getDashboard(internalClient, dashboardId);
+        const resource = await getDashboard(publicClient, dashboardId);
+        const dashboard = resource.dashboard;
 
         return markdownResult()
           .h1(`Dashboard: ${Format.ident(dashboard.name)}`)
           .h2('Basic Information')
           .list([
-            Format.listItem('ID', dashboard.id),
+            Format.listItem('UID', resource.uid),
+            Format.listItem('ID', resource.id),
             Format.listItem('Name', dashboard.name),
             Format.listItem(
               'Description',
               dashboard.description || 'No description'
             ),
             Format.listItem('Owner', dashboard.owner),
-            Format.listItem('Created By', dashboard.createdBy || 'Unknown'),
-            Format.listItem('Updated By', dashboard.updatedBy || 'Unknown'),
+            Format.listItem('Created By', resource.createdBy),
+            Format.listItem('Updated By', resource.updatedBy),
             Format.listItem(
               'Created At',
-              new Date(dashboard.createdAt).toLocaleString()
+              new Date(resource.createdAt).toLocaleString()
             ),
             Format.listItem(
               'Updated At',
-              new Date(dashboard.updatedAt).toLocaleString()
+              new Date(resource.updatedAt).toLocaleString()
             ),
           ])
           .h2('Configuration')
@@ -131,8 +133,7 @@ export function registerDashboardTools({
               'Against Timestamp',
               dashboard.againstTimestamp || 'None'
             ),
-            Format.listItem('Version', dashboard.version),
-            Format.listItem('Shared By Org', dashboard.sharedByOrgName || 'No'),
+            Format.listItem('Version', resource.version.toString()),
           ])
           .h2('Associated Datasets')
           .list(

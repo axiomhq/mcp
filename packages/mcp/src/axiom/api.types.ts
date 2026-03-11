@@ -116,39 +116,35 @@ export const SavedQuerySchema = z.object({
 });
 export const SavedQueriesSchema = SavedQuerySchema.array();
 
-// Dashboard schemas
-export const DashboardOverridesSchema = z.record(z.unknown());
-
-export const DashboardSchema = z.object({
+// Dashboard schemas (V2 API)
+export const DashboardDocumentSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   owner: z.string(),
-  charts: z.unknown(), // JSON data
-  layout: z.unknown(), // JSON data
-  refreshTime: z.number(), // in seconds
+  charts: z.unknown(),
+  layout: z.unknown(),
+  refreshTime: z.number(),
   schemaVersion: z.number(),
   timeWindowStart: z.string(),
   timeWindowEnd: z.string(),
   against: z.string().optional(),
   againstTimestamp: z.string().optional(),
-  version: z.string(),
   overrides: z.unknown().optional(),
-  sharedByOrg: z.string().optional(),
-  sharedByOrgName: z.string().optional(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  createdBy: z.string().optional(),
-  updatedBy: z.string().optional(),
   datasets: z.array(z.string()).optional(),
 });
 
-export const DashboardWithIDSchema = z
-  .object({
-    id: z.string(),
-  })
-  .merge(DashboardSchema);
+export const DashboardResourceSchema = z.object({
+  uid: z.string(),
+  id: z.string(),
+  version: z.number(),
+  dashboard: DashboardDocumentSchema,
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  createdBy: z.string(),
+  updatedBy: z.string(),
+});
 
-export const DashboardsSchema = DashboardWithIDSchema.array();
+export const DashboardResourcesSchema = DashboardResourceSchema.array();
 
 // Metrics API schemas
 export const MetricsSeriesSchema = z.object({
@@ -195,9 +191,9 @@ export type Integrations = z.infer<typeof IntegrationsSchema>;
 export type SavedQuery = z.infer<typeof SavedQuerySchema>;
 export type SavedQueries = z.infer<typeof SavedQueriesSchema>;
 
-export type Dashboard = z.infer<typeof DashboardSchema>;
-export type DashboardWithID = z.infer<typeof DashboardWithIDSchema>;
-export type Dashboards = z.infer<typeof DashboardsSchema>;
+export type DashboardDocument = z.infer<typeof DashboardDocumentSchema>;
+export type DashboardResource = z.infer<typeof DashboardResourceSchema>;
+export type DashboardResources = z.infer<typeof DashboardResourcesSchema>;
 
 export type MetricsSeries = z.infer<typeof MetricsSeriesSchema>;
 export type MetricsQueryResult = z.infer<typeof MetricsQueryResultSchema>;
