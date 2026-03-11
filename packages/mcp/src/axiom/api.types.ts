@@ -150,6 +150,30 @@ export const DashboardWithIDSchema = z
 
 export const DashboardsSchema = DashboardWithIDSchema.array();
 
+// V2 Dashboard API schemas
+export const DashboardResourceSchema = z.object({
+  uid: z.string(),
+  id: z.string(),
+  version: z.number(),
+  dashboard: z.record(z.unknown()),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  createdBy: z.string(),
+  updatedBy: z.string(),
+});
+
+export const DashboardResourcesSchema = DashboardResourceSchema.array();
+
+export const DashboardWriteResponseSchema = z.object({
+  status: z.enum(['created', 'updated']),
+  dashboard: DashboardResourceSchema,
+  overwritten: z.boolean().optional(),
+});
+
+export type DashboardResource = z.infer<typeof DashboardResourceSchema>;
+export type DashboardResources = z.infer<typeof DashboardResourcesSchema>;
+export type DashboardWriteResponse = z.infer<typeof DashboardWriteResponseSchema>;
+
 // Metrics API schemas
 export const MetricsSeriesSchema = z.object({
   metric: z.string(),

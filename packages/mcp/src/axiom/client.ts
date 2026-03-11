@@ -12,7 +12,7 @@ export class ApiError extends Error {
 
 export type ApiRequest = {
   token: string;
-  method: 'get' | 'post';
+  method: 'get' | 'post' | 'put' | 'delete';
   path: string;
   body?: unknown;
   baseUrl: string;
@@ -80,6 +80,11 @@ export async function apiFetch<T>(
       throw new ApiError(errorMessage, res.status);
     }
 
+    // DELETE responses may have no body (204)
+    if (res.status === 204 || res.headers.get('content-length') === '0') {
+      return schema.parse(undefined);
+    }
+
     const json = await res.json();
 
     return schema.parse(json);
@@ -103,7 +108,7 @@ export class Client {
   }
 
   async fetch<T>(
-    method: 'get' | 'post',
+    method: 'get' | 'post' | 'put' | 'delete',
     path: string,
     schema: z.ZodSchema<T>,
     body?: unknown,

@@ -1,6 +1,12 @@
 import {
   type Dashboards,
   DashboardsSchema,
+  type DashboardResource,
+  DashboardResourceSchema,
+  type DashboardResources,
+  DashboardResourcesSchema,
+  type DashboardWriteResponse,
+  DashboardWriteResponseSchema,
   type DashboardWithID,
   DashboardWithIDSchema,
   type Datasets,
@@ -147,6 +153,72 @@ export async function getDashboard(
     'get',
     `/api/internal/dashboards/${id}`,
     DashboardWithIDSchema
+  );
+}
+
+// V2 Dashboard API functions
+
+export async function listDashboardsV2(client: Client): Promise<DashboardResources> {
+  return client.fetch<DashboardResources>(
+    'get',
+    '/v2/dashboards',
+    DashboardResourcesSchema
+  );
+}
+
+export async function getDashboardV2(
+  client: Client,
+  uid: string
+): Promise<DashboardResource> {
+  return client.fetch<DashboardResource>(
+    'get',
+    `/v2/dashboards/uid/${uid}`,
+    DashboardResourceSchema
+  );
+}
+
+export async function createDashboardV2(
+  client: Client,
+  payload: {
+    dashboard: Record<string, unknown>;
+    uid?: string;
+    message?: string;
+  }
+): Promise<DashboardWriteResponse> {
+  return client.fetch<DashboardWriteResponse>(
+    'post',
+    '/v2/dashboards',
+    DashboardWriteResponseSchema,
+    payload
+  );
+}
+
+export async function updateDashboardV2(
+  client: Client,
+  uid: string,
+  payload: {
+    dashboard: Record<string, unknown>;
+    overwrite?: boolean;
+    version?: number;
+    message?: string;
+  }
+): Promise<DashboardWriteResponse> {
+  return client.fetch<DashboardWriteResponse>(
+    'put',
+    `/v2/dashboards/uid/${uid}`,
+    DashboardWriteResponseSchema,
+    payload
+  );
+}
+
+export async function deleteDashboardV2(
+  client: Client,
+  uid: string
+): Promise<void> {
+  await client.fetch(
+    'delete',
+    `/v2/dashboards/uid/${uid}`,
+    z.void()
   );
 }
 

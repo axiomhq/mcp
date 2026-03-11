@@ -73,3 +73,31 @@ export const ParamDashboardID = z
   .describe(
     'The dashboard ID. You can find a list of dashboards using the `listDashboards()` tool.'
   );
+
+export const ParamDashboardUID = z
+  .string()
+  .trim()
+  .describe(
+    'The dashboard UID (stable external identifier). You can find UIDs using the `listDashboards()` tool.'
+  );
+
+export const ParamDashboardName = z
+  .string()
+  .trim()
+  .min(1)
+  .max(100)
+  .describe('The name for the dashboard (1-100 characters).');
+
+export const ParamDashboardJSON = z
+  .string()
+  .trim()
+  .min(1)
+  .describe(
+    'The full dashboard document as a JSON string. Must include required fields: name, owner, charts (array), layout (array), refreshTime (15, 60, or 300), schemaVersion (2), timeWindowStart, timeWindowEnd.'
+  );
+
+export const ParamDashboardMessage = z
+  .string()
+  .trim()
+  .optional()
+  .describe('Optional audit/change note for this operation.');
