@@ -131,7 +131,7 @@ export const DashboardSchema = z.object({
   timeWindowEnd: z.string(),
   against: z.string().optional(),
   againstTimestamp: z.string().optional(),
-  version: z.string(),
+  version: z.string().optional(),
   overrides: z.unknown().optional(),
   sharedByOrg: z.string().optional(),
   sharedByOrgName: z.string().optional(),

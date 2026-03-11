@@ -131,7 +131,7 @@ export function registerDashboardTools({
               'Against Timestamp',
               dashboard.againstTimestamp || 'None'
             ),
-            Format.listItem('Version', dashboard.version),
+            Format.listItem('Version', dashboard.version || 'N/A'),
             Format.listItem('Shared By Org', dashboard.sharedByOrgName || 'No'),
           ])
           .h2('Associated Datasets')
