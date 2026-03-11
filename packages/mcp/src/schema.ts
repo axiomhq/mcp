@@ -71,5 +71,5 @@ export const ParamDashboardID = z
   .string()
   .trim()
   .describe(
-    'The dashboard ID. You can find a list of dashboards using the `listDashboards()` tool.'
+    'The dashboard UID. You can find a list of dashboards using the `listDashboards()` tool.'
   );

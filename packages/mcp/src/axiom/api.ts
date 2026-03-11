@@ -1,8 +1,8 @@
 import {
-  type Dashboards,
-  DashboardsSchema,
-  type DashboardWithID,
-  DashboardWithIDSchema,
+  type DashboardResource,
+  DashboardResourceSchema,
+  type DashboardResources,
+  DashboardResourcesSchema,
   type Datasets,
   DatasetsSchema,
   type Field,
@@ -131,22 +131,22 @@ export async function getSavedQueries(client: Client): Promise<SavedQueries> {
   );
 }
 
-export async function getDashboards(client: Client): Promise<Dashboards> {
-  return client.fetch<Dashboards>(
+export async function getDashboards(client: Client): Promise<DashboardResources> {
+  return client.fetch<DashboardResources>(
     'get',
-    '/api/internal/dashboards',
-    DashboardsSchema
+    '/v2/dashboards',
+    DashboardResourcesSchema
   );
 }
 
 export async function getDashboard(
   client: Client,
-  id: string
-): Promise<DashboardWithID> {
-  return client.fetch<DashboardWithID>(
+  uid: string
+): Promise<DashboardResource> {
+  return client.fetch<DashboardResource>(
     'get',
-    `/api/internal/dashboards/${id}`,
-    DashboardWithIDSchema
+    `/v2/dashboards/uid/${uid}`,
+    DashboardResourceSchema
   );
 }
 
