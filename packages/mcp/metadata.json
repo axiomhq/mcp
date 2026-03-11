@@ -22,7 +22,7 @@
     },
     {
       "name": "getDashboard",
-      "description": "Get detailed information about a specific dashboard by ID.",
+      "description": "Get detailed information about a specific dashboard by UID.",
       "category": "Core"
     },
     {

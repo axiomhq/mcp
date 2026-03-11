@@ -1,14 +1,10 @@
 import {
-  type Dashboards,
-  DashboardsSchema,
   type DashboardResource,
   DashboardResourceSchema,
   type DashboardResources,
   DashboardResourcesSchema,
   type DashboardWriteResponse,
   DashboardWriteResponseSchema,
-  type DashboardWithID,
-  DashboardWithIDSchema,
   type Datasets,
   DatasetsSchema,
   type Field,
@@ -137,28 +133,7 @@ export async function getSavedQueries(client: Client): Promise<SavedQueries> {
   );
 }
 
-export async function getDashboards(client: Client): Promise<Dashboards> {
-  return client.fetch<Dashboards>(
-    'get',
-    '/api/internal/dashboards',
-    DashboardsSchema
-  );
-}
-
-export async function getDashboard(
-  client: Client,
-  id: string
-): Promise<DashboardWithID> {
-  return client.fetch<DashboardWithID>(
-    'get',
-    `/api/internal/dashboards/${id}`,
-    DashboardWithIDSchema
-  );
-}
-
-// V2 Dashboard API functions
-
-export async function listDashboardsV2(client: Client): Promise<DashboardResources> {
+export async function getDashboards(client: Client): Promise<DashboardResources> {
   return client.fetch<DashboardResources>(
     'get',
     '/v2/dashboards',
@@ -166,7 +141,7 @@ export async function listDashboardsV2(client: Client): Promise<DashboardResourc
   );
 }
 
-export async function getDashboardV2(
+export async function getDashboard(
   client: Client,
   uid: string
 ): Promise<DashboardResource> {
@@ -305,7 +280,7 @@ async function resolveMetricsEndpoint(client: Client, dataset: string): Promise<
       DatasetsSchema
     );
     const ds = datasets.find((d) => d.name === dataset);
-    region = ds?.region;
+    region = ds?.edgeDeployment;
     datasetRegionCache.set(dsCacheKey, { region, expires: Date.now() + DATASET_CACHE_TTL_MS });
   }
 
