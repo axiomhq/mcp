@@ -5,7 +5,7 @@ export const DatasetSchema = z.object({
   name: z.string(),
   description: z.string(),
   kind: z.string().optional(),
-  region: z.string().optional(),
+  edgeDeployment: z.string().optional(),
 });
 
 export const DatasetsSchema = DatasetSchema.array();
