@@ -146,6 +146,12 @@ export const DashboardResourceSchema = z.object({
 
 export const DashboardResourcesSchema = DashboardResourceSchema.array();
 
+export const DashboardWriteResponseSchema = z.object({
+  status: z.enum(['created', 'updated']),
+  dashboard: DashboardResourceSchema,
+  overwritten: z.boolean().optional(),
+});
+
 // Metrics API schemas
 export const MetricsSeriesSchema = z.object({
   metric: z.string(),
@@ -194,6 +200,7 @@ export type SavedQueries = z.infer<typeof SavedQueriesSchema>;
 export type DashboardDocument = z.infer<typeof DashboardDocumentSchema>;
 export type DashboardResource = z.infer<typeof DashboardResourceSchema>;
 export type DashboardResources = z.infer<typeof DashboardResourcesSchema>;
+export type DashboardWriteResponse = z.infer<typeof DashboardWriteResponseSchema>;
 
 export type MetricsSeries = z.infer<typeof MetricsSeriesSchema>;
 export type MetricsQueryResult = z.infer<typeof MetricsQueryResultSchema>;

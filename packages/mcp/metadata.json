@@ -6,6 +6,21 @@
       "category": "Core"
     },
     {
+      "name": "createDashboard",
+      "description": "Create a new dashboard from a JSON document. The dashboard JSON must include required fields: name, owner, charts, layout, refreshTime, schemaVersion (2), timeWindowStart, timeWindowEnd. Set owner to",
+      "category": "Core"
+    },
+    {
+      "name": "deleteDashboard",
+      "description": "Delete a dashboard by its UID. This action is irreversible.",
+      "category": "Core"
+    },
+    {
+      "name": "exportDashboard",
+      "description": "Export a dashboard as JSON by its UID. Returns the full dashboard document that can be used to create or update dashboards via the API.",
+      "category": "Core"
+    },
+    {
       "name": "getDashboard",
       "description": "Get detailed information about a specific dashboard by UID.",
       "category": "Core"
@@ -63,6 +78,11 @@
     {
       "name": "searchMetrics",
       "description": "Search for metrics matching a known tag value (e.g. a service name, host, or endpoint). Returns metric names associated with the given value. Useful when you know a tag value but not which metrics contain it.",
+      "category": "Core"
+    },
+    {
+      "name": "updateDashboard",
+      "description": "Update an existing dashboard by UID. Provide the full dashboard JSON document. Use overwrite=true to skip version conflict checks (last-write-wins), or provide the current version number for optimistic concurrency control.",
       "category": "Core"
     }
   ],

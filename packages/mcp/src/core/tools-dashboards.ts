@@ -1,8 +1,20 @@
-import { getDashboard, getDashboards } from '../axiom/api';
-import { newToolErrorWithReason } from '../errors';
+import { z } from 'zod';
+import {
+  createDashboardV2,
+  deleteDashboardV2,
+  getDashboard,
+  getDashboards,
+  updateDashboardV2,
+} from '../axiom/api';
+import { newToolError, newToolErrorWithReason } from '../errors';
 import { Format } from '../lib/markdown';
-import { markdownResult, stringResult } from '../result';
-import { ParamDashboardID } from '../schema';
+import { jsonResult, markdownResult, stringResult } from '../result';
+import {
+  ParamDashboardID,
+  ParamDashboardJSON,
+  ParamDashboardMessage,
+  ParamDashboardUID,
+} from '../schema';
 import type { ToolContext } from '.';
 
 export function registerDashboardTools({
@@ -186,6 +198,146 @@ export function registerDashboardTools({
           .result();
       } catch (error) {
         return newToolErrorWithReason('Failed to fetch dashboard', error);
+      }
+    }
+  );
+
+  server.tool(
+    'exportDashboard',
+    'Export a dashboard as JSON by its UID. Returns the full dashboard document that can be used to create or update dashboards via the API.',
+    {
+      dashboardUid: ParamDashboardUID,
+    },
+    async ({ dashboardUid }) => {
+      try {
+        const resource = await getDashboard(publicClient, dashboardUid);
+        return jsonResult(resource);
+      } catch (error) {
+        return newToolErrorWithReason('Failed to export dashboard', error);
+      }
+    }
+  );
+
+  server.tool(
+    'createDashboard',
+    'Create a new dashboard from a JSON document. The dashboard JSON must include required fields: name, owner, charts, layout, refreshTime, schemaVersion (2), timeWindowStart, timeWindowEnd. Set owner to "X-AXIOM-EVERYONE" to make it visible to all org members.',
+    {
+      dashboardJson: ParamDashboardJSON,
+      uid: ParamDashboardUID.optional().describe(
+        'Optional custom UID for the dashboard. If omitted, the server generates one.'
+      ),
+      message: ParamDashboardMessage,
+    },
+    async ({ dashboardJson, uid, message }) => {
+      let dashboard: Record<string, unknown>;
+      try {
+        dashboard = JSON.parse(dashboardJson) as Record<string, unknown>;
+      } catch {
+        return newToolError(
+          'Invalid JSON provided for dashboard. Please provide a valid JSON string.'
+        );
+      }
+
+      try {
+        const result = await createDashboardV2(publicClient, {
+          dashboard,
+          uid,
+          message,
+        });
+
+        return markdownResult()
+          .h1('Dashboard Created')
+          .list([
+            Format.listItem('Status', result.status),
+            Format.listItem('UID', result.dashboard.uid),
+            Format.listItem('ID', result.dashboard.id),
+            Format.listItem('Version', result.dashboard.version.toString()),
+            Format.listItem(
+              'Name',
+              String((result.dashboard.dashboard as Record<string, unknown>)?.name ?? 'N/A')
+            ),
+          ])
+          .result();
+      } catch (error) {
+        return newToolErrorWithReason('Failed to create dashboard', error);
+      }
+    }
+  );
+
+  server.tool(
+    'updateDashboard',
+    'Update an existing dashboard by UID. Provide the full dashboard JSON document. Use overwrite=true to skip version conflict checks (last-write-wins), or provide the current version number for optimistic concurrency control.',
+    {
+      dashboardUid: ParamDashboardUID,
+      dashboardJson: ParamDashboardJSON,
+      overwrite: z
+        .boolean()
+        .default(true)
+        .describe(
+          'When true (default), bypasses version checks and applies last-write-wins. When false, the version parameter is required.'
+        ),
+      version: z
+        .number()
+        .optional()
+        .describe(
+          'The current dashboard version number. Required when overwrite is false. Get this from exportDashboard().'
+        ),
+      message: ParamDashboardMessage,
+    },
+    async ({ dashboardUid, dashboardJson, overwrite, version, message }) => {
+      let dashboard: Record<string, unknown>;
+      try {
+        dashboard = JSON.parse(dashboardJson) as Record<string, unknown>;
+      } catch {
+        return newToolError(
+          'Invalid JSON provided for dashboard. Please provide a valid JSON string.'
+        );
+      }
+
+      if (!overwrite && version === undefined) {
+        return newToolError(
+          'Version is required when overwrite is false. Use exportDashboard() to get the current version.'
+        );
+      }
+
+      try {
+        const result = await updateDashboardV2(publicClient, dashboardUid, {
+          dashboard,
+          overwrite,
+          version,
+          message,
+        });
+
+        return markdownResult()
+          .h1('Dashboard Updated')
+          .list([
+            Format.listItem('Status', result.status),
+            Format.listItem('UID', result.dashboard.uid),
+            Format.listItem('ID', result.dashboard.id),
+            Format.listItem('Version', result.dashboard.version.toString()),
+            Format.listItem('Overwritten', result.overwritten ? 'Yes' : 'No'),
+          ])
+          .result();
+      } catch (error) {
+        return newToolErrorWithReason('Failed to update dashboard', error);
+      }
+    }
+  );
+
+  server.tool(
+    'deleteDashboard',
+    'Delete a dashboard by its UID. This action is irreversible.',
+    {
+      dashboardUid: ParamDashboardUID,
+    },
+    async ({ dashboardUid }) => {
+      try {
+        await deleteDashboardV2(publicClient, dashboardUid);
+        return stringResult(
+          `Dashboard with UID "${dashboardUid}" has been deleted.`
+        );
+      } catch (error) {
+        return newToolErrorWithReason('Failed to delete dashboard', error);
       }
     }
   );

@@ -3,6 +3,8 @@ import {
   DashboardResourceSchema,
   type DashboardResources,
   DashboardResourcesSchema,
+  type DashboardWriteResponse,
+  DashboardWriteResponseSchema,
   type Datasets,
   DatasetsSchema,
   type Field,
@@ -147,6 +149,51 @@ export async function getDashboard(
     'get',
     `/v2/dashboards/uid/${uid}`,
     DashboardResourceSchema
+  );
+}
+
+export async function createDashboardV2(
+  client: Client,
+  payload: {
+    dashboard: Record<string, unknown>;
+    uid?: string;
+    message?: string;
+  }
+): Promise<DashboardWriteResponse> {
+  return client.fetch<DashboardWriteResponse>(
+    'post',
+    '/v2/dashboards',
+    DashboardWriteResponseSchema,
+    payload
+  );
+}
+
+export async function updateDashboardV2(
+  client: Client,
+  uid: string,
+  payload: {
+    dashboard: Record<string, unknown>;
+    overwrite?: boolean;
+    version?: number;
+    message?: string;
+  }
+): Promise<DashboardWriteResponse> {
+  return client.fetch<DashboardWriteResponse>(
+    'put',
+    `/v2/dashboards/uid/${uid}`,
+    DashboardWriteResponseSchema,
+    payload
+  );
+}
+
+export async function deleteDashboardV2(
+  client: Client,
+  uid: string
+): Promise<void> {
+  await client.fetch(
+    'delete',
+    `/v2/dashboards/uid/${uid}`,
+    z.void()
   );
 }
 
