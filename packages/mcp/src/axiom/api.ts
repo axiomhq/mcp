@@ -233,7 +233,7 @@ async function resolveMetricsEndpoint(client: Client, dataset: string): Promise<
       DatasetsSchema
     );
     const ds = datasets.find((d) => d.name === dataset);
-    region = ds?.region;
+    region = ds?.edgeDeployment;
     datasetRegionCache.set(dsCacheKey, { region, expires: Date.now() + DATASET_CACHE_TTL_MS });
   }
 
