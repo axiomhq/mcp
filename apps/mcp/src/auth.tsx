@@ -63,6 +63,26 @@ function extractClientInfo(redirectUri: string): {
   return { clientName, clientUri };
 }
 
+function isUnsafeRedirectUri(redirectUri: string, requestUrl: string): boolean {
+  try {
+    const url = new URL(redirectUri);
+    if (url.protocol === 'https:') {
+      return false;
+    }
+    const isLocalDev = new URL(requestUrl).hostname === 'localhost';
+    if (
+      url.protocol === 'http:' &&
+      url.hostname === 'localhost' &&
+      isLocalDev
+    ) {
+      return false;
+    }
+    return true;
+  } catch {
+    return true;
+  }
+}
+
 app.get('/authorize', async (c) => {
   const oauthReqInfo = await c.env.OAUTH_PROVIDER.parseAuthRequest(c.req.raw);
   const { clientId } = oauthReqInfo;
@@ -76,6 +96,13 @@ app.get('/authorize', async (c) => {
   if (!clientId) {
     logger.error('Missing clientId in OAuth request');
     return c.text('Invalid request: missing client_id', 400);
+  }
+
+  if (
+    oauthReqInfo.redirectUri &&
+    isUnsafeRedirectUri(oauthReqInfo.redirectUri, c.req.url)
+  ) {
+    return c.text('Invalid request: redirect URI must use http or https', 400);
   }
 
   if (
@@ -417,4 +444,4 @@ app.get('/icon', async (c) => {
   });
 });
 
-export { app as AxiomHandler };
+export { app as AxiomHandler, isUnsafeRedirectUri };
