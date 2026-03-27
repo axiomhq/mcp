@@ -42,12 +42,19 @@ const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
   };
 };
 
+// 1 year in seconds (effectively indefinite). Claude Desktop and some other
+// MCP clients don't properly refresh OAuth tokens, causing "Missing or invalid
+// access token" errors when the default 1h TTL expires.
+// See: https://github.com/anthropics/claude-code/issues/26281
+const ACCESS_TOKEN_TTL = 60 * 60 * 24 * 365;
+
 function createOAuthProvider(orgId?: string | null) {
   return new OAuthProvider({
     apiHandlers: {
       '/sse': AxiomMCP.serveSSE('/sse'),
       '/mcp': AxiomMCP.serve('/mcp'),
     },
+    accessTokenTTL: ACCESS_TOKEN_TTL,
     authorizeEndpoint: '/authorize',
     clientRegistrationEndpoint: '/register',
     // biome-ignore lint/suspicious/noExplicitAny: Type compatibility with OAuth provider
