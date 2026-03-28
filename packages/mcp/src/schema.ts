@@ -71,14 +71,14 @@ export const ParamDashboardID = z
   .string()
   .trim()
   .describe(
-    'The dashboard UID. You can find a list of dashboards using the `listDashboards()` tool.'
+    'The dashboard identifier. Accepts a UID (UUID), a short ID, or a full dashboard URL (e.g. https://app.axiom.co/myorg/dashboards/abc123). You can find a list of dashboards using the `listDashboards()` tool.'
   );
 
 export const ParamDashboardUID = z
   .string()
   .trim()
   .describe(
-    'The dashboard UID (stable external identifier). You can find UIDs using the `listDashboards()` tool.'
+    'The dashboard identifier. Accepts a UID (UUID), a short ID, or a full dashboard URL. You can find UIDs using the `listDashboards()` tool.'
   );
 
 export const ParamDashboardName = z

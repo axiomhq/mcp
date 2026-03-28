@@ -1,3 +1,6 @@
+import { isValid, parseISO } from 'date-fns';
+import ms from 'ms';
+import z from 'zod';
 import {
   type DashboardResource,
   DashboardResourceSchema,
@@ -15,14 +18,14 @@ import {
   type Integrations,
   type MetricsInfoMetrics,
   MetricsInfoMetricsSchema,
-  type MetricsSearchResult,
-  MetricsSearchResultSchema,
   type MetricsInfoTags,
   MetricsInfoTagsSchema,
   type MetricsInfoTagValues,
   MetricsInfoTagValuesSchema,
   type MetricsQueryResult,
   MetricsQueryResultSchema,
+  type MetricsSearchResult,
+  MetricsSearchResultSchema,
   type Monitors,
   type MonitorsHistory,
   MonitorsHistorySchema,
@@ -33,9 +36,6 @@ import {
   SavedQueriesSchema,
 } from './api.types';
 import type { Client } from './client';
-import { isValid, parseISO } from 'date-fns';
-import ms from 'ms';
-import z from 'zod';
 
 const sysTimeField = '_sysTime';
 
@@ -133,7 +133,9 @@ export async function getSavedQueries(client: Client): Promise<SavedQueries> {
   );
 }
 
-export async function getDashboards(client: Client): Promise<DashboardResources> {
+export async function getDashboards(
+  client: Client
+): Promise<DashboardResources> {
   return client.fetch<DashboardResources>(
     'get',
     '/v2/dashboards',
@@ -150,6 +152,43 @@ export async function getDashboard(
     `/v2/dashboards/uid/${uid}`,
     DashboardResourceSchema
   );
+}
+
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DASHBOARD_URL_REGEX = /\/dashboards\/([^/?#]+)/;
+
+/**
+ * Resolves a dashboard identifier (UUID, short ID, or URL) to a stable UID.
+ * - If the input is already a UUID, it is returned as-is.
+ * - If the input is a dashboard URL, the short ID is extracted first.
+ * - Short IDs are resolved by listing all dashboards and matching by `id`.
+ */
+export async function resolveDashboardUID(
+  client: Client,
+  identifier: string
+): Promise<string> {
+  if (UUID_REGEX.test(identifier)) {
+    return identifier;
+  }
+
+  // Extract short ID from a dashboard URL if provided
+  const urlMatch = identifier.match(DASHBOARD_URL_REGEX);
+  const shortId = urlMatch ? urlMatch[1] : identifier;
+
+  // If what we extracted from the URL happens to be a UUID, return it directly
+  if (UUID_REGEX.test(shortId)) {
+    return shortId;
+  }
+
+  const dashboards = await getDashboards(client);
+  const match = dashboards.find((d) => d.id === shortId);
+  if (!match) {
+    throw new Error(
+      `No dashboard found for ID "${shortId}". Use listDashboards() to find valid dashboard UIDs.`
+    );
+  }
+  return match.uid;
 }
 
 export async function createDashboardV2(
@@ -190,11 +229,7 @@ export async function deleteDashboardV2(
   client: Client,
   uid: string
 ): Promise<void> {
-  await client.fetch(
-    'delete',
-    `/v2/dashboards/uid/${uid}`,
-    z.void()
-  );
+  await client.fetch('delete', `/v2/dashboards/uid/${uid}`, z.void());
 }
 
 function toRFC3339(time: string): string {
@@ -256,17 +291,28 @@ async function getRegionMap(client: Client): Promise<RegionMap> {
     for (const r of response.axiom) {
       regionMap.set(r.id, r.domain);
     }
-    regionsCache.set(cacheKey, { regions: regionMap, expires: Date.now() + REGIONS_CACHE_TTL_MS });
+    regionsCache.set(cacheKey, {
+      regions: regionMap,
+      expires: Date.now() + REGIONS_CACHE_TTL_MS,
+    });
     return regionMap;
   } catch (err) {
-    throw new Error(`Failed to fetch regions API: ${err instanceof Error ? err.message : err}`);
+    throw new Error(
+      `Failed to fetch regions API: ${err instanceof Error ? err.message : err}`
+    );
   }
 }
 
-const datasetRegionCache = new Map<string, { region: string | undefined; expires: number }>();
+const datasetRegionCache = new Map<
+  string,
+  { region: string | undefined; expires: number }
+>();
 const DATASET_CACHE_TTL_MS = 5 * 60 * 1000;
 
-async function resolveMetricsEndpoint(client: Client, dataset: string): Promise<ResolvedEndpoint> {
+async function resolveMetricsEndpoint(
+  client: Client,
+  dataset: string
+): Promise<ResolvedEndpoint> {
   // Step 1: resolve the dataset's region
   const dsCacheKey = `${client.getBaseUrl()}:${dataset}`;
   let region: string | undefined;
@@ -281,7 +327,10 @@ async function resolveMetricsEndpoint(client: Client, dataset: string): Promise<
     );
     const ds = datasets.find((d) => d.name === dataset);
     region = ds?.edgeDeployment;
-    datasetRegionCache.set(dsCacheKey, { region, expires: Date.now() + DATASET_CACHE_TTL_MS });
+    datasetRegionCache.set(dsCacheKey, {
+      region,
+      expires: Date.now() + DATASET_CACHE_TTL_MS,
+    });
   }
 
   if (!region) {

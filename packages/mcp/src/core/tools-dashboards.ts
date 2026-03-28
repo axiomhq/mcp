@@ -4,6 +4,7 @@ import {
   deleteDashboardV2,
   getDashboard,
   getDashboards,
+  resolveDashboardUID,
   updateDashboardV2,
 } from '../axiom/api';
 import { newToolError, newToolErrorWithReason } from '../errors';
@@ -17,10 +18,7 @@ import {
 } from '../schema';
 import type { ToolContext } from '.';
 
-export function registerDashboardTools({
-  server,
-  publicClient,
-}: ToolContext) {
+export function registerDashboardTools({ server, publicClient }: ToolContext) {
   server.tool(
     'listDashboards',
     'List all available dashboards. Shows user-created dashboards with their metadata.',
@@ -105,7 +103,8 @@ export function registerDashboardTools({
     },
     async ({ dashboardId }) => {
       try {
-        const resource = await getDashboard(publicClient, dashboardId);
+        const uid = await resolveDashboardUID(publicClient, dashboardId);
+        const resource = await getDashboard(publicClient, uid);
         const dashboard = resource.dashboard;
 
         return markdownResult()
@@ -210,7 +209,8 @@ export function registerDashboardTools({
     },
     async ({ dashboardUid }) => {
       try {
-        const resource = await getDashboard(publicClient, dashboardUid);
+        const uid = await resolveDashboardUID(publicClient, dashboardUid);
+        const resource = await getDashboard(publicClient, uid);
         return jsonResult(resource);
       } catch (error) {
         return newToolErrorWithReason('Failed to export dashboard', error);
@@ -254,7 +254,10 @@ export function registerDashboardTools({
             Format.listItem('Version', result.dashboard.version.toString()),
             Format.listItem(
               'Name',
-              String((result.dashboard.dashboard as Record<string, unknown>)?.name ?? 'N/A')
+              String(
+                (result.dashboard.dashboard as Record<string, unknown>)?.name ??
+                  'N/A'
+              )
             ),
           ])
           .result();
@@ -301,7 +304,8 @@ export function registerDashboardTools({
       }
 
       try {
-        const result = await updateDashboardV2(publicClient, dashboardUid, {
+        const uid = await resolveDashboardUID(publicClient, dashboardUid);
+        const result = await updateDashboardV2(publicClient, uid, {
           dashboard,
           overwrite,
           version,
@@ -332,10 +336,9 @@ export function registerDashboardTools({
     },
     async ({ dashboardUid }) => {
       try {
-        await deleteDashboardV2(publicClient, dashboardUid);
-        return stringResult(
-          `Dashboard with UID "${dashboardUid}" has been deleted.`
-        );
+        const uid = await resolveDashboardUID(publicClient, dashboardUid);
+        await deleteDashboardV2(publicClient, uid);
+        return stringResult(`Dashboard with UID "${uid}" has been deleted.`);
       } catch (error) {
         return newToolErrorWithReason('Failed to delete dashboard', error);
       }
