@@ -115,6 +115,10 @@ export class QueryResultFormatter {
 
     builder.h1(title);
 
+    if (result.status) {
+      this.formatStatus(builder, result.status);
+    }
+
     // Transpose the results to work with rows
     const transposed = transposeQueryResult(result);
 
@@ -132,6 +136,17 @@ export class QueryResultFormatter {
     }
 
     return builder.build();
+  }
+
+  private formatStatus(builder: Builder, status: QueryResult['status']): void {
+    const matchRate =
+      status.rowsExamined > 0
+        ? ((status.rowsMatched / status.rowsExamined) * 100).toFixed(2)
+        : '0.00';
+
+    builder.p(
+      `cost elapsed_ms=${status.elapsedTime.toLocaleString()} blocks=${status.blocksExamined.toLocaleString()} rows=${status.rowsExamined.toLocaleString()} matched=${status.rowsMatched.toLocaleString()} match_rate=${matchRate}%`
+    );
   }
 
   private applyLimits(tables: TransposedTable[]): TransposedTable[] {

@@ -17,6 +17,7 @@ import {
   ParamStartTime,
 } from '../schema';
 import type { ToolContext } from '.';
+import { applyDatasetQueryPolicy } from './query-policy';
 
 export function registerDatasetTools({
   server,
@@ -89,21 +90,22 @@ export function registerDatasetTools({
     'queryDataset',
     `# Instructions
 1. Query Axiom datasets using Axiom Processing Language (APL). The query must be a valid APL query string.
-2. ALWAYS get the schema of the dataset before running queries rather than guessing.
-    You can do this by getting a single event and projecting all fields.
-3. Keep in mind that there's a maximum row limit of 65000 rows per query.
-4. Prefer aggregations over non aggregating queries when possible to reduce the amount of data returned.
-5. Be selective in what you project in each query (unless otherwise needed, like for discovering the schema).
-    It's expensive to project all fields.
-6. ALWAYS restrict the time range of the query to the smallest possible range that
-    meets your needs. This will reduce the amount of data scanned and improve query performance.
-7. NEVER guess the schema of the dataset. If you don't where something is, use search first to find in which fields
-    it appears.
+2. ALWAYS discover the schema before you guess.
+   - Use getDatasetFields() for the field list.
+   - Use a tiny probe like ['dataset'] | take 1 if you need actual values.
+   - Use top or summarize queries to learn low-cardinality values.
+3. Keep the default startTime of now-30m unless you already have evidence you need more history. Widen in steps instead of jumping straight to days or weeks.
+4. Prefer aggregations over raw row retrieval whenever possible.
+5. Raw exploratory queries should project only the fields you need and include take, limit, or top.
+6. Prefer exact or field-specific filters. ==, in, has_cs, has, startswith_cs, and endswith_cs are usually cheaper than contains, matches regex, or search.
+7. Avoid search, project *, pack_all(), pack(*), and wide joins unless you have already narrowed the dataset and time window.
+8. Keep in mind that there is a maximum row limit of 65000 rows per query.
 
 # Examples
-Basic:
-- Filter: ['logs'] | where ['severity'] == "error" or ['duration'] > 500ms
-- Time range: ['logs'] | where ['_time'] > ago(2h) and ['_time'] < now()
+Probes:
+- Tiny sample: ['logs'] | take 1
+- Top values: ['logs'] | summarize count() by ['severity'] | top 10 by count_
+- Targeted sample: ['logs'] | project ['_time'], ['severity'], ['message'] | take 20
 - Project rename: ['logs'] | project-rename responseTime=['duration'], path=['url']
 
 Aggregations:
@@ -114,14 +116,15 @@ Aggregations:
 - Distinct: ['logs'] | summarize dcount(['userId']) by bin_auto(['_time'])
 
 Search & Parse:
-- Search all: search "error" or "exception"
+- Field-specific search: ['logs'] | where ['message'] has_cs "timeout" | project ['_time'], ['message'] | take 20
+- Prefix match: ['logs'] | where ['path'] startswith_cs "/api/v1"
 - Parse logs: ['logs'] | parse-kv ['message'] as (duration:long, error:string) with (pair_delimiter=",")
-- Regex extract: ['logs'] | extend errorCode = extract("error code ([0-9]+)", 1, ['message'])
-- Contains ops: ['logs'] | where ['message'] contains_cs "ERROR" or ['message'] startswith "FATAL"
+- Regex extract (last resort): ['logs'] | where ['message'] has_cs "error code" | extend errorCode = extract("error code ([0-9]+)", 1, ['message']) | project ['_time'], errorCode, ['message'] | take 20
+- Token ops: ['logs'] | where ['message'] has_cs "ERROR" or ['message'] endswith_cs "timeout"
 
 Data Shaping:
 - Extend & Calculate: ['logs'] | extend duration_s = ['duration']/1000, success = ['status'] < 400
-- Dynamic: ['logs'] | extend props = parse_json(['properties']) | where ['props.level'] == "error"
+- Dynamic after filtering: ['logs'] | where ['service'] == "api" | extend props = parse_json(['properties']) | project ['_time'], ['props.level'] | take 20
 - Pack/Unpack: ['logs'] | extend fields = pack("status", ['status'], "duration", ['duration'])
 - Arrays: ['logs'] | where ['url'] in ("login", "logout", "home") | where array_length(['tags']) > 0
 
@@ -137,7 +140,6 @@ Time Operations:
 String Operations:
 - String funcs: ['logs'] | extend domain = tolower(extract("://([^/]+)", 1, ['url']))
 - Concat: ['logs'] | extend full_msg = strcat(['level'], ": ", ['message'])
-- Replace: ['logs'] | extend clean_msg = replace_regex("(password=)[^&]*", "\\1***", ['message'])
 
 Common Patterns:
 - Error analysis: ['logs'] | where ['severity'] == "error" | summarize error_count=count() by ['error_code'], ['service']
@@ -152,10 +154,32 @@ Common Patterns:
     },
     async ({ apl, startTime, endTime }) => {
       try {
-        const result = await runQuery(publicClient, apl, startTime, endTime);
-        return stringResult(
-          new QueryResultFormatter(formatOptions).formatQuery(result)
+        const queryPolicy = await applyDatasetQueryPolicy(
+          apl,
+          startTime,
+          endTime
         );
+        const result = await runQuery(
+          publicClient,
+          queryPolicy.apl,
+          startTime,
+          endTime
+        );
+        const formattedResult = new QueryResultFormatter(
+          formatOptions
+        ).formatQuery(result);
+
+        if (queryPolicy.notes.length === 0 && queryPolicy.apl === apl.trim()) {
+          return stringResult(formattedResult);
+        }
+
+        const prefix = [`notes ${queryPolicy.notes.join('; ')}`];
+
+        if (queryPolicy.apl !== apl.trim()) {
+          prefix.push(`adjusted_apl ${queryPolicy.apl}`);
+        }
+
+        return stringResult(`${prefix.join('\n')}\n${formattedResult}`);
       } catch (error) {
         return newToolErrorWithReason('Query failed', error);
       }

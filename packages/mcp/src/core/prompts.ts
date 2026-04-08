@@ -49,11 +49,11 @@ export function registerCorePrompts({ server }: ToolContext) {
 
 2. **Sample Data Examination**
    Use ${ToolQueryDataset} with:
-   - apl: "${datasetName} | limit 10"
-   - startTime: "now-${timeRange}"
+   - apl: "${datasetName} | take 5"
+   - startTime: "now-30m"
    - endTime: "now"
 
-   Examine: actual data values, field relationships, data quality
+   Examine: actual data values, field relationships, data quality. Only widen the window if the first probe is empty.
 
 3. **Volume and Time Distribution**
    Use ${ToolQueryDataset} with:
@@ -83,8 +83,13 @@ export function registerCorePrompts({ server }: ToolContext) {
 
 6. **Error/Status Pattern Detection**
    Use ${ToolQueryDataset} with:
-   - apl: "search in (${datasetName}) 'error' or 'fail' or 'exception' | limit 20"
-   - startTime: "now-${timeRange}"
+   - apl: "${datasetName} | summarize count() by <status_or_severity_field> | top 20 by count_"
+   - startTime: "now-30m"
+   - endTime: "now"
+
+   If you need to inspect text, prefer a field-specific probe such as:
+   - apl: "${datasetName} | where <message_field> has_cs 'error' | project _time, <message_field> | take 20"
+   - startTime: "now-30m"
    - endTime: "now"
 
    Find: error indicators, status fields, severity levels
@@ -141,7 +146,7 @@ Provide a comprehensive summary including:
 2. **New Value Detection**
    For key categorical fields:
    Use ${ToolQueryDataset} with:
-   - apl: "${datasetName} | where _time >= ago(${analysisPeriod}) | summarize by <field> | join kind=leftanti (${datasetName} | where _time between (ago(${baselinePeriod})..ago(${analysisPeriod})) | summarize by <field>) on <field>"
+   - apl: "${datasetName} | summarize recent=countif(_time >= ago(${analysisPeriod})), baseline=countif(_time between (ago(${baselinePeriod})..ago(${analysisPeriod}))) by <field> | where recent > 0 and baseline == 0 | top 100 by recent desc"
    - startTime: "now-${baselinePeriod}"
    - endTime: "now"
 
@@ -154,7 +159,7 @@ Provide a comprehensive summary including:
 
    Then find outliers:
    Use ${ToolQueryDataset} with:
-   - apl: "${datasetName} | where _time >= ago(${analysisPeriod}) | where <numeric_field> < <lower_bound> or <numeric_field> > <upper_bound> | limit 100"
+   - apl: "${datasetName} | where _time >= ago(${analysisPeriod}) | where <numeric_field> < <lower_bound> or <numeric_field> > <upper_bound> | project _time, <numeric_field> | take 100"
    - startTime: "now-${analysisPeriod}"
    - endTime: "now"
 
@@ -321,10 +326,7 @@ ${
    - endTime: "now"
 
 5. **Lag Correlation Analysis**
-   Use ${ToolQueryDataset} with:
-   - apl: "${primaryDataset} | summarize primary_events=count() by bin(_time, ${correlationWindow}) | extend time_shifted=_time+${correlationWindow} | join kind=inner (${secondaryDataset} | summarize secondary_events=count() by bin(_time, ${correlationWindow})) on $left.time_shifted == $right._time"
-   - startTime: "now-${timeRange}"
-   - endTime: "now"
+   Re-run the time-aligned aggregate above over a much tighter window before attempting any lag analysis. Avoid joining raw events across long windows.
 `
     : ''
 }
@@ -408,8 +410,8 @@ Provide specific insights about discovered correlations and their implications f
 
 2. **Field Completeness Analysis**
    Use ${ToolQueryDataset} with:
-   - apl: "${datasetName} | limit 1000 | extend fields=bag_keys(pack_all()) | mv-expand field=fields | summarize null_count=countif(isnull(field)), total=count() by field_name=tostring(field) | extend null_percentage=100.0*null_count/total"
-   - startTime: "now-1h"
+   - apl: "${datasetName} | summarize total=count(), missing=countif(isnull(<field>) or isempty(tostring(<field>))) | extend missing_percentage=100.0*missing/total"
+   - startTime: "now-30m"
    - endTime: "now"
 
 3. **Data Consistency Validation**
@@ -419,17 +421,16 @@ Provide specific insights about discovered correlations and their implications f
    - startTime: "now-${timeRange}"
    - endTime: "now"
 
+   Prefer exact, prefix, or token checks first. Only use regex after narrowing the field and time window.
+
 4. **Duplicate Detection**
    Use ${ToolQueryDataset} with:
-   - apl: "${datasetName} | summarize count() by <unique_field> | where count_ > 1 | sort by count_ desc | limit 20"
+   - apl: "${datasetName} | summarize count() by <unique_field> | where count_ > 1 | top 20 by count_"
    - startTime: "now-${timeRange}"
    - endTime: "now"
 
 5. **Schema Drift Detection**
-   Use ${ToolQueryDataset} with:
-   - apl: "${datasetName} | extend field_count=array_length(bag_keys(pack_all())) | summarize avg_fields=avg(field_count), min_fields=min(field_count), max_fields=max(field_count) by bin(_time, 1h)"
-   - startTime: "now-${timeRange}"
-   - endTime: "now"
+   Use ${ToolGetDatasetFields} to capture the current schema, then compare it to the expected ingest contract or a known-good saved query before running deeper checks.
 
 6. **Value Distribution Anomalies**
    For categorical fields:

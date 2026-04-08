@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { QueryResultFormatter } from './formatters';
 import type { QueryResult } from './api.types';
+import { QueryResultFormatter } from './formatters';
 
 describe('QueryResultFormatter', () => {
   describe('formatValue - no truncation', () => {
@@ -56,7 +56,8 @@ describe('QueryResultFormatter', () => {
 
     it('should preserve trace IDs and other long identifiers', () => {
       const formatter = new QueryResultFormatter();
-      const traceId = 'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789';
+      const traceId =
+        'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789';
       const spanId = '0123456789abcdef0123456789abcdef';
 
       const result: QueryResult = {
@@ -105,7 +106,8 @@ describe('QueryResultFormatter', () => {
       const objectWithPipes = {
         filter: 'status|code',
         query: 'field|value|test',
-        longField: 'this is a very long value that exceeds the old truncation limit',
+        longField:
+          'this is a very long value that exceeds the old truncation limit',
       };
 
       const result: QueryResult = {
@@ -122,7 +124,9 @@ describe('QueryResultFormatter', () => {
 
       // Pipes in JSON should be escaped
       expect(output).toContain('status\\|code');
-      expect(output).toContain('this is a very long value that exceeds the old truncation limit');
+      expect(output).toContain(
+        'this is a very long value that exceeds the old truncation limit'
+      );
     });
   });
 
@@ -156,7 +160,7 @@ describe('QueryResultFormatter', () => {
           {
             name: '_default',
             fields: [{ name: 'count', type: 'integer' }],
-            columns: [[1234567]],
+            columns: [[1_234_567]],
           },
         ],
       };
@@ -173,13 +177,44 @@ describe('QueryResultFormatter', () => {
           {
             name: '_default',
             fields: [{ name: 'latency', type: 'real' }],
-            columns: [[123.456789]],
+            columns: [[123.456_789]],
           },
         ],
       };
 
       const output = formatter.formatQuery(result);
       expect(output).toContain('123.46');
+    });
+
+    it('shows query cost details when status is present', () => {
+      const formatter = new QueryResultFormatter();
+
+      const result = {
+        format: 'tabular',
+        status: {
+          elapsedTime: 321,
+          blocksExamined: 12,
+          rowsExamined: 3456,
+          rowsMatched: 78,
+        },
+        tables: [
+          {
+            name: '_default',
+            sources: [{ name: 'logs' }],
+            fields: [{ name: 'message', type: 'string' }],
+            order: [],
+            groups: [],
+            columns: [['hello']],
+          },
+        ],
+        datasetNames: ['logs'],
+      } as QueryResult;
+
+      const output = formatter.formatQuery(result);
+
+      expect(output).toContain(
+        'cost elapsed_ms=321 blocks=12 rows=3,456 matched=78 match_rate=2.26%'
+      );
     });
   });
 });
