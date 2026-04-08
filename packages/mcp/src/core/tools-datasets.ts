@@ -100,6 +100,12 @@ export function registerDatasetTools({
 6. Prefer exact or field-specific filters. ==, in, has_cs, has, startswith_cs, and endswith_cs are usually cheaper than contains, matches regex, or search.
 7. Avoid search, project *, pack_all(), pack(*), and wide joins unless you have already narrowed the dataset and time window.
 8. Keep in mind that there is a maximum row limit of 65000 rows per query.
+9. Every query result includes a compact cost line: cost elapsed_ms=... blocks=... rows=... matched=... match_rate=...
+10. Interpret the cost line aggressively:
+   - High blocks or rows on a probe means tighten the time window or add a more selective filter before widening.
+   - Low match_rate means you are scanning a lot to find very little; prefer a better anchor field or cheaper operator.
+   - High cost with zero rows returned means the query shape is expensive even though it found nothing; rewrite it before retrying wider.
+   - Compare cost across iterations and keep the cheapest query shape that answers the question.
 
 # Examples
 Probes:
