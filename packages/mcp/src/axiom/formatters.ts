@@ -109,14 +109,14 @@ export class QueryResultFormatter {
   formatQuery(result: QueryResult, title = 'Query results'): string {
     const builder = new Builder();
 
-    if (!result.tables || result.tables.length === 0) {
-      return builder.h1('Query Results').p('No data found.').build();
-    }
-
     builder.h1(title);
 
     if (result.status) {
       this.formatStatus(builder, result.status);
+    }
+
+    if (!result.tables || result.tables.length === 0) {
+      return builder.p('No data found.').build();
     }
 
     // Transpose the results to work with rows

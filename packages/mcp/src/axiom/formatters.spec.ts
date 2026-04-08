@@ -216,5 +216,28 @@ describe('QueryResultFormatter', () => {
         'cost elapsed_ms=321 blocks=12 rows=3,456 matched=78 match_rate=2.26%'
       );
     });
+
+    it('shows query cost details even when no tables are returned', () => {
+      const formatter = new QueryResultFormatter();
+
+      const result = {
+        format: 'tabular',
+        status: {
+          elapsedTime: 123,
+          blocksExamined: 4,
+          rowsExamined: 567,
+          rowsMatched: 0,
+        },
+        tables: [],
+      } as QueryResult;
+
+      const output = formatter.formatQuery(result);
+
+      expect(output).toContain('# Query results');
+      expect(output).toContain(
+        'cost elapsed_ms=123 blocks=4 rows=567 matched=0 match_rate=0.00%'
+      );
+      expect(output).toContain('No data found.');
+    });
   });
 });
