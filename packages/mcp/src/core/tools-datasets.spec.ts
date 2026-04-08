@@ -136,6 +136,35 @@ describe('registerDatasetTools queryDataset policy', () => {
     expect(result.content[0].text).toContain('raw retrieval window >6h');
   });
 
+  it('trims extreme explicit limits for wide raw retrievals', async () => {
+    const { server, tools } = createFakeServer();
+
+    registerDatasetTools({
+      server,
+      publicClient: {} as never,
+      internalClient: {} as never,
+      formatOptions: undefined,
+    } as never);
+
+    const queryTool = getRegisteredTool(tools, 'queryDataset');
+
+    const result = await queryTool.handler({
+      apl: "['logs'] | where ['callId'] == 'abc' | order by _time desc | take 50000",
+      startTime: 'now-30d',
+      endTime: 'now',
+    });
+
+    expect(runQuery).toHaveBeenCalledWith(
+      expect.anything(),
+      "['logs'] | where ['callId'] == 'abc' | order by _time desc | take 50000 | take 1000",
+      'now-30d',
+      'now'
+    );
+    expect(result.content[0].text).toContain(
+      'trimmed explicit raw row limit to 1000 for wide retrieval'
+    );
+  });
+
   it('leaves efficient aggregate queries alone', async () => {
     const { server, tools } = createFakeServer();
 

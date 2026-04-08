@@ -3,6 +3,8 @@ import { type APLNode, analyzeAPL } from '../axiom/apl-analyzer';
 
 const rawQueryTake = 50;
 const searchQueryTake = 20;
+const wideRawExplicitLimitMs = 24 * 60 * 60 * 1000;
+const wideRawExplicitLimitCap = 1000;
 const wideRawWindowMs = 6 * 60 * 60 * 1000;
 const wideExpensiveWindowMs = 24 * 60 * 60 * 1000;
 
@@ -29,6 +31,7 @@ export type DatasetQueryPolicy = {
 type QueryShape = {
   hasAggregation: boolean;
   hasExplicitLimit: boolean;
+  explicitLimitCount: number | null;
   hasProjection: boolean;
   usesProjectAll: boolean;
   usesSearch: boolean;
@@ -60,6 +63,19 @@ export async function applyDatasetQueryPolicy(
     const take = shape.usesSearch ? searchQueryTake : rawQueryTake;
     adjustedAPL = `${trimmedAPL} | take ${take}`;
     notes.push(`added take ${take} for uncapped raw rows`);
+  }
+
+  if (
+    isRawRetrieval &&
+    shape.explicitLimitCount != null &&
+    shape.explicitLimitCount > wideRawExplicitLimitCap &&
+    timeRangeMs != null &&
+    timeRangeMs > wideRawExplicitLimitMs
+  ) {
+    adjustedAPL = `${adjustedAPL} | take ${wideRawExplicitLimitCap}`;
+    notes.push(
+      `trimmed explicit raw row limit to ${wideRawExplicitLimitCap} for wide retrieval`
+    );
   }
 
   if (isRawRetrieval && !shape.hasProjection) {
@@ -123,6 +139,7 @@ function analyzeQueryShape(ast: APLNode): QueryShape {
   const shape: QueryShape = {
     hasAggregation: operations.some((op) => aggregatingOps.has(op.kind ?? '')),
     hasExplicitLimit: operations.some((op) => limitingOps.has(op.kind ?? '')),
+    explicitLimitCount: getExplicitLimitCount(operations),
     hasProjection: operations.some((op) => projectionOps.has(op.kind ?? '')),
     usesProjectAll: false,
     usesSearch: operations.some((op) => op.kind === 'Search'),
@@ -195,6 +212,26 @@ function isWildcardParam(node: APLNode): boolean {
   );
 }
 
+function getExplicitLimitCount(operations: APLNode[]): number | null {
+  let effectiveLimit: number | null = null;
+
+  for (const operation of operations) {
+    if (!limitingOps.has(operation.kind ?? '')) {
+      continue;
+    }
+
+    const count = asLong(asNode(operation.count)?.value);
+    if (count == null) {
+      continue;
+    }
+
+    effectiveLimit =
+      effectiveLimit == null ? count : Math.min(effectiveLimit, count);
+  }
+
+  return effectiveLimit;
+}
+
 function getEntityName(node: unknown): string {
   if (!isNode(node) || node.kind !== 'Entity') {
     return '';
@@ -213,6 +250,10 @@ function asNode(value: unknown): APLNode | null {
 
 function isNode(value: unknown): value is APLNode {
   return typeof value === 'object' && value !== null;
+}
+
+function asLong(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
 function getTimeRangeMs(startTime: string, endTime: string): number | null {
