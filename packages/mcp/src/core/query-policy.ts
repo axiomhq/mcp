@@ -141,7 +141,7 @@ function analyzeQueryShape(ast: APLNode): QueryShape {
     hasExplicitLimit: operations.some((op) => limitingOps.has(op.kind ?? '')),
     explicitLimitCount: getExplicitLimitCount(operations),
     hasProjection: operations.some((op) => projectionOps.has(op.kind ?? '')),
-    usesProjectAll: false,
+    usesProjectAll: operations.some(isProjectAllOperation),
     usesSearch: operations.some((op) => op.kind === 'Search'),
     usesContains: false,
     usesRegex: false,
@@ -230,6 +230,17 @@ function getExplicitLimitCount(operations: APLNode[]): number | null {
   }
 
   return effectiveLimit;
+}
+
+function isProjectAllOperation(operation: APLNode): boolean {
+  if (operation.kind !== 'Project') {
+    return false;
+  }
+
+  return asNodes(operation.fields).some(
+    (field) =>
+      field.kind === 'NamedExpression' && asNode(field.expr)?.kind === 'Wildcard'
+  );
 }
 
 function getEntityName(node: unknown): string {

@@ -165,6 +165,35 @@ describe('registerDatasetTools queryDataset policy', () => {
     );
   });
 
+  it('warns when a query projects all fields explicitly', async () => {
+    const { server, tools } = createFakeServer();
+
+    registerDatasetTools({
+      server,
+      publicClient: {} as never,
+      internalClient: {} as never,
+      formatOptions: undefined,
+    } as never);
+
+    const queryTool = getRegisteredTool(tools, 'queryDataset');
+
+    const result = await queryTool.handler({
+      apl: "['logs'] | project * | take 5",
+      startTime: 'now-1h',
+      endTime: 'now',
+    });
+
+    expect(runQuery).toHaveBeenCalledWith(
+      expect.anything(),
+      "['logs'] | project * | take 5",
+      'now-1h',
+      'now'
+    );
+    expect(result.content[0].text).toContain(
+      'avoid project * outside tiny probes'
+    );
+  });
+
   it('leaves efficient aggregate queries alone', async () => {
     const { server, tools } = createFakeServer();
 
