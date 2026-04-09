@@ -163,6 +163,28 @@ export function extractAccessToken(
     : headerValue;
 }
 
+const REQUIRED_ACCEPT = 'application/json, text/event-stream';
+
+/**
+ * Ensures the request has the required Accept header for the MCP Streamable
+ * HTTP transport. The Cloudflare `agents` SDK enforces that clients send
+ * `Accept: application/json, text/event-stream`, but some machine-to-machine
+ * clients (e.g. AWS DevOps Agent) don't send an Accept header and have no way
+ * to configure one. This injects the default when it's missing or incomplete.
+ */
+export function ensureAcceptHeader(request: Request): Request {
+  const accept = request.headers.get('accept');
+  if (
+    accept?.includes('application/json') &&
+    accept.includes('text/event-stream')
+  ) {
+    return request;
+  }
+  const headers = new Headers(request.headers);
+  headers.set('accept', REQUIRED_ACCEPT);
+  return new Request(request, { headers });
+}
+
 export async function sha256(text: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(text);
