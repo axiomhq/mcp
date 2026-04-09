@@ -13,7 +13,7 @@ export { AxiomMCP } from './mcp';
 
 import { logger } from './logger';
 import { AxiomMCP } from './mcp';
-import { extractAccessToken, sha256 } from './utils';
+import { ensureAcceptHeader, extractAccessToken, sha256 } from './utils';
 
 const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
   if (env.AXIOM_TRACES_URL && env.AXIOM_TRACES_URL !== '') {
@@ -146,14 +146,19 @@ const handler = {
         withOTel,
       });
 
+      // Ensure the Accept header is present for the MCP Streamable HTTP
+      // transport. Some machine-to-machine clients (e.g. AWS DevOps Agent)
+      // cannot send custom headers beyond Authorization, so we default it.
+      const mcpRequest = ensureAcceptHeader(request);
+
       // Route to appropriate MCP endpoint - fixed to handle sub-paths
       if (url.pathname.startsWith('/sse')) {
         logger.debug('Routing to SSE endpoint');
-        return AxiomMCP.serveSSE('/sse').fetch(request, env, ctx);
+        return AxiomMCP.serveSSE('/sse').fetch(mcpRequest, env, ctx);
       }
       if (url.pathname.startsWith('/mcp')) {
         logger.debug('Routing to MCP endpoint');
-        return AxiomMCP.serve('/mcp').fetch(request, env, ctx);
+        return AxiomMCP.serve('/mcp').fetch(mcpRequest, env, ctx);
       }
 
       logger.warn('API auth: no matching MCP endpoint for path', {
