@@ -146,19 +146,17 @@ const handler = {
         withOTel,
       });
 
-      // Ensure the Accept header is present for the MCP Streamable HTTP
-      // transport. Some machine-to-machine clients (e.g. AWS DevOps Agent)
-      // cannot send custom headers beyond Authorization, so we default it.
-      const mcpRequest = ensureAcceptHeader(request);
-
       // Route to appropriate MCP endpoint - fixed to handle sub-paths
       if (url.pathname.startsWith('/sse')) {
         logger.debug('Routing to SSE endpoint');
-        return AxiomMCP.serveSSE('/sse').fetch(mcpRequest, env, ctx);
+        return AxiomMCP.serveSSE('/sse').fetch(request, env, ctx);
       }
       if (url.pathname.startsWith('/mcp')) {
         logger.debug('Routing to MCP endpoint');
-        return AxiomMCP.serve('/mcp').fetch(mcpRequest, env, ctx);
+        // Ensure the Accept header is present for the MCP Streamable HTTP
+        // transport. Some machine-to-machine clients (e.g. AWS DevOps Agent)
+        // cannot send custom headers beyond Authorization, so we default it.
+        return AxiomMCP.serve('/mcp').fetch(ensureAcceptHeader(request), env, ctx);
       }
 
       logger.warn('API auth: no matching MCP endpoint for path', {
