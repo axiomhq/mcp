@@ -55,6 +55,7 @@ function createOAuthProvider(orgId?: string | null) {
       '/mcp': AxiomMCP.serve('/mcp'),
     },
     accessTokenTTL: ACCESS_TOKEN_TTL,
+    allowPlainPKCE: false,
     authorizeEndpoint: '/authorize',
     clientRegistrationEndpoint: '/register',
     // biome-ignore lint/suspicious/noExplicitAny: Type compatibility with OAuth provider
