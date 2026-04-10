@@ -20,13 +20,13 @@
   "dependencies": {
     "@cloudflare/workers-oauth-provider": "^0.4.0",
     "@microlabs/otel-cf-workers": "^1.0.0-rc.52",
-    "@modelcontextprotocol/sdk": "^1.25.2",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "@watchlyhq/mcp": "file:../../packages/mcp",
-    "agents": "^0.0.95",
+    "agents": "^0.10.0",
     "hono": "^4.11.7",
     "just-pick": "^4.2.0",
     "workers-mcp": "^0.0.13",
-    "zod": "^3.25.67"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^3.2.4",

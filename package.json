@@ -21,6 +21,9 @@
     "test:watch": "turbo run test:watch",
     "gen:types": "turbo run gen:types"
   },
+  "overrides": {
+    "zod": "^4.0.0"
+  },
   "devDependencies": {
     "@biomejs/biome": "2.0.6",
     "@types/node": "^24.0.7",

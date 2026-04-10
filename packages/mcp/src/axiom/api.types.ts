@@ -103,14 +103,14 @@ export const SavedQuerySchema = z.object({
   name: z.string(),
   dataset: z.string(),
   kind: z.string(),
-  metadata: z.record(z.unknown()),
+  metadata: z.record(z.string(), z.unknown()),
   query: z.object({
     apl: z.string(),
     defaultOrder: z.unknown().nullable(),
     endTime: z.string().optional(),
     startTime: z.string().optional(),
     libraries: z.unknown().nullable(),
-    queryOptions: z.record(z.unknown()),
+    queryOptions: z.record(z.string(), z.unknown()),
   }),
   who: z.string(),
 });
