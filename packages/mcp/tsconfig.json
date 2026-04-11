@@ -13,7 +13,7 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "node"]
   },
   "include": ["src/**/*", "metadata.ts"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]

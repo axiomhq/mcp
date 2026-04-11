@@ -109,11 +109,15 @@ export class QueryResultFormatter {
   formatQuery(result: QueryResult, title = 'Query results'): string {
     const builder = new Builder();
 
-    if (!result.tables || result.tables.length === 0) {
-      return builder.h1('Query Results').p('No data found.').build();
+    builder.h1(title);
+
+    if (result.status) {
+      this.formatStatus(builder, result.status);
     }
 
-    builder.h1(title);
+    if (!result.tables || result.tables.length === 0) {
+      return builder.p('No data found.').build();
+    }
 
     // Transpose the results to work with rows
     const transposed = transposeQueryResult(result);
@@ -132,6 +136,17 @@ export class QueryResultFormatter {
     }
 
     return builder.build();
+  }
+
+  private formatStatus(builder: Builder, status: QueryResult['status']): void {
+    const matchRate =
+      status.rowsExamined > 0
+        ? ((status.rowsMatched / status.rowsExamined) * 100).toFixed(2)
+        : '0.00';
+
+    builder.p(
+      `cost elapsed_ms=${status.elapsedTime.toLocaleString()} blocks=${status.blocksExamined.toLocaleString()} rows=${status.rowsExamined.toLocaleString()} matched=${status.rowsMatched.toLocaleString()} match_rate=${matchRate}%`
+    );
   }
 
   private applyLimits(tables: TransposedTable[]): TransposedTable[] {
