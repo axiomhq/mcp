@@ -13,7 +13,12 @@ export { AxiomMCP } from './mcp';
 
 import { logger } from './logger';
 import { AxiomMCP } from './mcp';
-import { ensureAcceptHeader, extractAccessToken, sha256 } from './utils';
+import {
+  ensureAcceptHeader,
+  extractAccessToken,
+  isInitializeRequest,
+  sha256,
+} from './utils';
 
 const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
   if (env.AXIOM_TRACES_URL && env.AXIOM_TRACES_URL !== '') {
@@ -70,6 +75,47 @@ function createOAuthProvider(orgId?: string | null) {
       });
     },
   });
+}
+
+/**
+ * Auto-initializes a session for stateless MCP clients (e.g. AWS DevOps Agent)
+ * that don't persist the Mcp-Session-Id header between calls.
+ */
+async function ensureSessionId(
+  request: Request,
+  env: Env,
+  ctx: ExecutionContext,
+  mcpHandler: { fetch: (r: Request, e: Env, c: ExecutionContext) => Promise<Response> }
+): Promise<Request> {
+  if (request.headers.get('mcp-session-id')) return request;
+
+  let body: unknown;
+  try { body = await request.clone().json(); } catch { return request; }
+  if (isInitializeRequest(body)) return request;
+
+  const initResponse = await mcpHandler.fetch(
+    new Request(request.url, {
+      method: 'POST',
+      headers: request.headers,
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'initialize',
+        id: '_auto_init',
+        params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'axiom-auto-session', version: '1.0.0' } },
+      }),
+    }),
+    env,
+    ctx
+  );
+  const sessionId = initResponse.headers.get('mcp-session-id');
+  await initResponse.body?.cancel();
+
+  const headers = new Headers(request.headers);
+  if (sessionId) {
+    headers.set('mcp-session-id', sessionId);
+    logger.info('Auto-initialized session for stateless client', { sessionId: sessionId.substring(0, 8) });
+  }
+  return new Request(request.url, { method: request.method, headers, body: JSON.stringify(body) });
 }
 
 // Create a wrapper to avoid direct instrumentation of OAuth provider internals
@@ -154,10 +200,10 @@ const handler = {
       }
       if (url.pathname.startsWith('/mcp')) {
         logger.debug('Routing to MCP endpoint');
-        // Ensure the Accept header is present for the MCP Streamable HTTP
-        // transport. Some machine-to-machine clients (e.g. AWS DevOps Agent)
-        // cannot send custom headers beyond Authorization, so we default it.
-        return AxiomMCP.serve('/mcp').fetch(ensureAcceptHeader(request), env, ctx);
+        const mcpHandler = AxiomMCP.serve('/mcp');
+        let processed = ensureAcceptHeader(request);
+        processed = await ensureSessionId(processed, env, ctx, mcpHandler);
+        return mcpHandler.fetch(processed, env, ctx);
       }
 
       logger.warn('API auth: no matching MCP endpoint for path', {
