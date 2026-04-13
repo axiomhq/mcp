@@ -185,6 +185,17 @@ export function ensureAcceptHeader(request: Request): Request {
   return new Request(request, { headers });
 }
 
+/**
+ * Checks whether a JSON-RPC body (single or batch) is an `initialize` request.
+ */
+export function isInitializeRequest(body: unknown): boolean {
+  if (body == null || typeof body !== 'object') return false;
+  const messages = Array.isArray(body) ? body : [body];
+  return messages.some(
+    (m) => m != null && typeof m === 'object' && 'method' in m && m.method === 'initialize'
+  );
+}
+
 export async function sha256(text: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(text);
