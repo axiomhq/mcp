@@ -154,13 +154,9 @@ export async function refreshAccessToken({
  * since some clients (e.g. AWS DevOps agents) send the raw token
  * without the "Bearer " prefix.
  */
-export function extractAccessToken(
-  headerValue: string | null
-): string | null {
+export function extractAccessToken(headerValue: string | null): string | null {
   if (!headerValue) return null;
-  return headerValue.startsWith('Bearer ')
-    ? headerValue.slice(7)
-    : headerValue;
+  return headerValue.startsWith('Bearer ') ? headerValue.slice(7) : headerValue;
 }
 
 const REQUIRED_ACCEPT = 'application/json, text/event-stream';
@@ -183,6 +179,25 @@ export function ensureAcceptHeader(request: Request): Request {
   const headers = new Headers(request.headers);
   headers.set('accept', REQUIRED_ACCEPT);
   return new Request(request, { headers });
+}
+
+/**
+ * Checks whether a JSON-RPC body (single message or batch) contains an
+ * `initialize` request. Used to decide whether a stateless client needs
+ * an auto-initialized session before its actual request can be forwarded.
+ */
+export function isInitializeRequest(body: unknown): boolean {
+  if (body == null || typeof body !== 'object') {
+    return false;
+  }
+  const messages = Array.isArray(body) ? body : [body];
+  return messages.some(
+    (m) =>
+      m != null &&
+      typeof m === 'object' &&
+      'method' in m &&
+      m.method === 'initialize'
+  );
 }
 
 export async function sha256(text: string): Promise<string> {

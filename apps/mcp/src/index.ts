@@ -13,7 +13,12 @@ export { AxiomMCP } from './mcp';
 
 import { logger } from './logger';
 import { AxiomMCP } from './mcp';
-import { ensureAcceptHeader, extractAccessToken, sha256 } from './utils';
+import {
+  ensureAcceptHeader,
+  extractAccessToken,
+  isInitializeRequest,
+  sha256,
+} from './utils';
 
 const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
   if (env.AXIOM_TRACES_URL && env.AXIOM_TRACES_URL !== '') {
@@ -69,6 +74,105 @@ function createOAuthProvider(orgId?: string | null) {
         oauthDescription: description,
       });
     },
+  });
+}
+
+/**
+ * For stateless MCP clients (e.g. AWS DevOps Agent) that don't persist the
+ * Mcp-Session-Id header between calls, this function auto-initializes a new
+ * session when a non-initialization request arrives without a session ID.
+ *
+ * Flow:
+ * 1. If the request already has a session ID, pass through.
+ * 2. Parse the body — if it's an `initialize` request, pass through.
+ * 3. Otherwise, send an internal `initialize` request to create a session,
+ *    extract the returned session ID, and inject it into the original request.
+ */
+async function ensureSessionId(
+  request: Request,
+  env: Env,
+  ctx: ExecutionContext,
+  mcpHandler: {
+    fetch: (r: Request, e: Env, c: ExecutionContext) => Promise<Response>;
+  }
+): Promise<Request> {
+  // Already has a session — nothing to do.
+  if (request.headers.get('mcp-session-id')) {
+    return request;
+  }
+
+  // Clone so we can peek at the body without consuming the original.
+  const clone = request.clone();
+  let body: unknown;
+  try {
+    body = await clone.json();
+  } catch {
+    // Not valid JSON — let the MCP handler produce the proper error.
+    return request;
+  }
+
+  // Initialization requests don't need a session ID.
+  if (isInitializeRequest(body)) {
+    // Reconstruct from parsed body so the unconsumed clone path is clean.
+    return new Request(request.url, {
+      method: request.method,
+      headers: request.headers,
+      body: JSON.stringify(body),
+    });
+  }
+
+  // --- Auto-initialize a session for this stateless client. ---
+  const initHeaders = new Headers(request.headers);
+  initHeaders.set('content-type', 'application/json');
+  initHeaders.set('accept', 'application/json, text/event-stream');
+  initHeaders.delete('mcp-session-id');
+
+  const initRequest = new Request(request.url, {
+    method: 'POST',
+    headers: initHeaders,
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      method: 'initialize',
+      params: {
+        protocolVersion: '2024-11-05',
+        capabilities: {},
+        clientInfo: { name: 'axiom-auto-session', version: '1.0.0' },
+      },
+      id: '_auto_init',
+    }),
+  });
+
+  const initResponse = await mcpHandler.fetch(initRequest, env, ctx);
+  const sessionId = initResponse.headers.get('mcp-session-id');
+
+  // Drain the response body to avoid resource leaks.
+  await initResponse.body?.cancel();
+
+  if (!sessionId) {
+    logger.warn('ensureSessionId: auto-init did not return a session ID');
+    // Fall through with the original body so the caller sees the real error.
+    return new Request(request.url, {
+      method: request.method,
+      headers: request.headers,
+      body: JSON.stringify(body),
+    });
+  }
+
+  logger.info(
+    'ensureSessionId: auto-initialized session for stateless client',
+    {
+      sessionId: sessionId.substring(0, 8),
+    }
+  );
+
+  // Inject the session ID into the original request.
+  const headers = new Headers(request.headers);
+  headers.set('mcp-session-id', sessionId);
+
+  return new Request(request.url, {
+    method: request.method,
+    headers,
+    body: JSON.stringify(body),
   });
 }
 
@@ -154,10 +258,15 @@ const handler = {
       }
       if (url.pathname.startsWith('/mcp')) {
         logger.debug('Routing to MCP endpoint');
+        const mcpHandler = AxiomMCP.serve('/mcp');
         // Ensure the Accept header is present for the MCP Streamable HTTP
         // transport. Some machine-to-machine clients (e.g. AWS DevOps Agent)
         // cannot send custom headers beyond Authorization, so we default it.
-        return AxiomMCP.serve('/mcp').fetch(ensureAcceptHeader(request), env, ctx);
+        let processed = ensureAcceptHeader(request);
+        // For stateless clients that don't persist the Mcp-Session-Id header
+        // between calls, auto-initialize a session transparently.
+        processed = await ensureSessionId(processed, env, ctx, mcpHandler);
+        return mcpHandler.fetch(processed, env, ctx);
       }
 
       logger.warn('API auth: no matching MCP endpoint for path', {
