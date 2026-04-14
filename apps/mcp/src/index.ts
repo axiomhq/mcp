@@ -17,6 +17,7 @@ import {
   ensureAcceptHeader,
   extractAccessToken,
   isInitializeRequest,
+  maybeConvertSseResponse,
   sha256,
 } from './utils';
 
@@ -53,11 +54,19 @@ const otelConfig: ResolveConfigFn = (env: Env): TraceConfig => {
 // See: https://github.com/anthropics/claude-code/issues/26281
 const ACCESS_TOKEN_TTL = 60 * 60 * 24 * 365;
 
-function createOAuthProvider(orgId?: string | null) {
+function createOAuthProvider(orgId?: string | null, originalRequest?: Request) {
+  const mcpHandler = AxiomMCP.serve('/mcp');
   return new OAuthProvider({
     apiHandlers: {
       '/sse': AxiomMCP.serveSSE('/sse'),
-      '/mcp': AxiomMCP.serve('/mcp'),
+      '/mcp': originalRequest
+        ? {
+            fetch: async (req: Request, env: Env, ctx: ExecutionContext) => {
+              const response = await mcpHandler.fetch(req, env, ctx);
+              return maybeConvertSseResponse(originalRequest, response);
+            },
+          }
+        : mcpHandler,
     },
     accessTokenTTL: ACCESS_TOKEN_TTL,
     allowPlainPKCE: false,
@@ -203,7 +212,8 @@ const handler = {
         const mcpHandler = AxiomMCP.serve('/mcp');
         let processed = ensureAcceptHeader(request);
         processed = await ensureSessionId(processed, env, ctx, mcpHandler);
-        return mcpHandler.fetch(processed, env, ctx);
+        const response = await mcpHandler.fetch(processed, env, ctx);
+        return maybeConvertSseResponse(request, response);
       }
 
       logger.warn('API auth: no matching MCP endpoint for path', {
@@ -220,7 +230,7 @@ const handler = {
       pathname: url.pathname,
       orgId: orgId || undefined,
     });
-    return createOAuthProvider(orgId).fetch(request, env, ctx);
+    return createOAuthProvider(orgId, request).fetch(request, env, ctx);
   },
 };
 
