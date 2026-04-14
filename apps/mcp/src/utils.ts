@@ -196,6 +196,86 @@ export function isInitializeRequest(body: unknown): boolean {
   );
 }
 
+/**
+ * Returns true when the original client request includes
+ * `Accept: text/event-stream`, meaning it can handle SSE responses.
+ */
+export function clientAcceptsSSE(request: Request): boolean {
+  const accept = request.headers.get('accept') || '';
+  return accept.includes('text/event-stream');
+}
+
+/**
+ * Converts an SSE response into a single `application/json` JSON-RPC
+ * response per the MCP Streamable HTTP spec.
+ *
+ * Properly handles multiline `data:` fields (consecutive data lines are
+ * concatenated per the SSE spec) and returns only the JSON-RPC response
+ * object — notifications and other messages are dropped.
+ */
+export async function convertSseToJsonResponse(
+  sseResponse: Response
+): Promise<Response> {
+  const body = await sseResponse.text();
+  const lines = body.split('\n');
+
+  let dataBuffer = '';
+  let jsonRpcResponse: unknown = null;
+
+  for (const line of lines) {
+    if (line.startsWith('data: ')) {
+      dataBuffer += (dataBuffer ? '\n' : '') + line.slice(6);
+    } else if (line === '' && dataBuffer) {
+      try {
+        const parsed = JSON.parse(dataBuffer) as { id?: unknown };
+        // JSON-RPC responses have an `id`; notifications don't.
+        if (parsed.id !== undefined) {
+          jsonRpcResponse = parsed;
+        }
+      } catch {
+        // skip malformed events
+      }
+      dataBuffer = '';
+    }
+  }
+
+  const headers = new Headers();
+  headers.set('content-type', 'application/json');
+
+  const sessionId = sseResponse.headers.get('mcp-session-id');
+  if (sessionId) {
+    headers.set('mcp-session-id', sessionId);
+  }
+
+  for (const [key, value] of sseResponse.headers.entries()) {
+    if (key.toLowerCase().startsWith('access-control-')) {
+      headers.set(key, value);
+    }
+  }
+
+  return new Response(JSON.stringify(jsonRpcResponse ?? {}), {
+    status: sseResponse.status,
+    headers,
+  });
+}
+
+/**
+ * If the original request did not ask for SSE but the SDK returned an SSE
+ * response, convert it to application/json. Pass-through otherwise.
+ */
+export async function maybeConvertSseResponse(
+  request: Request,
+  response: Response
+): Promise<Response> {
+  if (
+    !clientAcceptsSSE(request) &&
+    response.headers.get('content-type')?.includes('text/event-stream')
+  ) {
+    return convertSseToJsonResponse(response);
+  }
+  return response;
+}
+
 export async function sha256(text: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(text);
