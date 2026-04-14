@@ -14,6 +14,8 @@ export { AxiomMCP } from './mcp';
 import { logger } from './logger';
 import { AxiomMCP } from './mcp';
 import {
+  clientAcceptsSSE,
+  convertSseToJson,
   ensureAcceptHeader,
   extractAccessToken,
   isInitializeRequest,
@@ -85,12 +87,18 @@ async function ensureSessionId(
   request: Request,
   env: Env,
   ctx: ExecutionContext,
-  mcpHandler: { fetch: (r: Request, e: Env, c: ExecutionContext) => Promise<Response> }
+  mcpHandler: {
+    fetch: (r: Request, e: Env, c: ExecutionContext) => Promise<Response>;
+  }
 ): Promise<Request> {
   if (request.headers.get('mcp-session-id')) return request;
 
   let body: unknown;
-  try { body = await request.clone().json(); } catch { return request; }
+  try {
+    body = await request.clone().json();
+  } catch {
+    return request;
+  }
   if (isInitializeRequest(body)) return request;
 
   const initResponse = await mcpHandler.fetch(
@@ -101,7 +109,11 @@ async function ensureSessionId(
         jsonrpc: '2.0',
         method: 'initialize',
         id: '_auto_init',
-        params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'axiom-auto-session', version: '1.0.0' } },
+        params: {
+          protocolVersion: '2024-11-05',
+          capabilities: {},
+          clientInfo: { name: 'axiom-auto-session', version: '1.0.0' },
+        },
       }),
     }),
     env,
@@ -113,9 +125,15 @@ async function ensureSessionId(
   const headers = new Headers(request.headers);
   if (sessionId) {
     headers.set('mcp-session-id', sessionId);
-    logger.info('Auto-initialized session for stateless client', { sessionId: sessionId.substring(0, 8) });
+    logger.info('Auto-initialized session for stateless client', {
+      sessionId: sessionId.substring(0, 8),
+    });
   }
-  return new Request(request.url, { method: request.method, headers, body: JSON.stringify(body) });
+  return new Request(request.url, {
+    method: request.method,
+    headers,
+    body: JSON.stringify(body),
+  });
 }
 
 // Create a wrapper to avoid direct instrumentation of OAuth provider internals
@@ -201,9 +219,27 @@ const handler = {
       if (url.pathname.startsWith('/mcp')) {
         logger.debug('Routing to MCP endpoint');
         const mcpHandler = AxiomMCP.serve('/mcp');
+
+        // Remember whether the original client accepts SSE *before*
+        // we inject the Accept header the SDK requires.
+        const wantsSSE = clientAcceptsSSE(request);
+
         let processed = ensureAcceptHeader(request);
         processed = await ensureSessionId(processed, env, ctx, mcpHandler);
-        return mcpHandler.fetch(processed, env, ctx);
+        const response = await mcpHandler.fetch(processed, env, ctx);
+
+        // Per MCP Streamable HTTP spec: when the client did NOT ask for
+        // text/event-stream, respond with application/json and a closed
+        // body.  This unblocks stateless clients like AWS DevOps Agent
+        // that hang on an SSE stream they never requested.
+        if (
+          !wantsSSE &&
+          response.headers.get('content-type')?.includes('text/event-stream')
+        ) {
+          return convertSseToJson(response);
+        }
+
+        return response;
       }
 
       logger.warn('API auth: no matching MCP endpoint for path', {

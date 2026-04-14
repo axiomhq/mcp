@@ -154,13 +154,9 @@ export async function refreshAccessToken({
  * since some clients (e.g. AWS DevOps agents) send the raw token
  * without the "Bearer " prefix.
  */
-export function extractAccessToken(
-  headerValue: string | null
-): string | null {
+export function extractAccessToken(headerValue: string | null): string | null {
   if (!headerValue) return null;
-  return headerValue.startsWith('Bearer ')
-    ? headerValue.slice(7)
-    : headerValue;
+  return headerValue.startsWith('Bearer ') ? headerValue.slice(7) : headerValue;
 }
 
 const REQUIRED_ACCEPT = 'application/json, text/event-stream';
@@ -192,8 +188,74 @@ export function isInitializeRequest(body: unknown): boolean {
   if (body == null || typeof body !== 'object') return false;
   const messages = Array.isArray(body) ? body : [body];
   return messages.some(
-    (m) => m != null && typeof m === 'object' && 'method' in m && m.method === 'initialize'
+    (m) =>
+      m != null &&
+      typeof m === 'object' &&
+      'method' in m &&
+      m.method === 'initialize'
   );
+}
+
+/**
+ * Returns true when the original client request includes
+ * `Accept: text/event-stream`, meaning it can handle SSE responses.
+ */
+export function clientAcceptsSSE(request: Request): boolean {
+  const accept = request.headers.get('accept') || '';
+  return accept.includes('text/event-stream');
+}
+
+/**
+ * Converts an SSE response from the Cloudflare agents SDK into a plain
+ * `application/json` response with a closed body.
+ *
+ * The MCP Streamable HTTP spec says: when a client does NOT include
+ * `Accept: text/event-stream`, the server MUST reply with
+ * `Content-Type: application/json` and close the connection.
+ * The agents SDK always returns SSE, so we do the conversion here.
+ *
+ * The SSE format we read is:
+ *   event: message\n
+ *   data: <json>\n
+ *   \n
+ */
+export async function convertSseToJson(
+  sseResponse: Response
+): Promise<Response> {
+  const body = await sseResponse.text();
+  const messages: unknown[] = [];
+
+  for (const line of body.split('\n')) {
+    if (line.startsWith('data: ')) {
+      try {
+        messages.push(JSON.parse(line.slice(6)));
+      } catch {
+        // skip malformed lines
+      }
+    }
+  }
+
+  const headers = new Headers();
+  headers.set('Content-Type', 'application/json');
+
+  // Preserve session ID so clients that do track it can still use it.
+  const sessionId = sseResponse.headers.get('mcp-session-id');
+  if (sessionId) {
+    headers.set('mcp-session-id', sessionId);
+  }
+
+  // Preserve CORS headers from the original response.
+  for (const [key, value] of sseResponse.headers.entries()) {
+    if (key.toLowerCase().startsWith('access-control-')) {
+      headers.set(key, value);
+    }
+  }
+
+  const json = messages.length === 1 ? messages[0] : messages;
+  return new Response(JSON.stringify(json), {
+    status: sseResponse.status,
+    headers,
+  });
 }
 
 export async function sha256(text: string): Promise<string> {
