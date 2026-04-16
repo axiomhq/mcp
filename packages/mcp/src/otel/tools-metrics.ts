@@ -27,6 +27,7 @@ export function registerMetricsTools({
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
+    { readOnlyHint: true },
     async ({ datasetName, serviceName, startTime, endTime }) => {
       const query = `
 ${sanitizeDatasetName(datasetName)}
@@ -69,6 +70,7 @@ ${sanitizeDatasetName(datasetName)}
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
+    { readOnlyHint: true },
     async ({ datasetName, serviceName, operationName, startTime, endTime }) => {
       const query = `
 ${sanitizeDatasetName(datasetName)}

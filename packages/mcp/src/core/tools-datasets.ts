@@ -28,6 +28,7 @@ export function registerDatasetTools({
     'listDatasets',
     'List all available datasets. For datasets you are curious about, use getDatasetFields() tool to find their schema.',
     {},
+    { readOnlyHint: true },
     async () => {
       const [datasets, integrations] = await Promise.all([
         getDatasets(publicClient),
@@ -67,6 +68,7 @@ export function registerDatasetTools({
     {
       datasetName: ParamDatasetName,
     },
+    { readOnlyHint: true },
     async ({ datasetName }) => {
       try {
         const fields = await getDatasetFields(publicClient, datasetName);
@@ -150,6 +152,7 @@ Common Patterns:
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
+    { readOnlyHint: true },
     async ({ apl, startTime, endTime }) => {
       try {
         const result = await runQuery(publicClient, apl, startTime, endTime);
@@ -166,6 +169,7 @@ Common Patterns:
     'getSavedQueries',
     'Retrieve saved/starred queries from Axiom - shows APL queries that users have bookmarked for reuse',
     {},
+    { readOnlyHint: true },
     async () => {
       const savedQueries = await getSavedQueries(publicClient);
 
