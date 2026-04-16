@@ -144,6 +144,7 @@ Fill gaps:
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
+    { readOnlyHint: true },
     async ({ mpl, datasetName, startTime, endTime }) => {
       try {
         const result = await runMetricsQuery(
@@ -170,6 +171,7 @@ Fill gaps:
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
+    { readOnlyHint: true },
     async ({ datasetName, startTime, endTime }) => {
       try {
         const metrics = await getMetrics(
@@ -200,6 +202,7 @@ Fill gaps:
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
+    { readOnlyHint: true },
     async ({ datasetName, startTime, endTime }) => {
       try {
         const tags = await getMetricTags(
@@ -231,6 +234,7 @@ Fill gaps:
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
+    { readOnlyHint: true },
     async ({ datasetName, value, startTime, endTime }) => {
       try {
         const result = await searchMetrics(
@@ -264,6 +268,7 @@ Fill gaps:
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
+    { readOnlyHint: true },
     async ({ datasetName, tag, startTime, endTime }) => {
       try {
         const values = await getMetricTagValues(

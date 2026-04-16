@@ -24,6 +24,7 @@ export function registerDiscoveryTools({
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
+    { readOnlyHint: true },
     async ({ datasetName, startTime, endTime }) => {
       const query = `
 ${sanitizeDatasetName(datasetName)}
@@ -53,6 +54,7 @@ ${sanitizeDatasetName(datasetName)}
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
+    { readOnlyHint: true },
     async ({ datasetName, serviceName, startTime, endTime }) => {
       const query = `
 ${sanitizeDatasetName(datasetName)}
@@ -82,6 +84,7 @@ ${sanitizeDatasetName(datasetName)}
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
+    { readOnlyHint: true },
     async ({ datasetName, startTime, endTime }) => {
       const query = `
 ${sanitizeDatasetName(datasetName)}

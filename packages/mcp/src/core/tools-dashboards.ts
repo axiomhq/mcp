@@ -25,6 +25,7 @@ export function registerDashboardTools({
     'listDashboards',
     'List all available dashboards. Shows user-created dashboards with their metadata.',
     {},
+    { readOnlyHint: true },
     async () => {
       try {
         const resources = await getDashboards(publicClient);
@@ -103,6 +104,7 @@ export function registerDashboardTools({
     {
       dashboardId: ParamDashboardID,
     },
+    { readOnlyHint: true },
     async ({ dashboardId }) => {
       try {
         const resource = await getDashboard(publicClient, dashboardId);
@@ -208,6 +210,7 @@ export function registerDashboardTools({
     {
       dashboardUid: ParamDashboardUID,
     },
+    { readOnlyHint: true },
     async ({ dashboardUid }) => {
       try {
         const resource = await getDashboard(publicClient, dashboardUid);
@@ -228,6 +231,7 @@ export function registerDashboardTools({
       ),
       message: ParamDashboardMessage,
     },
+    { destructiveHint: false },
     async ({ dashboardJson, uid, message }) => {
       let dashboard: Record<string, unknown>;
       try {
@@ -284,6 +288,7 @@ export function registerDashboardTools({
         ),
       message: ParamDashboardMessage,
     },
+    { destructiveHint: true },
     async ({ dashboardUid, dashboardJson, overwrite, version, message }) => {
       let dashboard: Record<string, unknown>;
       try {
@@ -330,6 +335,7 @@ export function registerDashboardTools({
     {
       dashboardUid: ParamDashboardUID,
     },
+    { destructiveHint: true },
     async ({ dashboardUid }) => {
       try {
         await deleteDashboardV2(publicClient, dashboardUid);

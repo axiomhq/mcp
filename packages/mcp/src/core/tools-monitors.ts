@@ -18,6 +18,7 @@ export function registerMonitorTools({
     {
       monitorId: ParamMonitorId,
     },
+    { readOnlyHint: true },
     async ({ monitorId }) => {
       const monitorHistory = await getMonitorsHistory(internalClient, [
         monitorId,
@@ -39,6 +40,7 @@ export function registerMonitorTools({
     'checkMonitors',
     'Check all monitors and their statuses.',
     {},
+    { readOnlyHint: true },
     async () => {
       const monitors = await getMonitors(publicClient);
 
