@@ -79,7 +79,7 @@ export function registerGenAITools({
       timeRange: ParamTimeRange,
       includeCosts: ParamIncludeCosts,
     },
-    { readOnlyHint: true },
+    { title: 'GenAI Overview', readOnlyHint: true },
     async ({
       datasetName,
       system,
@@ -178,7 +178,7 @@ ${costCalculation}
         .default('model')
         .describe('Field to group results by'),
     },
-    { readOnlyHint: true },
+    { title: 'Analyze Token Usage', readOnlyHint: true },
     async ({
       datasetName,
       system,
@@ -268,7 +268,7 @@ ${whereClause}
       capability: ParamGenAICapability,
       timeRange: ParamTimeRange,
     },
-    { readOnlyHint: true },
+    { title: 'Get Model Performance', readOnlyHint: true },
     async ({ datasetName, system, model, capability, timeRange }) => {
       const filters: string[] = [];
       if (system) {
@@ -345,7 +345,7 @@ ${whereClause}
         .default('model')
         .describe('Field to group cost breakdown by'),
     },
-    { readOnlyHint: true },
+    { title: 'Analyze Costs', readOnlyHint: true },
     async ({
       datasetName,
       system,
@@ -450,7 +450,7 @@ ${whereClause}
       timeRange: ParamTimeRange,
       limit: ParamLimit,
     },
-    { readOnlyHint: true },
+    { title: 'Find GenAI Errors', readOnlyHint: true },
     async ({
       datasetName,
       system,
@@ -538,7 +538,7 @@ ${searchClause}
       timeRange: ParamTimeRange,
       includeCosts: ParamIncludeCosts,
     },
-    { readOnlyHint: true },
+    { title: 'Compare Models', readOnlyHint: true },
     async ({ datasetName, models, capability, timeRange, includeCosts }) => {
       const modelFilter = `['attributes.gen_ai.request.model'] in (${models.map((m) => `"${m}"`).join(', ')})`;
       const capabilityFilter = capability
@@ -619,7 +619,7 @@ ${
       timeRange: ParamTimeRange,
       limit: ParamLimit,
     },
-    { readOnlyHint: true },
+    { title: 'Analyze Tool Usage', readOnlyHint: true },
     async ({ datasetName, toolName, model, timeRange, limit }) => {
       const filters: string[] = [];
       filters.push(`isnotnull(['attributes.gen_ai.tool.name'])`);
@@ -685,7 +685,7 @@ ${whereClause}
       step: ParamGenAIStep,
       timeRange: ParamTimeRange,
     },
-    { readOnlyHint: true },
+    { title: 'Get Capability Metrics', readOnlyHint: true },
     async ({ datasetName, capability, system, model, step, timeRange }) => {
       const filters: string[] = [];
       filters.push(`['attributes.gen_ai.capability.name'] == "${capability}"`);

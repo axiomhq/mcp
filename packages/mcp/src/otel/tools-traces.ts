@@ -61,7 +61,7 @@ export function registerTracesTools({
       traceId: ParamOTelTraceId,
       timeEstimate: ParamTimeEstimate,
     },
-    { readOnlyHint: true },
+    { title: 'Get Trace Spans', readOnlyHint: true },
     async ({ datasetName, traceId, timeEstimate }) => {
       const query = `
 ${sanitizeDatasetName(datasetName)}
@@ -106,7 +106,7 @@ ${sanitizeDatasetName(datasetName)}
       timeRange: ParamTimeRange,
       limit: ParamLimit,
     },
-    { readOnlyHint: true },
+    { title: 'Find Traces', readOnlyHint: true },
     async ({
       datasetName,
       serviceName,
@@ -182,7 +182,7 @@ ${whereClause}
       ),
       limit: ParamLimit,
     },
-    { readOnlyHint: true },
+    { title: 'Find Similar Traces', readOnlyHint: true },
     async ({ datasetName, referenceTraceId, timeRange, limit }) => {
       // First get the reference trace pattern
       const referenceQuery = `
@@ -269,7 +269,7 @@ by trace_id
       datasetName: ParamOTelTracesDataset,
       traceId: ParamOTelTraceId.describe('Trace ID to analyze'),
     },
-    { readOnlyHint: true },
+    { title: 'Get Trace Critical Path', readOnlyHint: true },
     async ({ datasetName, traceId }) => {
       const query = `
 ${sanitizeDatasetName(datasetName)}
@@ -318,7 +318,7 @@ ${sanitizeDatasetName(datasetName)}
       anomalyType: ParamAnomalyType,
       limit: ParamLimit,
     },
-    { readOnlyHint: true },
+    { title: 'Find Trace Anomalies', readOnlyHint: true },
     async ({
       datasetName,
       serviceName,

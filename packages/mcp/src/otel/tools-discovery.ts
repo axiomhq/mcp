@@ -24,7 +24,7 @@ export function registerDiscoveryTools({
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
-    { readOnlyHint: true },
+    { title: 'List OTel Services', readOnlyHint: true },
     async ({ datasetName, startTime, endTime }) => {
       const query = `
 ${sanitizeDatasetName(datasetName)}
@@ -54,7 +54,7 @@ ${sanitizeDatasetName(datasetName)}
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
-    { readOnlyHint: true },
+    { title: 'List OTel Operations', readOnlyHint: true },
     async ({ datasetName, serviceName, startTime, endTime }) => {
       const query = `
 ${sanitizeDatasetName(datasetName)}
@@ -84,7 +84,7 @@ ${sanitizeDatasetName(datasetName)}
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
-    { readOnlyHint: true },
+    { title: 'Get Error Breakdown', readOnlyHint: true },
     async ({ datasetName, startTime, endTime }) => {
       const query = `
 ${sanitizeDatasetName(datasetName)}
