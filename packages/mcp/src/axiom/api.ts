@@ -215,14 +215,17 @@ type ResolvedEndpoint = {
   region: string | undefined;
 };
 
-// Regions API: fetches edge domains from /api/internal/regions/axiom on the
-// cloud.* host (derived from the api.* base URL). Cached for 24 hours like the FE.
-const RegionSchema = z.object({
-  id: z.string(),
-  domain: z.string(),
-});
+// Regions API: fetches edge domains from /api/internal/edge-deployments/axiom
+// on the app.* host (derived from the api.* base URL). Cached for 24 hours like the FE.
+const EdgeDeploymentSchema = z
+  .object({
+    id: z.string(),
+    domain: z.string(),
+  })
+  .passthrough();
 const RegionsResponseSchema = z.object({
-  axiom: z.array(RegionSchema),
+  axiom: z.array(EdgeDeploymentSchema),
+  byoc: z.array(EdgeDeploymentSchema),
 });
 
 type RegionMap = Map<string, string>; // region id → edge domain
@@ -247,7 +250,7 @@ async function getRegionMap(client: Client): Promise<RegionMap> {
     const appUrl = apiToAppUrl(client.getBaseUrl());
     const response = await client.fetch(
       'get',
-      '/api/internal/regions/axiom',
+      '/api/internal/edge-deployments/axiom',
       RegionsResponseSchema,
       undefined,
       { baseUrl: appUrl }
