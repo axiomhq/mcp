@@ -1,0 +1,7 @@
+apl-analyzer.wasm:
+  source: internal APL parser artifacts
+  source revision: 0e78948f6b1a62fa1dc5487ccb085e6cd39ab54d
+  compiler: go1.25.8
+  built: 2026-04-08
+
+wasm_exec.js: go1.25.8 (for apl-analyzer.wasm)
