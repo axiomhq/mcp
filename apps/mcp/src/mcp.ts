@@ -20,29 +20,33 @@ export class AxiomMCP extends McpAgent<
   });
 
   async init() {
-    logger.info('Initializing MCP server', { orgId: this.props.orgId });
+    const props = this.props!;
+
+    logger.info('Initializing MCP server', { orgId: props.orgId });
 
     const integrations = await this.getIntegrations();
     logger.info('Loaded integrations', { count: integrations.length });
 
     registerAxiomMcpTools({
       server: this.server,
-      accessToken: this.props.accessToken,
+      accessToken: props.accessToken,
       apiUrl: this.env.ATLAS_API_URL,
       internalUrl: this.env.ATLAS_INTERNAL_URL,
       integrations,
       logger,
-      orgId: this.props.orgId,
-      enableOtel: this.props.withOTel === true,
-      formatOptions: this.props.maxCells
-        ? { maxCells: this.props.maxCells }
+      orgId: props.orgId,
+      enableOtel: props.withOTel === true,
+      formatOptions: props.maxCells
+        ? { maxCells: props.maxCells }
         : undefined,
     });
   }
 
   async getIntegrations() {
-    const lastCheckKey = `${this.props.tokenKey}:integrations:lastCheck`;
-    const integrationsKey = `${this.props.tokenKey}:integrations:list`;
+    const props = this.props!;
+
+    const lastCheckKey = `${props.tokenKey}:integrations:lastCheck`;
+    const integrationsKey = `${props.tokenKey}:integrations:list`;
 
     try {
       const lastCheckStr = await this.env.MCP_KV.get(lastCheckKey);
@@ -58,8 +62,8 @@ export class AxiomMCP extends McpAgent<
         try {
           const internalClient = new Client(
             this.env.ATLAS_INTERNAL_URL,
-            this.props.accessToken,
-            this.props.orgId
+            props.accessToken,
+            props.orgId
           );
 
           const startTime = Date.now();
