@@ -77,7 +77,7 @@
     },
     {
       "name": "searchMetrics",
-      "description": "Search for metrics matching a known tag value (e.g. a service name, host, or endpoint). Returns metric names associated with the given value. Useful when you know a tag value but not which metrics contain it.",
+      "description": "Start here when the user mentions a specific service, host, or entity name and you need to work with metrics data. Searches tag values across all metrics in a dataset and returns the metric names that are associated with the given entity. This is the fastest way to go from a known entity name (e.g.",
       "category": "Core"
     },
     {

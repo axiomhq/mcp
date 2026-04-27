@@ -259,14 +259,15 @@ Use listMetrics() instead when you have no entity name to search by and need a f
           endTime
         );
 
-        const metricNames = Object.keys(result);
-        return markdownResult()
-          .h1(`Metrics matching ${Format.ident(value)} in ${Format.ident(datasetName)}`)
-          .list(
-            metricNames,
-            'No metrics found matching this value.'
-          )
-          .result();
+        const rows = Object.entries(result).map(([metric, tags]) => [metric, tags.join(', ')]);
+        const builder = markdownResult()
+          .h1(`Metrics matching ${Format.ident(value)} in ${Format.ident(datasetName)}`);
+        if (rows.length === 0) {
+          builder.p('No metrics found matching this value.');
+        } else {
+          builder.table(['Metric', 'Matched Tags'], rows);
+        }
+        return builder.result();
       } catch (error) {
         return newToolErrorWithReason('Failed to search metrics', error);
       }
