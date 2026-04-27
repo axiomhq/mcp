@@ -227,14 +227,28 @@ Fill gaps:
 
   server.tool(
     'searchMetrics',
-    'Search for metrics matching a known tag value (e.g. a service name, host, or endpoint). Returns metric names associated with the given value. Useful when you know a tag value but not which metrics contain it.',
+    `Start here when the user mentions a specific service, host, or entity name and you need to work with metrics data.
+
+Searches tag values across all metrics in a dataset and returns the metric names that are associated with the given entity. This is the fastest way to go from a known entity name (e.g. "checkout-service", "api-gateway", "us-east-1") to a concrete list of metric names you can actually query.
+
+Returns a map of metric name → list of matched tag dimensions, e.g.:
+  { "http.server.duration": ["service.name"], "http.requests.total": ["service.name", "host"] }
+
+**Time range:** Use a narrow window — 15 minutes is ideal. The endpoint scans live index data, so a shorter range returns results faster and the metric landscape rarely changes minute-to-minute. Widen only if the entity is sparse (batch jobs, sensors) and nothing comes back.
+
+**Workflow:**
+1. Call this tool with the entity name to get relevant metric names.
+2. Use listMetricTags() / getMetricTagValues() to discover filter dimensions for those metrics.
+3. Call queryMetrics() with an MPL query targeting the specific metric and filters.
+
+Use listMetrics() instead when you have no entity name to search by and need a full catalogue of what's in the dataset.`,
     {
       datasetName: ParamDatasetName,
       value: ParamSearchValue,
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
-    { title: 'Search Metrics', readOnlyHint: true },
+    { title: 'Search Metrics by Entity', readOnlyHint: true },
     async ({ datasetName, value, startTime, endTime }) => {
       try {
         const result = await searchMetrics(
