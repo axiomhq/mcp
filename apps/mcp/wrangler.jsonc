@@ -126,6 +126,11 @@
         "traces": {
           "enabled": true,
           "destinations": ["axiom-traces-prod"]
+        },
+        "logs": {
+          "enabled": true,
+          "head_sampling_rate": 1,
+          "destinations": ["mcp-logs-prod"]
         }
       },
       "durable_objects": {
