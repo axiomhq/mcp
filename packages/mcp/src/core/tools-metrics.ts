@@ -234,7 +234,7 @@ Searches tag values across all metrics in a dataset and returns the metric names
 Returns a map of metric name → list of matched tag dimensions, e.g.:
   { "http.server.duration": ["service.name"], "http.requests.total": ["service.name", "host"] }
 
-**Time range:** Use \`now-3h\` to \`now\`. The find-metrics search reads only from indexed blocks in PostgreSQL — it does not inspect the ingest cache. Actively-ingesting metrics are flushed from the cache to the index every 1–2 hours (rollover window, larger under memory pressure). Until that flush occurs, a metric will not appear here even though queryMetrics() can already see its data. Newly-created metrics may be invisible for up to 2 hours after first write.
+**Time range:** Use a window of at least 3 hours. Recently-ingested data can take up to 2 hours to become searchable here, so narrow windows may return empty results even when data exists. For recent data, default to \`now-3h\` / \`now\`. For historical data, use whatever window covers the period you care about — e.g. \`now-14d\` / \`now-7d\` is valid.
 
 **Workflow:**
 1. Call this tool with the entity name to get relevant metric names.
