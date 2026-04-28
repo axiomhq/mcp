@@ -234,7 +234,7 @@ Searches tag values across all metrics in a dataset and returns the metric names
 Returns a map of metric name → list of matched tag dimensions, e.g.:
   { "http.server.duration": ["service.name"], "http.requests.total": ["service.name", "host"] }
 
-**Time range:** Use at least 1 hour (e.g. `now-1h`). The find-metrics index lags behind the actual data by up to ~30 minutes, so windows shorter than that may return empty results even when data exists. Widen to a few hours for sparse entities (batch jobs, sensors).
+**Time range:** Use at least 1 hour (e.g. \`now-1h\`). The find-metrics index lags behind the actual data by up to ~30 minutes, so windows shorter than that may return empty results even when data exists. Widen to a few hours for sparse entities (batch jobs, sensors).
 
 **Workflow:**
 1. Call this tool with the entity name to get relevant metric names.
