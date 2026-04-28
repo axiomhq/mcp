@@ -196,7 +196,7 @@ Fill gaps:
 
   server.tool(
     'listMetricTags',
-    'List all available tags (dimensions) in a metrics dataset. Tags can be used to filter and group metrics queries.',
+    'List all available tags (dimensions) in a metrics dataset (kind `otel-metrics-v1`). Tags can be used to filter and group metrics queries.',
     {
       datasetName: ParamDatasetName,
       startTime: ParamStartTime,
@@ -261,7 +261,7 @@ Fill gaps:
 
   server.tool(
     'getMetricTagValues',
-    'List all values for a specific tag in a metrics dataset. Useful for discovering filter values before querying.',
+    'List all values for a specific tag in a metrics dataset (kind `otel-metrics-v1`). Useful for discovering filter values before querying.',
     {
       datasetName: ParamDatasetName,
       tag: ParamTagName,

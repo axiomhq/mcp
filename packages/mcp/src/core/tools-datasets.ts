@@ -26,7 +26,10 @@ export function registerDatasetTools({
 }: ToolContext) {
   server.tool(
     'listDatasets',
-    'List all available datasets. For datasets you are curious about, use getDatasetFields() tool to find their schema.',
+    `List all available datasets. The \`kind\` column determines which tools to use next:
+- \`events\` / \`otel.traces\` / other: use \`queryDataset()\` (APL) and \`getDatasetFields()\`
+- \`otel.traces\`: also use the \`otel-*\` tools for service/trace analysis
+- \`otel-metrics-v1\`: use \`listMetrics()\`, \`queryMetrics()\`, \`searchMetrics()\`, \`listMetricTags()\`, \`getMetricTagValues()\` — do NOT use \`queryDataset()\` or \`getDatasetFields()\` for these`,
     {},
     { title: 'List Datasets', readOnlyHint: true },
     async () => {
@@ -64,7 +67,7 @@ export function registerDatasetTools({
 
   server.tool(
     'getDatasetFields',
-    'List all fields in a dataset.',
+    'List all fields in an events or traces dataset (kind `events`, `otel.traces`, etc.). For metrics datasets (kind `otel-metrics-v1`), use `listMetrics()` and `listMetricTags()` instead — field schemas are not meaningful for that dataset type.',
     {
       datasetName: ParamDatasetName,
     },
@@ -91,6 +94,7 @@ export function registerDatasetTools({
     'queryDataset',
     `# Instructions
 1. Query Axiom datasets using Axiom Processing Language (APL). The query must be a valid APL query string.
+   **Only use this for \`events\`, \`otel.traces\`, and similar datasets. Do NOT use for \`otel-metrics-v1\` datasets — use \`queryMetrics()\` instead.**
 2. ALWAYS get the schema of the dataset before running queries rather than guessing.
     You can do this by getting a single event and projecting all fields.
 3. Keep in mind that there's a maximum row limit of 65000 rows per query.
