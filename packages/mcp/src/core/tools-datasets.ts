@@ -28,7 +28,6 @@ export function registerDatasetTools({
     'listDatasets',
     `List all available datasets. The "kind" column determines which tools to use next:
 - events / otel.traces / other: use queryDataset() (APL) and getDatasetFields()
-- otel.traces: also use the otel-* tools for service/trace analysis
 - otel-metrics-v1: use listMetrics(), queryMetrics(), searchMetrics(), listMetricTags(), getMetricTagValues() — do NOT use queryDataset() or getDatasetFields() for these`,
     {},
     { title: 'List Datasets', readOnlyHint: true },
