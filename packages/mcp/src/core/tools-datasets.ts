@@ -26,10 +26,10 @@ export function registerDatasetTools({
 }: ToolContext) {
   server.tool(
     'listDatasets',
-    `List all available datasets. The \`kind\` column determines which tools to use next:
-- \`events\` / \`otel.traces\` / other: use \`queryDataset()\` (APL) and \`getDatasetFields()\`
-- \`otel.traces\`: also use the \`otel-*\` tools for service/trace analysis
-- \`otel-metrics-v1\`: use \`listMetrics()\`, \`queryMetrics()\`, \`searchMetrics()\`, \`listMetricTags()\`, \`getMetricTagValues()\` — do NOT use \`queryDataset()\` or \`getDatasetFields()\` for these`,
+    'List all available datasets. The "kind" column determines which tools to use next:\n' +
+    '- events / otel.traces / other: use queryDataset() (APL) and getDatasetFields()\n' +
+    '- otel.traces: also use the otel-* tools for service/trace analysis\n' +
+    '- otel-metrics-v1: use listMetrics(), queryMetrics(), searchMetrics(), listMetricTags(), getMetricTagValues() — do NOT use queryDataset() or getDatasetFields() for these',
     {},
     { title: 'List Datasets', readOnlyHint: true },
     async () => {
