@@ -2,7 +2,7 @@ import z from 'zod';
 import { ParamDatasetName } from '../schema';
 
 export const ParamOTelTracesDataset = ParamDatasetName.describe(
-  'The dataset name of kind "otel.traces". To find valid datasets use the listDatasts() tool and check the kind.'
+  'The dataset name of kind "otel.traces". To find valid datasets use the listDatasets() tool and check the kind.'
 );
 
 export const ParamOTelServiceName = z
