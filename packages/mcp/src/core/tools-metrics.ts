@@ -227,14 +227,28 @@ Fill gaps:
 
   server.tool(
     'searchMetrics',
-    'Search for metrics matching a known tag value (e.g. a service name, host, or endpoint). Returns metric names associated with the given value. Useful when you know a tag value but not which metrics contain it.',
+    `Start here when the user mentions a specific service, host, or entity name and you need to work with metrics data.
+
+Searches tag values across all metrics in a dataset and returns the metric names that are associated with the given entity. This is the fastest way to go from a known entity name (e.g. "checkout-service", "api-gateway", "us-east-1") to a concrete list of metric names you can actually query.
+
+Returns a map of metric name → list of matched tag dimensions, e.g.:
+  { "http.server.duration": ["service.name"], "http.requests.total": ["service.name", "host"] }
+
+**Time range:** Use a window of at least 3 hours. Recently-ingested data can take up to 2 hours to become searchable here, so narrow windows may return empty results even when data exists. For recent data, default to \`now-3h\` / \`now\`. For historical data, use whatever window covers the period you care about — e.g. \`now-14d\` / \`now-7d\` is valid.
+
+**Workflow:**
+1. Call this tool with the entity name to get relevant metric names.
+2. Use listMetricTags() / getMetricTagValues() to discover filter dimensions for those metrics.
+3. Call queryMetrics() with an MPL query targeting the specific metric and filters.
+
+Use listMetrics() instead when you have no entity name to search by and need a full catalogue of what's in the dataset.`,
     {
       datasetName: ParamDatasetName,
       value: ParamSearchValue,
       startTime: ParamStartTime,
       endTime: ParamEndTime,
     },
-    { title: 'Search Metrics', readOnlyHint: true },
+    { title: 'Search Metrics by Entity', readOnlyHint: true },
     async ({ datasetName, value, startTime, endTime }) => {
       try {
         const result = await searchMetrics(
@@ -245,14 +259,15 @@ Fill gaps:
           endTime
         );
 
-        const metricNames = Object.keys(result);
-        return markdownResult()
-          .h1(`Metrics matching ${Format.ident(value)} in ${Format.ident(datasetName)}`)
-          .list(
-            metricNames,
-            'No metrics found matching this value.'
-          )
-          .result();
+        const rows = Object.entries(result).map(([metric, tags]) => [metric, tags.join(', ')]);
+        const builder = markdownResult()
+          .h1(`Metrics matching ${Format.ident(value)} in ${Format.ident(datasetName)}`);
+        if (rows.length === 0) {
+          builder.p('No metrics found matching this value.');
+        } else {
+          builder.table(['Metric', 'Matched Tags'], rows);
+        }
+        return builder.result();
       } catch (error) {
         return newToolErrorWithReason('Failed to search metrics', error);
       }

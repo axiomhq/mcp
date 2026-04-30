@@ -65,7 +65,9 @@ export const ParamSearchValue = z
   .string()
   .trim()
   .min(1)
-  .describe('The tag value to search for (e.g. "frontend", "api-gateway").');
+  .describe(
+    'The entity name to search for across all tag values (e.g. a service name "checkout-service", a host "prod-worker-1", a region "us-east-1"). The search matches this exact string against tag values — use the canonical name as it appears in your infrastructure.'
+  );
 
 export const ParamDashboardID = z
   .string()
