@@ -45,6 +45,7 @@ export function registerDatasetTools({
               : dataset.name,
           kind:
             integrations.find((i) => i.dataset === dataset.name)?.kind ||
+            dataset.kind ||
             DefaultDatasetKind,
           description: dataset.description,
         };
